@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 tailwind.config = {
   theme: {
@@ -37,7 +38,6 @@ body { margin: 0; background: var(--deep); color: var(--txt); font-family: 'IBM 
 ::-webkit-scrollbar-track { background: var(--deep); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--txt3); }
-
 #main-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(8,12,22,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
 .nav-inner { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 72px; }
 .nav-logo { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 28px; letter-spacing: 3px; color: var(--cyan); text-transform: uppercase; cursor: pointer; }
@@ -58,11 +58,9 @@ body { margin: 0; background: var(--deep); color: var(--txt); font-family: 'IBM 
 .user-dropdown button i { width: 16px; text-align: center; font-size: 13px; }
 .scan-line { position: absolute; bottom: -1px; left: 0; width: 120px; height: 2px; background: linear-gradient(90deg, transparent, var(--cyan), transparent); animation: scanMove 4s ease-in-out infinite; }
 @keyframes scanMove { 0%,100%{ left:-120px; } 50%{ left:100%; } }
-
 .page { display: none; min-height: 100vh; width: 100%; }
 .page.active { display: block; animation: pageFade 0.35s ease; }
 @keyframes pageFade { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
-
 .hud-frame { position: relative; }
 .hud-corner { position: absolute; width: 18px; height: 18px; pointer-events: none; z-index: 2; }
 .hud-corner.tl { top:-1px; left:-1px; border-top:2px solid var(--cyan); border-left:2px solid var(--cyan); }
@@ -70,24 +68,20 @@ body { margin: 0; background: var(--deep); color: var(--txt); font-family: 'IBM 
 .hud-corner.bl { bottom:-1px; left:-1px; border-bottom:2px solid var(--cyan); border-left:2px solid var(--cyan); }
 .hud-corner.br { bottom:-1px; right:-1px; border-bottom:2px solid var(--cyan); border-right:2px solid var(--cyan); }
 .hud-corner.amber.tl, .hud-corner.amber.tr, .hud-corner.amber.bl, .hud-corner.amber.br { border-color: var(--amber); }
-
 .sys-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--txt3); }
 .sys-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
 .sys-dot.cyan { background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
 .sys-dot.amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
 .sys-dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
-
 .dot-grid { background-image: radial-gradient(circle, rgba(30,48,72,0.5) 1px, transparent 1px); background-size: 28px 28px; }
 .sw-card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 0; overflow: hidden; transition: border-color 0.25s, box-shadow 0.25s; }
 .sw-card:hover { border-color: rgba(0,229,255,0.25); box-shadow: 0 0 30px rgba(0,229,255,0.05); }
-
 .tag-pill { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; padding: 4px 10px; border-radius: 2px; border: 1px solid var(--border); background: var(--elevated); color: var(--txt2); text-transform: uppercase; }
 .tag-pill.collab { border-color: rgba(0,230,118,0.4); color: var(--green); background: rgba(0,230,118,0.06); }
 .tag-pill.closed { border-color: rgba(74,90,120,0.4); color: var(--txt3); }
 .collab-pulse { display: inline-flex; align-items: center; gap: 5px; }
 .collab-pulse .cp-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: cpulse 2s ease infinite; }
 @keyframes cpulse { 0%,100%{ box-shadow: 0 0 0 0 rgba(0,230,118,0.4); } 50%{ box-shadow: 0 0 0 5px rgba(0,230,118,0); } }
-
 .sw-btn { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; padding: 14px 28px; border-radius: 3px; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; }
 .sw-btn-primary { background: var(--cyan); color: #080C16; }
 .sw-btn-primary:hover { background: #33EBFF; box-shadow: 0 0 20px rgba(0,229,255,0.3); }
@@ -100,18 +94,12 @@ body { margin: 0; background: var(--deep); color: var(--txt); font-family: 'IBM 
 .sw-btn-follow { border: 1px solid var(--green); color: var(--green); background: transparent; }
 .sw-btn-follow:hover { background: rgba(0,230,118,0.1); }
 .sw-btn-following { border: 1px solid var(--txt3); color: var(--txt3); background: transparent; }
-
 .sw-input { width: 100%; padding: 14px 16px; font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; background: var(--deep); border: 1px solid var(--border); border-radius: 3px; color: var(--txt); outline: none; transition: border-color 0.2s; }
 .sw-input:focus { border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(0,229,255,0.1); }
 .sw-input::placeholder { color: var(--txt3); }
 textarea.sw-input { resize: vertical; min-height: 100px; }
 .sw-label { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--txt2); margin-bottom: 6px; display: block; }
-
-.upload-zone {
-  border: 2px dashed var(--border); border-radius: 4px; padding: 24px; text-align: center;
-  cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
-  min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-}
+.upload-zone { border: 2px dashed var(--border); border-radius: 4px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .upload-zone:hover { border-color: var(--cyan); background: rgba(0,229,255,0.04); }
 .upload-zone.has-image { padding: 0; border-style: solid; border-color: var(--cyan); }
 .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 2; }
@@ -120,21 +108,14 @@ textarea.sw-input { resize: vertical; min-height: 100px; }
 .upload-zone .uz-preview { display: none; width: 100%; height: 100%; position: absolute; inset: 0; }
 .upload-zone.has-image .uz-preview { display: block; }
 .upload-zone .uz-preview img { width: 100%; height: 100%; object-fit: cover; }
-.upload-zone .uz-remove {
-  position: absolute; top: 8px; right: 8px; z-index: 3;
-  width: 28px; height: 28px; border-radius: 50%; background: rgba(0,0,0,0.7);
-  border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 12px;
-  cursor: pointer; display: none; align-items: center; justify-content: center;
-}
+.upload-zone .uz-remove { position: absolute; top: 8px; right: 8px; z-index: 3; width: 28px; height: 28px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 12px; cursor: pointer; display: none; align-items: center; justify-content: center; }
 .upload-zone.has-image .uz-remove { display: flex; }
 .upload-zone .uz-label { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 1px; color: var(--txt2); }
 .upload-zone .uz-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; color: var(--txt3); }
-
 #modal-overlay { position: fixed; inset: 0; z-index: 2000; display: none; background: rgba(4,6,10,0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 24px; }
 #modal-overlay.open { display: flex; }
 #modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 4px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; animation: modalIn 0.3s ease; }
 @keyframes modalIn { from { opacity:0; transform: scale(0.95) translateY(16px); } to { opacity:1; transform: scale(1) translateY(0); } }
-
 .toast { font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; padding: 14px 20px; border-radius: 3px; min-width: 280px; border: 1px solid var(--border); background: var(--elevated); color: var(--txt); display: flex; align-items: center; gap: 10px; animation: toastIn 0.3s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
 .toast.success { border-left: 3px solid var(--green); }
 .toast.info { border-left: 3px solid var(--cyan); }
@@ -142,7 +123,6 @@ textarea.sw-input { resize: vertical; min-height: 100px; }
 .toast.removing { animation: toastOut 0.3s ease forwards; }
 @keyframes toastIn { from { opacity:0; transform: translateX(40px); } to { opacity:1; transform: translateX(0); } }
 @keyframes toastOut { to { opacity:0; transform: translateX(40px); } }
-
 .bts-card { position: relative; cursor: pointer; user-select: none; -webkit-user-select: none; }
 .bts-card img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .bts-layer { position: absolute; inset: 0; clip-path: circle(0px at 50% 50%); }
@@ -150,7 +130,6 @@ textarea.sw-input { resize: vertical; min-height: 100px; }
 .bts-card.revealing .bts-indicator { opacity: 0; }
 .bts-label-reveal { position: absolute; top: 16px; right: 16px; z-index: 3; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 2px; color: var(--amber); background: rgba(8,12,22,0.8); padding: 6px 12px; border: 1px solid rgba(255,179,0,0.3); border-radius: 2px; opacity: 0; transition: opacity 0.2s; }
 .bts-card.revealing .bts-label-reveal { opacity: 1; }
-
 #map-container { width: 100%; height: calc(100vh - 72px); position: relative; }
 .leaflet-container { background: var(--deep) !important; }
 .map-panel { position: absolute; z-index: 800; background: rgba(17,24,39,0.95); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 4px; }
@@ -160,10 +139,8 @@ textarea.sw-input { resize: vertical; min-height: 100px; }
 .custom-marker { width: 32px; height: 32px; border-radius: 50%; border: 2px solid; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 12px rgba(0,0,0,0.5); }
 .custom-marker.spot { border-color: var(--cyan); background: rgba(0,229,255,0.2); color: var(--cyan); }
 .custom-marker.store { border-color: var(--amber); background: rgba(255,179,0,0.2); color: var(--amber); }
-
 .thread-line { position: absolute; left: 28px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--cyan), transparent); }
 .chapter-dot { position: absolute; left: 22px; top: 24px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--cyan); background: var(--deep); z-index: 2; }
-
 .profile-banner { height: 160px; background: linear-gradient(135deg, rgba(0,229,255,0.06) 0%, rgba(255,179,0,0.04) 50%, var(--deep) 100%); border-bottom: 1px solid var(--border); }
 .profile-banner.dot-grid { background-image: radial-gradient(circle, rgba(30,48,72,0.5) 1px, transparent 1px); background-size: 28px 28px; }
 .profile-avatar { width: 96px; height: 96px; border-radius: 4px; border: 3px solid var(--card); margin-top: -48px; position: relative; z-index: 2; object-fit: cover; }
@@ -173,13 +150,10 @@ textarea.sw-input { resize: vertical; min-height: 100px; }
 .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--txt3); text-transform: uppercase; margin-top: 2px; }
 .clickable-name { cursor: pointer; transition: color 0.15s; }
 .clickable-name:hover { color: var(--cyan) !important; }
-
 #fab { position: fixed; bottom: 28px; right: 28px; z-index: 900; width: 60px; height: 60px; border-radius: 50%; background: var(--cyan); color: #080C16; border: none; font-size: 26px; cursor: pointer; box-shadow: 0 4px 20px rgba(0,229,255,0.3); transition: 0.2s; display: none; align-items: center; justify-content: center; }
 #fab:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(0,229,255,0.45); }
 #fab.visible { display: flex; }
 .collab-check { accent-color: var(--green); width: 18px; height: 18px; cursor: pointer; }
-
-/* --- Direct Messaging Styles --- */
 .msg-layout { display: flex; flex-direction: column; height: calc(100vh - 72px); background: var(--deep); }
 .msg-list-panel { flex-shrink: 0; height: 100%; overflow-y: auto; border-right: 1px solid var(--border); }
 .msg-list-item { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
@@ -200,8 +174,6 @@ textarea.sw-input { resize: vertical; min-height: 100px; }
 .msg-input-area { padding: 16px 24px; border-top: 1px solid var(--border); background: var(--card); display: flex; gap: 12px; align-items: center; }
 .msg-input-area input { flex: 1; }
 .msg-empty-state { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; color: var(--txt3); }
-
-/* --- Contest Styles --- */
 .contest-subtabs { display: flex; border-bottom: 1px solid var(--border); margin-top: 16px; }
 .contest-subtab { flex: 1; text-align: center; padding: 14px 0; font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 2px; color: var(--txt3); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none; }
 .contest-subtab:hover { color: var(--txt2); }
@@ -213,12 +185,23 @@ textarea.sw-input { resize: vertical; min-height: 100px; }
 .contest-fab.visible { display: flex; }
 .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
 .accordion-body.open { max-height: 200px; }
-
-@media (min-width: 768px) {
-  .msg-layout { flex-direction: row; }
-  .msg-list-panel { width: 320px; height: auto; }
-}
-
+.badge-rack { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.badge-item { position: relative; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; background: var(--card); border: 2px solid var(--border); color: var(--txt3); font-size: 18px; }
+.badge-item:hover { transform: translateY(-4px); }
+.badge-item.t1 { border-color: #FFD700; color: #FFD700; box-shadow: 0 0 12px rgba(255, 215, 0, 0.3); }
+.badge-item.t2 { border-color: #C0C0C0; color: #C0C0C0; box-shadow: 0 0 8px rgba(192, 192, 192, 0.2); }
+.badge-item.t3 { border-color: #CD7F32; color: #CD7F32; box-shadow: 0 0 8px rgba(205, 127, 50, 0.2); }
+.badge-popup { position: absolute; top: 120%; left: 50%; transform: translateX(-50%) scale(0.9); width: 220px; background: var(--elevated); border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); z-index: 50; opacity: 0; pointer-events: none; transition: all 0.2s ease; overflow: hidden; }
+.badge-item:hover .badge-popup { opacity: 1; transform: translateX(-50%) scale(1); pointer-events: auto; }
+.badge-popup img { width: 100%; height: 120px; object-fit: cover; border-bottom: 1px solid var(--border); }
+.badge-popup-info { padding: 12px; text-align: center; background: var(--elevated); }
+.ad-slot-container { max-width: 960px; margin: 0 auto 24px; }
+.ad-slot-hud { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 16px; text-align: center; position: relative; overflow: hidden; min-height: 100px; display: flex; align-items: center; justify-content: center; }
+.ad-slot-hud::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--cyan), transparent); opacity: 0.3; }
+.ad-label { position: absolute; top: 4px; right: 8px; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 1px; color: var(--txt3); text-transform: uppercase; }
+.ad-mobile-sticky { position: fixed; bottom: 0; left: 0; right: 0; z-index: 950; background: rgba(8,12,22,0.95); backdrop-filter: blur(8px); border-top: 1px solid var(--border); padding: 8px; text-align: center; display: none; }
+@media (max-width: 768px) { .ad-mobile-sticky { display: block; } .ad-mobile-sticky .ad-slot-hud { border: none; background: transparent; min-height: 60px; } }
+@media (min-width: 768px) { .msg-layout { flex-direction: row; } .msg-list-panel { width: 320px; height: auto; } }
 @media (max-width: 768px) {
   .nav-inner { padding: 0 12px; height: 60px; }
   .nav-logo { font-size: 20px; letter-spacing: 2px; }
@@ -233,7 +216,6 @@ textarea.sw-input { resize: vertical; min-height: 100px; }
 </style>
 </head>
 <body>
-
 <nav id="main-nav" role="navigation" aria-label="Main navigation">
   <div class="nav-inner">
     <div class="nav-logo" onclick="showPage('feed')" tabindex="0" role="button" aria-label="SmallWorld Home">SMALL<span>WORLD</span></div>
@@ -246,16 +228,15 @@ textarea.sw-input { resize: vertical; min-height: 100px; }
       <button class="nav-tab" data-page="msg" onclick="showPage('msg')" role="tab" aria-selected="false"><i class="fa-solid fa-comment-dots"></i> <span class="hidden sm:inline">DMs</span></button>
     </div>
     <div class="nav-user">
-      <button id="nav-avatar-btn" class="nav-avatar-btn" onclick="toggleUserDropdown(event)" aria-label="User menu"><img id="nav-avatar-img" src="" alt="User"></button>
+      <button id="nav-avatar-btn" class="nav-avatar-btn" onclick="toggleUserDropdown(event)" aria-label="User menu"><img id="nav-avatar-img" src="https://picsum.photos/seed/sw-u1/100/100" alt="User"></button>
       <div id="user-dropdown" class="user-dropdown">
         <button onclick="showProfile(currentUser.name); closeUserDropdown()"><i class="fa-solid fa-user"></i> MY PROFILE</button>
-        <button onclick="openModal('login'); closeUserDropdown()"><i class="fa-solid fa-arrows-rotate"></i> SWITCH USER</button>
+        <button onclick="openModal('auth'); closeUserDropdown()"><i class="fa-solid fa-right-to-bracket"></i> LOGIN / SIGNUP</button>
       </div>
     </div>
   </div>
   <div class="scan-line"></div>
 </nav>
-
 <main id="page-container" style="padding-top:72px; min-height:100vh; width:100%;">
   <section id="page-feed" class="page active" role="tabpanel"><div id="feed-content"></div></section>
   <section id="page-map" class="page" role="tabpanel"><div id="map-content"></div></section>
@@ -265,30 +246,33 @@ textarea.sw-input { resize: vertical; min-height: 100px; }
   <section id="page-msg" class="page" role="tabpanel"><div id="msg-content"></div></section>
   <section id="page-profile" class="page" role="tabpanel"><div id="profile-content"></div></section>
 </main>
-
 <button id="fab" onclick="openModal('create-story')" aria-label="Create new story"><i class="fa-solid fa-plus"></i></button>
 <button id="contest-fab" onclick="showToast('Upload your BTS setup!','info')" aria-label="Add BTS Setup"><i class="fa-solid fa-camera-retro"></i></button>
-
-<div id="modal-overlay" role="dialog" aria-modal="true" aria-label="Dialog">
-  <div id="modal-box"><div id="modal-inner"></div></div>
-</div>
-
+<div class="ad-mobile-sticky"><div class="ad-slot-hud"><span class="ad-label">Partner</span><span style="color:var(--txt3); font-size:12px;">[Mobile Ad Slot]</span></div></div>
+<div id="modal-overlay" role="dialog" aria-modal="true" aria-label="Dialog"><div id="modal-box"><div id="modal-inner"></div></div></div>
 <div id="toast-container" aria-live="polite"></div>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+const SUPABASE_URL = 'https://qrcfqtmvnpkcbucllrkt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyY2ZxdG12bnBrY2J1Y2xscmt0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTAwMTMyNywiZXhwIjoyMDkwNTc3MzI3fQ.ZxcxOhgLW1qm6xlVk0KoN_3-UV0TJXKOe3LAbR1ZBQc';
+let isLive = false;
+let supabaseClient;
+if (SUPABASE_URL !== 'PASTE_URL_HERE' && typeof window.supabase !== 'undefined') {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    isLive = true;
+}
 var DB = {
   users: [
-    { id:'u1', email:'viewer@smallworld.io', name:'Viewer', avatar:'https://picsum.photos/seed/sw-u1/100/100', bio:'New to toy photography. Learning from the masters.', followers:[], following:['DarkAlleyStudios','MechaBuilder'], joined:Date.now()-86400000*30 },
-    { id:'u2', email:'darkalley@smallworld.io', name:'DarkAlleyStudios', avatar:'https://picsum.photos/seed/sw-av1/100/100', bio:'Noir toy photography. If it\'s not raining, I\'m not shooting.', followers:['Viewer','JokerFrames'], following:['JokerFrames'], joined:Date.now()-86400000*180 },
-    { id:'u3', email:'joker@smallworld.io', name:'JokerFrames', avatar:'https://picsum.photos/seed/sw-av2/100/100', bio:'Every clown has a dark side. I photograph both.', followers:['DarkAlleyStudios'], following:['DarkAlleyStudios'], joined:Date.now()-86400000*90 },
-    { id:'u4', email:'mecha@smallworld.io', name:'MechaBuilder', avatar:'https://picsum.photos/seed/sw-av3/100/100', bio:'Mobile suit enthusiast. 1/144 to 1/60, I build them all.', followers:['Viewer'], following:[], joined:Date.now()-86400000*200 },
-    { id:'u5', email:'miniature@smallworld.io', name:'MiniatureWars', avatar:'https://picsum.photos/seed/sw-av4/100/100', bio:'Diorama builder. Foam board is my canvas.', followers:[], following:[], joined:Date.now()-86400000*150 },
-    { id:'u6', email:'neon@smallworld.io', name:'NeonTokyo', avatar:'https://picsum.photos/seed/sw-av6/100/100', bio:'Cyberpunk or nothing. LED strips are my best friend.', followers:[], following:[], joined:Date.now()-86400000*60 },
-    { id:'u7', email:'scale@smallworld.io', name:'ScaleHunter', avatar:'https://picsum.photos/seed/sw-av7/100/100', bio:'I find the locations so you don\'t have to.', followers:[], following:[], joined:Date.now()-86400000*120 },
-    { id:'u8', email:'soldier@smallworld.io', name:'ToySoldier99', avatar:'https://picsum.photos/seed/sw-av5/100/100', bio:'Military dioramas. Historical accuracy matters.', followers:[], following:['MiniatureWars'], joined:Date.now()-86400000*45 },
-    { id:'u9', email:'backdrop@smallworld.io', name:'BackdropBuilder', avatar:'https://picsum.photos/seed/sw-u9/100/100', bio:'I build physical backdrops and environments for toy photography scenes.', followers:[], following:[], joined:Date.now()-86400000*300 },
-    { id:'u10', email:'lensmaster@smallworld.io', name:'Lens Master', avatar:'https://picsum.photos/seed/sw-u10/100/100', bio:'Macro photography obsession. 100mm is my weapon.', followers:[], following:[], joined:Date.now()-86400000*250 }
+    { id:'u1', email:'viewer@smallworld.io', name:'Viewer', avatar:'https://picsum.photos/seed/sw-u1/100/100', bio:'New to toy photography. Learning from the masters.', followers:[], following:['DarkAlleyStudios','MechaBuilder'], joined:Date.now()-86400000*30, badges:[] },
+    { id:'u2', email:'darkalley@smallworld.io', name:'DarkAlleyStudios', avatar:'https://picsum.photos/seed/sw-av1/100/100', bio:'Noir toy photography. If it\'s not raining, I\'m not shooting.', followers:['Viewer','JokerFrames'], following:['JokerFrames'], joined:Date.now()-86400000*180, badges:[] },
+    { id:'u3', email:'joker@smallworld.io', name:'JokerFrames', avatar:'https://picsum.photos/seed/sw-av2/100/100', bio:'Every clown has a dark side. I photograph both.', followers:['DarkAlleyStudios'], following:['DarkAlleyStudios'], joined:Date.now()-86400000*90, badges:[] },
+    { id:'u4', email:'mecha@smallworld.io', name:'MechaBuilder', avatar:'https://picsum.photos/seed/sw-av3/100/100', bio:'Mobile suit enthusiast. 1/144 to 1/60, I build them all.', followers:['Viewer'], following:[], joined:Date.now()-86400000*200, badges: [ { contest:'MECHA MAYHEM', month:'SEP 2024', tier: 1, image:'https://picsum.photos/seed/win-mecha/400/400' } ] },
+    { id:'u5', email:'miniature@smallworld.io', name:'MiniatureWars', avatar:'https://picsum.photos/seed/sw-av4/100/100', bio:'Diorama builder. Foam board is my canvas.', followers:[], following:[], joined:Date.now()-86400000*150, badges:[] },
+    { id:'u6', email:'neon@smallworld.io', name:'NeonTokyo', avatar:'https://picsum.photos/seed/sw-av6/100/100', bio:'Cyberpunk or nothing. LED strips are my best friend.', followers:[], following:[], joined:Date.now()-86400000*60, badges:[] },
+    { id:'u7', email:'scale@smallworld.io', name:'ScaleHunter', avatar:'https://picsum.photos/seed/sw-av7/100/100', bio:'I find the locations so you don\'t have to.', followers:[], following:[], joined:Date.now()-86400000*120, badges:[] },
+    { id:'u8', email:'soldier@smallworld.io', name:'ToySoldier99', avatar:'https://picsum.photos/seed/sw-av5/100/100', bio:'Military dioramas. Historical accuracy matters.', followers:[], following:['MiniatureWars'], joined:Date.now()-86400000*45, badges:[] },
+    { id:'u9', email:'backdrop@smallworld.io', name:'BackdropBuilder', avatar:'https://picsum.photos/seed/sw-u9/100/100', bio:'I build physical backdrops and environments for toy photography scenes.', followers:[], following:[], joined:Date.now()-86400000*300, badges: [ { contest:'RAINY DAY DIORAMAS', month:'AUG 2024', tier: 3, image:'https://picsum.photos/seed/win-rain/400/400' } ] },
+    { id:'u10', email:'lensmaster@smallworld.io', name:'Lens Master', avatar:'https://picsum.photos/seed/sw-u10/100/100', bio:'Macro photography obsession. 100mm is my weapon.', followers:[], following:[], joined:Date.now()-86400000*250, badges:[] }
   ],
   posts: [
     { id:'p1', parentId:null, author:'DarkAlleyStudios', avatar:'https://picsum.photos/seed/sw-av1/100/100', title:'The Signal in the Rain', image:'https://picsum.photos/seed/sw-rain7/800/500', btsImage:'https://picsum.photos/seed/sw-rain7b/800/500', caption:'Batman picks up a strange frequency on the rooftop. Single LED panel with fishing line for rain strands.', tags:['batman','noir','rain','led-lighting'], timestamp:Date.now()-86400000*2, likes:47, collabOpen:true },
@@ -343,27 +327,19 @@ var DB = {
     ]
   }
 };
-
-var currentUser = DB.users[0];
-var currentPage = 'feed';
-var previousPage = 'feed';
-var lastProfileName = '';
-var isPinning = false;
-var mapInstance = null;
-var mapInitialized = false;
-var mapMarkers = [];
-var pendingPinCoords = null;
-var pendingFinalImage = null;
-var pendingBtsImage = null;
-var activeConvoId = null;
-var activeContestTab = 'finals';
-
+var currentUser = DB.users[0], currentPage = 'feed', previousPage = 'feed', lastProfileName = '', isPinning = false, mapInstance = null, mapInitialized = false, mapMarkers = [], pendingPinCoords = null, pendingFinalImage = null, pendingBtsImage = null, activeConvoId = null, activeContestTab = 'finals', userLocation = { lat: 40.7128, lng: -74.006 };
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(pos) {
+        userLocation.lat = pos.coords.latitude;
+        userLocation.lng = pos.coords.longitude;
+        if(mapInstance) { mapInstance.setView([userLocation.lat, userLocation.lng], 12); }
+    }, function(err) { console.log("Location access denied, using default."); });
+}
 function timeAgo(ts) { var d=Date.now()-ts,m=Math.floor(d/60000),h=Math.floor(d/36e5),dd=Math.floor(d/864e5); return dd>0?dd+'d ago':h>0?h+'h ago':m>0?m+'m ago':'now'; }
 function findUser(name) { return DB.users.find(function(u){return u.name===name;}); }
 function getRootPosts() { return DB.posts.filter(function(p){return p.parentId===null;}); }
 function getChapters(pid) { return DB.posts.filter(function(p){return p.parentId===pid;}).sort(function(a,b){return a.timestamp-b.timestamp;}); }
 function canEditWiki(e) { return currentUser.email === e.author; }
-
 function showToast(msg, type) {
   type = type || 'info';
   var c = document.getElementById('toast-container'), t = document.createElement('div');
@@ -373,11 +349,9 @@ function showToast(msg, type) {
   c.appendChild(t);
   setTimeout(function(){t.classList.add('removing');setTimeout(function(){t.remove();},300);},3200);
 }
-
 function toggleUserDropdown(e){e.stopPropagation();document.getElementById('user-dropdown').classList.toggle('open');}
 function closeUserDropdown(){document.getElementById('user-dropdown').classList.remove('open');}
 document.addEventListener('click',function(e){var dd=document.getElementById('user-dropdown'),btn=document.getElementById('nav-avatar-btn');if(dd&&btn&&!btn.contains(e.target)&&!dd.contains(e.target))closeUserDropdown();});
-
 function readImageFile(inputEl, previewId, callback) {
   if (!inputEl.files || !inputEl.files[0]) return;
   var file = inputEl.files[0];
@@ -386,149 +360,103 @@ function readImageFile(inputEl, previewId, callback) {
   var reader = new FileReader();
   reader.onload = function(e) {
     var zone = document.getElementById(previewId);
-    if (zone) {
-      zone.classList.add('has-image');
-      zone.querySelector('.uz-preview img').src = e.target.result;
-    }
+    if (zone) { zone.classList.add('has-image'); zone.querySelector('.uz-preview img').src = e.target.result; }
     callback(e.target.result);
   };
   reader.readAsDataURL(file);
 }
-
 function clearUpload(previewId, callback) {
   var zone = document.getElementById(previewId);
   if (zone) {
-    zone.classList.remove('has-image');
-    zone.querySelector('.uz-preview img').src = '';
+    zone.classList.remove('has-image'); zone.querySelector('.uz-preview img').src = '';
     var inp = zone.querySelector('input[type="file"]');
     if (inp) inp.value = '';
   }
   callback(null);
 }
-
 function uploadZoneHTML(id, label, sub) {
-  return '<div id="'+id+'" class="upload-zone" onclick="this.querySelector(\'input\').click()">'
-    + '<input type="file" accept="image/*" onchange="readImageFile(this,\''+id+'\', function(d){pendingFinalImage=d;})" onclick="event.stopPropagation()">'
-    + '<div class="uz-preview"><img src="" alt="Preview"></div>'
-    + '<button class="uz-remove" type="button" onclick="event.stopPropagation();clearUpload(\''+id+'\',function(){pendingFinalImage=null;})"><i class="fa-solid fa-xmark"></i></button>'
-    + '<div class="uz-placeholder"><i class="fa-solid fa-cloud-arrow-up" style="font-size:24px;color:var(--txt3);"></i><span class="uz-label">'+label+'</span><span class="uz-sub">'+sub+'</span></div>'
-    + '</div>';
+  return '<div id="'+id+'" class="upload-zone" onclick="this.querySelector(\'input\').click()"><input type="file" accept="image/*" onchange="readImageFile(this,\''+id+'\', function(d){pendingFinalImage=d;})" onclick="event.stopPropagation()"><div class="uz-preview"><img src="" alt="Preview"></div><button class="uz-remove" type="button" onclick="event.stopPropagation();clearUpload(\''+id+'\',function(){pendingFinalImage=null;})"><i class="fa-solid fa-xmark"></i></button><div class="uz-placeholder"><i class="fa-solid fa-cloud-arrow-up" style="font-size:24px;color:var(--txt3);"></i><span class="uz-label">'+label+'</span><span class="uz-sub">'+sub+'</span></div></div>';
 }
-
 function openModal(type, data) {
   closeUserDropdown();
   var overlay = document.getElementById('modal-overlay'), inner = document.getElementById('modal-inner'), html = '';
   var closeBtn = '<button onclick="closeModal()" style="background:none;border:none;color:var(--txt3);cursor:pointer;font-size:20px" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>';
-
-  if (type === 'create-story') {
+  if (type === 'auth') {
+    html = '<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--cyan)">'+(isLive ? 'LOGIN / SIGNUP' : 'DEMO MODE')+'</h2>'+closeBtn+'</div>'
+      + (isLive ?
+      '<div class="flex flex-col gap-4"><div><label class="sw-label">Email</label><input id="auth-email" class="sw-input" type="email" placeholder="you@example.com"></div><div><label class="sw-label">Password</label><input id="auth-pass" class="sw-input" type="password" placeholder="••••••••••"><div class="flex gap-3"><button onclick="handleLogin()" class="sw-btn sw-btn-primary flex-1 justify-center">LOGIN</button><button onclick="handleSignup()" class="sw-btn sw-btn-outline flex-1 justify-center">SIGNUP</button></div></div>' :
+      '<p class="sys-label" style="color:var(--amber); margin-bottom:16px;">OFFLINE MODE ACTIVE</p><p style="color:var(--txt2); font-size:14px; margin-bottom:24px;">To make this app live and global, paste your Supabase URL and Key into the top of the HTML file.</p><div class="flex flex-col gap-3"><button onclick="switchUser(\'viewer@smallworld.io\')" class="sw-btn sw-btn-ghost justify-start gap-4"><i class="fa-solid fa-eye w-5"></i> Viewer</button><button onclick="switchUser(\'darkalley@smallworld.io\')" class="sw-btn sw-btn-ghost justify-start gap-4"><i class="fa-solid fa-camera w-5"></i> DarkAlleyStudios</button><button onclick="switchUser(\'backdrop@smallworld.io\')" class="sw-btn sw-btn-ghost justify-start gap-4"><i class="fa-solid fa-cubes w-5"></i> BackdropBuilder</button><button onclick="switchUser(\'lensmaster@smallworld.io\')" class="sw-btn sw-btn-ghost justify-start gap-4"><i class="fa-solid fa-bolt w-5"></i> Lens Master</button></div>');
+  } else if (type === 'create-story') {
     pendingFinalImage = null; pendingBtsImage = null;
-    html = '<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--cyan)">CREATE STORY</h2>'+closeBtn+'</div>'
-      + '<div class="flex flex-col gap-4">'
-      + '<div><label class="sw-label">Title</label><input id="cs-title" class="sw-input" placeholder="Name your story..."></div>'
-      + '<div><label class="sw-label">Caption</label><textarea id="cs-caption" class="sw-input" placeholder="Set the scene for other builders..."></textarea></div>'
-      + '<div><label class="sw-label">Final Shot</label>'+uploadZoneHTML('cs-final','FINAL SHOT','Tap to upload or drag a photo')+'</div>'
-      + '<div><label class="sw-label">Behind the Scenes</label>'
-      + '<div id="cs-bts" class="upload-zone" onclick="this.querySelector(\'input\').click()">'
-      + '<input type="file" accept="image/*" onchange="readImageFile(this,\'cs-bts\',function(d){pendingBtsImage=d;})" onclick="event.stopPropagation()">'
-      + '<div class="uz-preview"><img src="" alt="Preview"></div>'
-      + '<button class="uz-remove" type="button" onclick="event.stopPropagation();clearUpload(\'cs-bts\',function(){pendingBtsImage=null;})"><i class="fa-solid fa-xmark"></i></button>'
-      + '<div class="uz-placeholder"><i class="fa-solid fa-camera-retro" style="font-size:24px;color:var(--txt3);"></i><span class="uz-label">BEHIND THE SCENES</span><span class="uz-sub">Show your setup — optional but encouraged</span></div></div></div>'
-      + '<div><label class="sw-label">Tags (comma separated)</label><input id="cs-tags" class="sw-input" placeholder="noir, rain, led-lighting"></div>'
-      + '<div class="flex items-center gap-3 p-4 rounded" style="background:var(--deep);border:1px solid var(--border)">'
-      + '<input type="checkbox" id="cs-collab" checked class="collab-check">'
-      + '<label for="cs-collab" style="cursor:pointer"><span class="font-display font-semibold text-sm tracking-wider" style="color:var(--green)">Open for Collaboration</span><br><span class="sys-label">Others can add chapters to this story</span></label></div>'
-      + '<button onclick="submitCreateStory()" class="sw-btn sw-btn-primary justify-center mt-1"><i class="fa-solid fa-rocket"></i> PUBLISH STORY</button></div></div>';
-
+    html = '<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--cyan)">CREATE STORY</h2>'+closeBtn+'</div><div class="flex flex-col gap-4"><div><label class="sw-label">Title</label><input id="cs-title" class="sw-input" placeholder="Name your story..."></div><div><label class="sw-label">Caption</label><textarea id="cs-caption" class="sw-input" placeholder="Set the scene for other builders..."></textarea></div><div><label class="sw-label">Final Shot</label>'+uploadZoneHTML('cs-final','FINAL SHOT','Tap to upload or drag a photo')+'</div><div><label class="sw-label">Behind the Scenes</label><div id="cs-bts" class="upload-zone" onclick="this.querySelector(\'input\').click()"><input type="file" accept="image/*" onchange="readImageFile(this,\'cs-bts\',function(d){pendingBtsImage=d;})" onclick="event.stopPropagation()"><div class="uz-preview"><img src="" alt="Preview"></div><button class="uz-remove" type="button" onclick="event.stopPropagation();clearUpload(\'cs-bts\',function(){pendingBtsImage=null;})"><i class="fa-solid fa-xmark"></i></button><div class="uz-placeholder"><i class="fa-solid fa-camera-retro" style="font-size:24px;color:var(--txt3);"></i><span class="uz-label">BEHIND THE SCENES</span><span class="uz-sub">Show your setup — optional but encouraged</span></div></div></div><div><label class="sw-label">Tags (comma separated)</label><input id="cs-tags" class="sw-input" placeholder="noir, rain, led-lighting"></div><div class="flex items-center gap-3 p-4 rounded" style="background:var(--deep);border:1px solid var(--border)"><input type="checkbox" id="cs-collab" checked class="collab-check"><label for="cs-collab" style="cursor:pointer"><span class="font-display font-semibold text-sm tracking-wider" style="color:var(--green)">Open for Collaboration</span><br><span class="sys-label">Others can add chapters to this story</span></label></div><button onclick="submitCreateStory()" class="sw-btn sw-btn-primary justify-center mt-1"><i class="fa-solid fa-rocket"></i> PUBLISH STORY</button></div></div></div>';
   } else if (type === 'new-message') {
     html = '<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--cyan)">NEW MESSAGE</h2>'+closeBtn+'</div><div class="flex flex-col gap-3">';
     DB.users.forEach(function(u) {
-      if(u.name !== currentUser.name) {
-        html += '<button onclick="startConvoWithName(\''+u.name+'\')" class="sw-btn sw-btn-ghost justify-start gap-4"><img src="'+u.avatar+'" class="w-8 h-8 rounded" alt="'+u.name+'"> '+u.name+'</button>';
-      }
+      if(u.name !== currentUser.name) { html += '<button onclick="startConvoWithName(\''+u.name+'\')" class="sw-btn sw-btn-ghost justify-start gap-4"><img src="'+u.avatar+'" class="w-8 h-8 rounded" alt="'+u.name+'"> '+u.name+'</button>'; }
     });
     html += '</div></div>';
-
-  } else if (type === 'login') {
-    html = '<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--cyan)">SWITCH IDENTITY</h2>'+closeBtn+'</div>'
-      + '<p class="sys-label mb-4">Select a user profile</p><div class="flex flex-col gap-3">'
-      + '<button onclick="switchUser(\'viewer@smallworld.io\')" class="sw-btn sw-btn-ghost justify-start gap-4"><i class="fa-solid fa-eye w-5"></i> Viewer</button>'
-      + '<button onclick="switchUser(\'darkalley@smallworld.io\')" class="sw-btn sw-btn-ghost justify-start gap-4"><i class="fa-solid fa-camera w-5"></i> DarkAlleyStudios</button>'
-      + '<button onclick="switchUser(\'backdrop@smallworld.io\')" class="sw-btn sw-btn-ghost justify-start gap-4"><i class="fa-solid fa-cubes w-5"></i> BackdropBuilder</button>'
-      + '<button onclick="switchUser(\'lensmaster@smallworld.io\')" class="sw-btn sw-btn-ghost justify-start gap-4"><i class="fa-solid fa-bolt w-5"></i> Lens Master</button></div>'
-      + '<div class="mt-6 p-4 rounded" style="background:var(--deep);border:1px solid var(--border);"><p class="sys-label mb-1">CURRENT</p><p class="font-mono text-sm" style="color:var(--amber)">'+currentUser.email+'</p></div></div>';
-
   } else if (type === 'add-story') {
     var parent = data; pendingFinalImage = null; pendingBtsImage = null;
-    html = '<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--cyan)">ADD CHAPTER</h2>'+closeBtn+'</div>'
-      + '<div class="flex gap-4 mb-6 p-4 rounded" style="background:var(--deep);border:1px solid var(--border);"><img src="'+parent.image+'" class="w-24 h-16 object-cover rounded" alt=""><div><p class="sys-label">BRANCHING FROM</p><p class="font-display font-semibold text-lg">'+parent.title+'</p><p class="text-sm" style="color:var(--txt2)">by '+parent.author+'</p></div></div>'
-      + '<div class="flex flex-col gap-4">'
-      + '<div><label class="sw-label">Chapter Title</label><input id="ch-title" class="sw-input" placeholder="What happens next..."></div>'
-      + '<div><label class="sw-label">Caption</label><textarea id="ch-caption" class="sw-input" placeholder="Describe the scene..."></textarea></div>'
-      + '<div><label class="sw-label">Your Shot</label>'
-      + '<div id="ch-final" class="upload-zone" onclick="this.querySelector(\'input\').click()">'
-      + '<input type="file" accept="image/*" onchange="readImageFile(this,\'ch-final\',function(d){pendingFinalImage=d;})" onclick="event.stopPropagation()">'
-      + '<div class="uz-preview"><img src="" alt="Preview"></div>'
-      + '<button class="uz-remove" type="button" onclick="event.stopPropagation();clearUpload(\'ch-final\',function(){pendingFinalImage=null;})"><i class="fa-solid fa-xmark"></i></button>'
-      + '<div class="uz-placeholder"><i class="fa-solid fa-cloud-arrow-up" style="font-size:24px;color:var(--txt3);"></i><span class="uz-label">YOUR SHOT</span><span class="uz-sub">Tap to upload or drag a photo</span></div></div></div>'
-      + '<div><label class="sw-label">Behind the Scenes</label>'
-      + '<div id="ch-bts" class="upload-zone" onclick="this.querySelector(\'input\').click()">'
-      + '<input type="file" accept="image/*" onchange="readImageFile(this,\'ch-bts\',function(d){pendingBtsImage=d;})" onclick="event.stopPropagation()">'
-      + '<div class="uz-preview"><img src="" alt="Preview"></div>'
-      + '<button class="uz-remove" type="button" onclick="event.stopPropagation();clearUpload(\'ch-bts\',function(){pendingBtsImage=null;})"><i class="fa-solid fa-xmark"></i></button>'
-      + '<div class="uz-placeholder"><i class="fa-solid fa-camera-retro" style="font-size:24px;color:var(--txt3);"></i><span class="uz-label">BEHIND THE SCENES</span><span class="uz-sub">Show your setup — optional</span></div></div></div>'
-      + '<div><label class="sw-label">Tags</label><input id="ch-tags" class="sw-input" placeholder="noir, rain, led-lighting"></div>'
-      + '<button onclick="submitStory(\''+parent.id+'\')" class="sw-btn sw-btn-primary mt-2 justify-center"><i class="fa-solid fa-code-branch"></i> ADD CHAPTER</button></div></div>';
-
+    html = '<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--cyan)">ADD CHAPTER</h2>'+closeBtn+'</div><div class="flex gap-4 mb-6 p-4 rounded" style="background:var(--deep);border:1px solid var(--border);"><img src="'+parent.image+'" class="w-24 h-16 object-cover rounded" alt=""><div><p class="sys-label">BRANCHING FROM</p><p class="font-display font-semibold text-lg">'+parent.title+'</p><p class="text-sm" style="color:var(--txt2)">by '+parent.author+'</p></div></div><div class="flex flex-col gap-4"><div><label class="sw-label">Chapter Title</label><input id="ch-title" class="sw-input" placeholder="What happens next..."><div class="sw-label">Caption</label><textarea id="ch-caption" class="sw-input" placeholder="Describe the scene..."><div class="sw-label">Your Shot</label><div id="ch-final" class="upload-zone" onclick="this.querySelector(\'input\').click()"><input type="file" accept="image/*" onchange="readImageFile(this,'ch-final',function(d){pendingFinalImage=d;})" onclick="event.stopPropagation()"><div class="uz-preview"><img src="" alt="Preview"></div><button class="uz-remove" type="button" onclick="event.stopPropagation();clearUpload(\'ch-final\',function(){pendingFinalImage=null;})"><i class="fa-solid fa-xmark"></i></button><div class="uz-placeholder"><i class="fa-solid fa-cloud-arrow-up" style="font-size:24px;color:var(--txt3);"></i><span class="uz-label">YOUR SHOT</span><span class="uz-sub">Tap to upload or drag a photo</span></div></div></div><div><label class="sw-label">Behind the Scenes</label><div id="ch-bts" class="upload-zone" onclick="this.querySelector(\'input\').click()"><input type="file" accept="image/*" onchange="readImageFile(this,\'ch-bts\',function(d){pendingBtsImage=d;})" onclick="event.stopPropagation()"><div class="uz-preview"><img src="" alt="Preview"></div><button class="uz-remove" type="button" onclick="event.stopPropagation();clearUpload(\'ch-bts\',function(){pendingBtsImage=null;})"><i class="fa-solid fa-xmark"></i></button><div class="uz-placeholder"><i class="fa-solid fa-camera-retro" style="font-size:24px;color:var(--txt3);"></i><span class="uz-label">BEHIND THE SCENES</span><span class="uz-sub">Show your setup — optional</span></div></div></div><div><label class="sw-label">Tags</label><input id="ch-tags" class="sw-input" placeholder="noir, rain, led-lighting"><button onclick="submitStory(\''+parent.id+'\')" class="sw-btn sw-btn-primary mt-2 justify-center"><i class="fa-solid fa-code-branch"></i> ADD CHAPTER</button></div></div></div></div>';
   } else if (type === 'add-location') {
-    html = '<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--cyan)">PIN LOCATION</h2>'+closeBtn+'</div>'
-      + '<div class="mb-4 p-4 rounded font-mono text-xs" style="background:var(--deep);border:1px solid var(--border);color:var(--txt2);"><span style="color:var(--txt3)">COORDINATES:</span> '+(pendingPinCoords?pendingPinCoords.lat.toFixed(5)+', '+pendingPinCoords.lng.toFixed(5):'N/A')+'</div>'
-      + '<div class="flex flex-col gap-4"><div class="flex gap-3"><button id="loc-type-spot" onclick="setLocType(\'Spot\')" class="sw-btn sw-btn-outline flex-1 justify-center" style="font-size:13px">SPOT</button><button id="loc-type-store" onclick="setLocType(\'Store\')" class="sw-btn sw-btn-ghost flex-1 justify-center" style="font-size:13px">STORE</button></div>'
-      + '<div><label class="sw-label">Name</label><input id="loc-name" class="sw-input" placeholder="e.g. Old Train Yard"></div>'
-      + '<div><label class="sw-label">Description</label><textarea id="loc-desc" class="sw-input" placeholder="What makes this place special?"></textarea></div>'
-      + '<button onclick="submitLocation()" class="sw-btn sw-btn-primary mt-2 justify-center"><i class="fa-solid fa-map-pin"></i> SAVE PIN</button></div></div>';
-
+    html = '<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--cyan)">PIN LOCATION</h2>'+closeBtn+'</div><div class="mb-4 p-4 rounded font-mono text-xs" style="background:var(--deep);border:1px solid var(--border);color:var(--txt2);"><span style="color:var(--txt3)">COORDINATES:</span> '+(pendingPinCoords?pendingPinCoords.lat.toFixed(5)+', '+pendingPinCoords.lng.toFixed(5):'N/A')+'</div><div class="flex flex-col gap-4"><div class="flex gap-3"><button id="loc-type-spot" onclick="setLocType(\'Spot\')" class="sw-btn sw-btn-outline flex-1 justify-center" style="font-size:13px">SPOT</button><button id="loc-type-store" onclick="setLocType(\'Store\')" class="sw-btn sw-btn-ghost flex-1 justify-center" style="font-size:13px">STORE</button></div><div><label class="sw-label">Name</label><input id="loc-name" class="sw-input" placeholder="e.g. Old Train Yard"><div><label class="sw-label">Description</label><textarea id="loc-desc" class="sw-input" placeholder="What makes this place special?"><button onclick="submitLocation()" class="sw-btn sw-btn-primary mt-2 justify-center"><i class="fa-solid fa-map-pin"></i> SAVE PIN</button></div></div></div>';
   } else if (type === 'wiki-detail') {
     var w = data, ed = canEditWiki(w);
-    html = '<div class="p-8"><div class="flex items-center justify-between mb-2"><span class="tag-pill">'+w.category+'</span>'+closeBtn+'</div>'
-      + '<h2 class="font-display font-bold text-3xl tracking-wide mb-2">'+w.title+'</h2>'
-      + '<div class="flex items-center gap-4 mb-6"><span class="sys-label"><span class="sys-dot green"></span>'+w.author+'</span><span class="sys-label">'+timeAgo(w.lastUpdated)+'</span>'
-      + (ed?'<button onclick="openModal(\'wiki-edit\',\''+w.id+'\')" class="sw-btn sw-btn-amber" style="padding:6px 14px;font-size:11px"><i class="fa-solid fa-pen"></i> EDIT</button>':'')+'</div>'
-      + '<div class="p-6 rounded leading-relaxed text-sm" style="background:var(--deep);border:1px solid var(--border);color:var(--txt2);white-space:pre-line;">'+w.content+'</div></div>';
-
+    html = '<div class="p-8"><div class="flex items-center justify-between mb-2"><span class="tag-pill">'+w.category+'</span>'+closeBtn+'</div><h2 class="font-display font-bold text-3xl tracking-wide mb-2">'+w.title+'</h2><div class="flex items-center gap-4 mb-6"><span class="sys-label"><span class="sys-dot green"></span>'+w.author+'</span><span class="sys-label">'+timeAgo(w.lastUpdated)+'</span>'+(ed?'<button onclick="openModal(\'wiki-edit\',\''+w.id+'\')" class="sw-btn sw-btn-amber" style="padding:6px 14px;font-size:11px"><i class="fa-solid fa-pen"></i> EDIT</button>':'')+'</div><div class="p-6 rounded leading-relaxed text-sm" style="background:var(--deep);border:1px solid var(--border);color:var(--txt2);white-space:pre-line;">'+w.content+'</div></div>';
   } else if (type === 'wiki-edit') {
     var w = DB.wiki.find(function(x){return x.id===data;}); if(!w) return;
-    html = '<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--amber)">EDIT ARTICLE</h2>'+closeBtn+'</div>'
-      + '<div class="flex flex-col gap-4"><div><label class="sw-label">Title</label><input id="we-title" class="sw-input" value="'+w.title+'"></div>'
-      + '<div><label class="sw-label">Category</label><select id="we-cat" class="sw-input"><option value="Photography"'+(w.category==='Photography'?' selected':'')+'>Photography</option><option value="DIY"'+(w.category==='DIY'?' selected':'')+'>DIY</option></select></div>'
-      + '<div><label class="sw-label">Content</label><textarea id="we-content" class="sw-input" style="min-height:200px">'+w.content+'</textarea></div>'
-      + '<button onclick="submitWikiEdit(\''+w.id+'\')" class="sw-btn sw-btn-amber mt-2 justify-center"><i class="fa-solid fa-save"></i> SAVE</button></div></div>';
+    html = '<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--amber)">EDIT ARTICLE</h2>'+closeBtn+'</div><div class="flex flex-col gap-4"><div><label class="sw-label">Title</label><input id="we-title" class="sw-input" value="'+w.title+'"><div><label class="sw-label">Category</label><select id="we-cat" class="sw-input"><option value="Photography"'+(w.category==='Photography'?' selected':'')+'>Photography</option><option value="DIY"'+(w.category==='DIY'?' selected':'')+'>DIY</option></select></div><div><label class="sw-label">Content</label><textarea id="we-content" class="sw-input" style="min-height:200px">'+w.content+'</textarea><button onclick="submitWikiEdit(\''+w.id+'\')" class="sw-btn sw-btn-amber mt-2 justify-center"><i class="fa-solid fa-save"></i> SAVE</button></div></div></div>';
   }
   inner.innerHTML = html; overlay.classList.add('open');
 }
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
-
+async function handleLogin() {
+    if(!isLive) return;
+    var email = document.getElementById('auth-email').value;
+    var pass = document.getElementById('auth-pass').value;
+    if(!email || !pass) { showToast('Email and password required', 'error'); return; }
+    try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if(error) { showToast(error.message, 'error'); } else {
+            showToast('Logged in!', 'success');
+            var localUser = DB.users.find(u=>u.email === email);
+            if(localUser) { currentUser = localUser; document.getElementById('nav-avatar-img').src=currentUser.avatar; }
+            closeModal(); renderPage(currentPage);
+        }
+    } catch (e) { showToast("Connection Error: " + e.message, "error"); }
+}
+async function handleSignup() {
+    if(!isLive) return;
+    var email = document.getElementById('auth-email').value;
+    var pass = document.getElementById('auth-pass').value;
+    if(!email || !pass) { showToast('Email and password required', 'error'); return; }
+    try {
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+        if(error) { showToast(error.message, 'error'); } else {
+            showToast('Account created! Check email to verify.', 'success');
+            var newName = email.split('@')[0];
+            var newUser = { id: data.user.id, email: email, name: newName, avatar: 'https://picsum.photos/seed/new/100/100', bio: 'New to SmallWorld!', followers:[], following:[], joined: Date.now(), badges:[] };
+            DB.users.push(newUser);
+            currentUser = newUser;
+            document.getElementById('nav-avatar-img').src=currentUser.avatar;
+            closeModal(); renderPage(currentPage);
+        }
+    } catch (e) { showToast("Connection Error: " + e.message, "error"); }
+}
 var selectedLocType='Spot';
 function setLocType(t){selectedLocType=t;var s=document.getElementById('loc-type-spot'),st=document.getElementById('loc-type-store');if(!s||!st)return;if(t==='Spot'){s.className='sw-btn sw-btn-outline flex-1 justify-center';st.className='sw-btn sw-btn-ghost flex-1 justify-center';}else{st.className='sw-btn sw-btn-outline flex-1 justify-center';s.className='sw-btn sw-btn-ghost flex-1 justify-center';}s.style.fontSize='13px';st.style.fontSize='13px';}
-
 function switchUser(email){var user=DB.users.find(function(u){return u.email===email;});if(!user)return;currentUser=user;document.getElementById('nav-avatar-img').src=user.avatar;closeModal();showToast('Switched to '+user.name,'success');renderPage(currentPage);}
-
 function showPage(pageId){
   if(pageId!=='profile')previousPage=currentPage;currentPage=pageId;window.scrollTo(0,0);
   document.querySelectorAll('.nav-tab').forEach(function(t){var a=t.getAttribute('data-page')===pageId;t.classList.toggle('active',a);t.setAttribute('aria-selected',a?'true':'false');});
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.getElementById('page-'+pageId).classList.add('active');
-  
-  // Handle FAB visibility
   document.getElementById('fab').classList.toggle('visible',pageId==='feed');
   document.getElementById('contest-fab').classList.remove('visible');
-  
   renderPage(pageId);
   if(pageId==='map'){if(!mapInitialized){setTimeout(initMap,150);mapInitialized=true;}else{setTimeout(function(){if(mapInstance)mapInstance.invalidateSize();},150);}}
-}
 function renderPage(pageId){if(pageId==='feed')renderFeed();else if(pageId==='wiki')renderWiki();else if(pageId==='bts')renderBTS();else if(pageId==='msg')renderMessages();else if(pageId==='contest')renderContest();else if(pageId==='profile')renderProfile(lastProfileName);}
-
 function showProfile(name){var user=findUser(name);if(!user){showToast('User not found','error');return;}lastProfileName=name;previousPage=currentPage;currentPage='profile';window.scrollTo(0,0);document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');t.setAttribute('aria-selected','false');});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.getElementById('page-profile').classList.add('active');document.getElementById('fab').classList.remove('visible');document.getElementById('contest-fab').classList.remove('visible');renderProfile(name);}
 function goBack(){showPage(previousPage);}
-
 function renderProfile(name){
   var user=findUser(name);if(!user)return;var stories=DB.posts.filter(function(p){return p.author===user.name&&p.parentId===null;}),chapters=DB.posts.filter(function(p){return p.author===user.name&&p.parentId!==null;}),totalLikes=0;DB.posts.forEach(function(p){if(p.author===user.name)totalLikes+=p.likes;});
   var isSelf=user.name===currentUser.name,isF=currentUser.following.indexOf(user.name)!==-1;
@@ -536,314 +464,119 @@ function renderProfile(name){
   var h='<div style="min-height:100vh;"><div class="profile-banner dot-grid"></div><div style="max-width:860px;margin:-48px auto 0;padding:0 24px 80px;position:relative;z-index:2;">'
     +'<div class="flex items-end gap-5 mb-5"><img src="'+user.avatar+'" class="profile-avatar" alt="'+user.name+'"><div class="flex-1 pb-1"><h1 class="font-display font-bold text-2xl tracking-wider mb-1">'+user.name+'</h1><p class="text-sm" style="color:var(--txt2)">'+user.bio+'</p></div><div class="flex items-center gap-3 pb-1">'+fb+'<button onclick="goBack()" class="sw-btn sw-btn-ghost" style="padding:10px 16px;font-size:12px"><i class="fa-solid fa-arrow-left"></i> BACK</button></div></div>'
     +'<div class="mb-6"><span class="sys-label"><span class="sys-dot cyan"></span>JOINED '+timeAgo(user.joined)+'</span></div>'
-    +'<div class="hud-frame mb-8"><span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span>'
-    +'<div class="grid grid-cols-5" style="background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;">'
-    +'<div class="stat-box"><div class="stat-num">'+stories.length+'</div><div class="stat-label">Stories</div></div><div class="stat-box"><div class="stat-num">'+chapters.length+'</div><div class="stat-label">Chapters</div></div><div class="stat-box"><div class="stat-num">'+user.followers.length+'</div><div class="stat-label">Followers</div></div><div class="stat-box"><div class="stat-num">'+user.following.length+'</div><div class="stat-label">Following</div></div><div class="stat-box"><div class="stat-num" style="color:var(--amber)">'+totalLikes+'</div><div class="stat-label">Likes</div></div></div></div>'
+    +(function(){
+        if(!user.badges || user.badges.length === 0) return '';
+        var badgeHTML = '<div class="mb-6"><span class="sw-label" style="margin-bottom:12px;display:block;">CONQUESTS & BADGES</span><div class="badge-rack">';
+        user.badges.forEach(function(b) {
+            var tierClass = b.tier === 1 ? 't1' : (b.tier === 2 ? 't2' : 't3');
+            var tierLabel = b.tier === 1 ? '🥇 1ST PLACE' : (b.tier === 2 ? '🥈 2ND PLACE' : '🏅 FINALIST');
+            var icon = b.tier <= 2 ? 'fa-trophy' : 'fa-medal';
+            var accentColor = b.tier === 1 ? 'amber' : 'txt3';
+            badgeHTML += '<div class="badge-item '+tierClass+'"><i class="fa-solid '+icon+'"></i><div class="badge-popup"><img src="'+b.image+'" alt="Winning Photo"><div class="badge-popup-info"><p class="sys-label" style="color:var(--'+accentColor+'); margin-bottom:4px;">'+tierLabel+'</p><p class="font-display font-bold text-sm tracking-wider">'+b.contest+'</p><p class="sys-label" style="margin-top:4px;">'+b.month+'</p></div></div></div></div>';
+        });
+        badgeHTML += '</div></div>';
+        return badgeHTML;
+    })()
+    +'<div class="hud-frame mb-8"><span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><div class="grid grid-cols-5" style="background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;"><div class="stat-box"><div class="stat-num">'+stories.length+'</div><div class="stat-label">Stories</div></div><div class="stat-box"><div class="stat-num">'+chapters.length+'</div><div class="stat-label">Chapters</div></div><div class="stat-box"><div class="stat-num">'+user.followers.length+'</div><div class="stat-label">Followers</div></div><div class="stat-box"><div class="stat-num">'+user.following.length+'</div><div class="stat-label">Following</div></div><div class="stat-box"><div class="stat-num" style="color:var(--amber)">'+totalLikes+'</div><div class="stat-label">Likes</div></div></div></div></div>'
     +'<div class="flex items-center gap-4 mb-5"><span class="sys-label">STORIES</span><div class="h-px flex-1" style="background:var(--border)"></div></div>';
-  if(stories.length>0){h+='<div class="grid gap-5">';stories.forEach(function(r){var c=getChapters(r.id),ct=r.collabOpen?'<span class="tag-pill collab"><span class="collab-pulse"><span class="cp-dot"></span></span> OPEN</span>':'<span class="tag-pill closed">CLOSED</span>';
-    h+='<div class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner br"></span><div class="sw-card"><div class="relative" style="height:220px;overflow:hidden;"><img src="'+r.image+'" alt="'+r.title+'" class="w-full h-full object-cover" loading="lazy"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(8,12,22,0.9) 0%,transparent 60%);"></div><div style="position:absolute;bottom:0;left:0;right:0;padding:16px 20px;"><div class="flex items-center gap-2 mb-1"><span class="sys-label">'+timeAgo(r.timestamp)+'</span>'+(c.length>0?'<span class="sys-label"><span class="sys-dot amber"></span>'+c.length+' CHAPTERS</span>':'')+'</div><h3 class="font-display font-bold text-base tracking-wide mb-1">'+r.title+'</h3><div class="flex flex-wrap gap-1 mb-2">'+r.tags.slice(0,3).map(function(t){return '<span class="tag-pill">'+t+'</span>';}).join('')+ct+'</div><span class="flex items-center gap-1 text-xs" style="color:var(--txt2)"><i class="fa-solid fa-heart"></i> '+r.likes+'</span></div></div></div></div></div>';});h+='</div>';}else{h+='<p style="color:var(--txt3);font-size:13px;padding:20px 0;">No stories yet.</p>';}
+  if(stories.length>  {h+='<div class="grid gap-5">';stories.forEach(function(r){var c=getChapters(r.id),ct=r.collabOpen?'<span class="tag-pill collab"><span class="collab-pulse"><span class="cp-dot"></span></span> OPEN</span>':'<span class="tag-pill closed">CLOSED</span>';h+='<div class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner br"></span><div class="sw-card"><div class="relative" style="height:220px;overflow:hidden;"><img src="'+r.image+'" alt="'+r.title+'" class="w-full h-full object-cover" loading="lazy"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(8,12,22,0.9) 0%,transparent 60%);"></div><div style="position:absolute;bottom:0;left:0;right:0;padding:16px 20px;"><div class="flex items-center gap-2 mb-1"><span class="sys-label">'+timeAgo(r.timestamp)+'</span>'+(c.length>0?'<span class="sys-label"><span class="sys-dot amber"></span>'+c.length+' CHAPTERS</span>':'')+'</div><h3 class="font-display font-bold text-base tracking-wide mb-1">'+r.title+'</h3><div class="flex flex-wrap gap-1 mb-2">'+r.tags.slice(0,3).map(function(t){return '<span class="tag-pill">'+t+'</span>';}).join('')+ct+'</div><span class="flex items-center gap-1 text-xs" style="color:var(--txt2)"><i class="fa-solid fa-heart"></i> '+r.likes+'</span></div></div></div></div></div></div></div></div>';})+'</div>';}else{h+='<p style="color:var(--txt3);font-size:13px;padding:20px 0;">No stories yet.</p>';}
   h+='</div></div>';document.getElementById('profile-content').innerHTML=h;
 }
 function toggleFollow(name){var target=findUser(name);if(!target||name===currentUser.name)return;var i=currentUser.following.indexOf(name);if(i!==-1){currentUser.following.splice(i,1);var ti=target.followers.indexOf(currentUser.name);if(ti!==-1)target.followers.splice(ti,1);showToast('Unfollowed '+name,'info');}else{currentUser.following.push(name);target.followers.push(currentUser.name);showToast('Now following '+name,'success');}renderProfile(name);}
-
 function renderFeed(){
-  var roots=getRootPosts(),tc=DB.posts.filter(function(p){return p.parentId!==null;}).length,as={};DB.posts.forEach(function(p){as[p.author]=true;});var ac=Object.keys(as).length;
+  var roots=getRootPosts(),tc=DB.posts.filter(function(p){return p.parentId!==null;}).length,as={};DB.posts.forEach(function(p){as[p.author]=true;});var ac=var ac=Object.keys(as).length;
   var h='<div class="dot-grid" style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:960px;margin:0 auto;">'
     +'<div class="flex flex-wrap items-center gap-6 mb-8 px-2"><span class="sys-label"><span class="sys-dot cyan"></span>'+roots.length+' THREADS</span><span class="sys-label"><span class="sys-dot amber"></span>'+tc+' CHAPTERS</span><span class="sys-label"><span class="sys-dot green"></span>'+ac+' CONTRIBUTORS</span></div>'
-    +'<div class="flex items-center gap-4 mb-8"><div class="h-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--cyan)">STORY FEED</h1><div class="h-px flex-1" style="background:var(--border)"></div></div><div class="flex flex-col gap-8">';
-  roots.forEach(function(root){var chs=getChapters(root.id),ct=root.collabOpen?'<span class="tag-pill collab"><span class="collab-pulse"><span class="cp-dot"></span></span> OPEN FOR COLLAB</span>':'<span class="tag-pill closed">CLOSED</span>';
-    h+='<article class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span><div class="sw-card"><div class="relative" style="height:320px;overflow:hidden;"><img src="'+root.image+'" alt="'+root.title+'" class="w-full h-full object-cover" loading="lazy"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(8,12,22,0.95) 0%,rgba(8,12,22,0.3) 40%,transparent 70%);"></div><div style="position:absolute;bottom:0;left:0;right:0;padding:24px 28px;"><div class="flex items-center gap-3 mb-3"><img src="'+root.avatar+'" class="w-9 h-9 rounded-full cursor-pointer" style="border:2px solid var(--cyan);" alt="'+root.author+'" onclick="showProfile(\''+root.author+'\')"><p class="font-display font-semibold text-sm tracking-wider clickable-name" onclick="showProfile(\''+root.author+'\')">'+root.author+'</p><p class="sys-label">'+timeAgo(root.timestamp)+'</p>'+(chs.length>0?'<span class="ml-auto sys-label"><span class="sys-dot amber"></span>'+chs.length+' CHAPTER'+(chs.length>1?'S':'')+'</span>':'<span class="ml-auto sys-label"><span class="sys-dot green"></span>ROOT</span>')+'</div><h2 class="font-display font-bold text-2xl tracking-wide mb-2">'+root.title+'</h2><p class="text-sm leading-relaxed mb-3" style="color:var(--txt2)">'+root.caption+'</p><div class="flex flex-wrap items-center gap-2 mb-4">'+root.tags.map(function(t){return '<span class="tag-pill">'+t+'</span>';}).join('')+ct+'</div><div class="flex items-center gap-4"><button onclick="likePost(\''+root.id+'\')" class="flex items-center gap-2 text-sm transition-colors" style="color:var(--txt2)" onmouseenter="this.style.color=\'#FF3D57\'" onmouseleave="this.style.color=\'var(--txt2)\'"><i class="fa-solid fa-heart"></i> '+root.likes+'</button>'+(root.collabOpen?'<button onclick="openModal(\'add-story\',DB.posts.find(function(p){return p.id===\''+root.id+'\'}))" class="sw-btn sw-btn-outline" style="padding:8px 18px;font-size:12px"><i class="fa-solid fa-code-branch"></i> ADD TO STORY</button>':'')+'</div></div></div></div></article>';
-    if(chs.length>0){h+='<div class="relative ml-8 sm:ml-14" style="padding-left:36px;"><div class="thread-line"></div>';chs.forEach(function(ch){h+='<div class="relative mb-6"><div class="chapter-dot"></div><article class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner br"></span><div class="sw-card"><div class="flex flex-col sm:flex-row"><div class="sm:w-56 h-40 sm:h-auto flex-shrink-0 overflow-hidden"><img src="'+ch.image+'" alt="'+ch.title+'" class="w-full h-full object-cover" loading="lazy"></div><div class="p-5 flex-1"><div class="flex items-center gap-2 mb-2"><img src="'+ch.avatar+'" class="w-6 h-6 rounded-full cursor-pointer" style="border:1px solid var(--cyan);" alt="'+ch.author+'" onclick="showProfile(\''+ch.author+'\')"><span class="font-display font-semibold text-xs tracking-wider clickable-name" onclick="showProfile(\''+ch.author+'\')">'+ch.author+'</span><span class="sys-label">'+timeAgo(ch.timestamp)+'</span></div><h3 class="font-display font-bold text-lg tracking-wide mb-2">'+ch.title+'</h3><p class="text-sm leading-relaxed mb-3" style="color:var(--txt2)">'+ch.caption+'</p><div class="flex flex-wrap gap-2 mb-3">'+ch.tags.map(function(t){return '<span class="tag-pill">'+t+'</span>';}).join('')+'</div><div class="flex items-center gap-4"><button onclick="likePost(\''+ch.id+'\')" class="flex items-center gap-2 text-sm transition-colors" style="color:var(--txt2)" onmouseenter="this.style.color=\'#FF3D57\'" onmouseleave="this.style.color=\'var(--txt2)\'"><i class="fa-solid fa-heart"></i> '+ch.likes+'</button><button onclick="openModal(\'add-story\',DB.posts.find(function(p){return p.id===\''+root.id+'\'}))" class="sw-btn sw-btn-ghost" style="padding:6px 14px;font-size:11px"><i class="fa-solid fa-code-branch"></i> CONTINUE</button></div></div></div></div></article></div>';});h+='</div>';}
-  });h+='</div></div></div>';document.getElementById('feed-content').innerHTML=h;
+    +'<div class="flex items-center gap-4 mb-8"><div class="h-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--cyan)">STORY FEED</h1><div class="h-px flex-1" style="background:var(--border)"></div></div>'
+    +'<div class="ad-slot-container"><div class="ad-slot-hud"><span class="ad-label">Community Partner</span><span style="color:var(--txt3); font-size:12px;">[Desktop Ad Slot]</span></div></div>'
+    +'<div class="flex flex-col gap-8">';
+  roots.forEach(function(root){var chs=getChapters(root.id),ct=root.collabOpen?'<span class="tag-pill collab"><span class="collab-pulse"><span class="cp-dot"></span></span> OPEN FOR COLLAB</span>':'<span class="tag-pill closed">CLOSED</span>';h+='<article class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span><div class="sw-card"><div class="relative" style="height:320px;overflow:hidden;"><img src="'+root.image+'" alt="'+root.title+'" class="w-full h-full object-cover" loading="lazy"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(8,12,22,0.95) 0%,rgba(8,12,22,0.3) 40%,transparent 70%);"></div><div style="position:absolute;bottom:0;left:0;right:0;padding:24px 28px;"><div class="flex items-center gap-3 mb-3"><img src="'+root.avatar+'" class="w-9 h-9 rounded-full cursor-pointer" style="border:2px solid var(--cyan);" alt="'+root.author+'" onclick="showProfile(\''+root.author+'\')"><p class="font-display font-semibold text-sm tracking-wider clickable-name" onclick="showProfile(\''+root.author+'\')">'+root.author+'</p><p class="sys-label">'+timeAgo(root.timestamp)+'</p>'+(chs.length>0?'<span class="ml-auto sys-label"><span class="sys-dot amber"></span>'+chs.length+' CHAPTER'+(chs.length>1?'S':'')+'</span>':'<span class="ml-auto sys-label"><span class="sys-dot green"></span>ROOT</span>')+'</div><h2 class="font-display font-bold text-2xl tracking-wide mb-2">'+root.title+'</h2><p class="text-sm leading-relaxed mb-3" style="color:var(--txt2)">'+root.caption+'</p><div class="flex flex-wrap items-center gap-2 mb-4">'+root.tags.map(function(t){return '<span class="tag-pill">'+t+'</span>';}).join('')+ct+'</div><div class="flex items-center gap-4"><button onclick="likePost(\''+root.id+'\')" class="flex items-center gap-2 text-sm transition-colors" style="color:var(--txt2)" onmouseenter="this.style.color=\'#FF3D57\'" onmouseleave="this.style.color=\'var(--txt2)\'"><i class="fa-solid fa-heart"></i> '+root.likes+'</button>'+(root.collabOpen?'<button onclick="openModal(\'add-story\',DB.posts.find(function(p){return p.id===\''+root.id+'\'}))" class="sw-btn sw-btn-outline" style="padding:8px 18px;font-size:12px"><i class="fa-solid fa-code-branch"></i> ADD TO STORY</button>':'')+'</div></div></div></div></div></article>';if(chs.length>0){h+='<div class="relative ml-8 sm:ml-14" style="padding-left:36px;"><div class="thread-line"></div>';chs.forEach(function(ch){h+='<div class="relative mb-6"><div class="chapter-dot"></div><article class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner br"></span><div class="sw-card"><div class="flex flex-col sm:flex-row"><div class="sm:w-56 h-40 sm:h-auto flex-shrink-0 overflow:hidden"><img src="'+ch.image+'" alt="'+ch.title+'" class="w-full h-full object-cover" loading="lazy"></div><div class="p-5 flex-1"><div class="flex items-center gap-2 mb-2"><img src="'+ch.avatar+'" class="w-6 h-6 rounded-full cursor-pointer" style="border:1px solid var(--cyan);" alt="'+ch.author+'" onclick="showProfile(\''+ch.author+'\')"><span class="font-display font-semibold text-xs tracking-wider clickable-name" onclick="showProfile(\''+ch.author+'\')">'+ch.author+'</span><span class="sys-label">'+timeAgo(ch.timestamp)+'</span></div><h3 class="font-display font-bold text-lg tracking-wide mb-2">'+ch.title+'</h3><p class="text-sm leading-relaxed mb-3" style="color:var(--txt2)">'+ch.caption+'</p><div class="flex flex-wrap gap-2 mb-3">'+ch.tags.map(function(t){return '<span class="tag-pill">'+t+'</span>';}).join('')+'</div><div class="flex items-center gap-4"><button onclick="likePost(\''+ch.id+'\')" class="flex items-center gap-2 text-sm transition-colors" style="color:var(--txt2)" onmouseenter="this.style.color=\'#FF3D57\'" onmouseleave="this.style.color=\'var(--txt2)\'"><i class="fa-solid fa-heart"></i> '+ch.likes+'</button><button onclick="openModal(\'add-story\',DB.posts.find(function(p){return p.id===\''+root.id+'\'}))" class="sw-btn sw-btn-ghost" style="padding:6px 14px;font-size:11px"><i class="fa-solid fa-code-branch"></i> CONTINUE</button></div></div></div></div></div></article></div>';});h+='</div>';} });h+='</div>';} });h+='</div></div></div>';document.getElementById('feed-content').innerHTML=h;
 }
-
 function likePost(id){var p=DB.posts.find(function(x){return x.id===id;});if(p){p.likes++;renderFeed();showToast('Liked!','success');}}
-
-function submitCreateStory(){
+async function uploadToSupabase(base64Data, path) {
+    if(!isLive) return base64Data;
+    try {
+        const res = await fetch(base64Data);
+        const blob = await res.blob();
+        const fileName = path + '_' + Date.now() + '.jpg';
+        const { data, error } = await supabaseClient.storage.from('photos').upload(fileName, blob, { contentType: 'image/jpeg' });
+        if (error) throw error;
+        const { data: { publicUrl } } = supabaseClient.storage.from('photos').getPublicUrl(fileName);
+        return publicUrl;
+    } catch(e) {
+        console.error("Upload error:", e);
+        showToast("Image upload failed", "error");
+        return null;
+    }
+}
+async function submitCreateStory(){
   var title=document.getElementById('cs-title').value.trim(),caption=document.getElementById('cs-caption').value.trim(),tagsRaw=document.getElementById('cs-tags').value.trim(),collab=document.getElementById('cs-collab').checked;
   if(!title||!caption){showToast('Title and caption required','error');return;}
   if(!pendingFinalImage){showToast('Please upload your final shot','error');return;}
   var tags=tagsRaw?tagsRaw.split(',').map(function(t){return t.trim().toLowerCase();}).filter(Boolean):[];
-  var bts=pendingBtsImage||'https://picsum.photos/seed/sw-bts'+Date.now()+'/800/500';
-  DB.posts.unshift({id:'p'+Date.now(),parentId:null,author:currentUser.name,avatar:currentUser.avatar,title:title,image:pendingFinalImage,btsImage:bts,caption:caption,tags:tags,timestamp:Date.now(),likes:0,collabOpen:collab});
+  showToast('Uploading images...', 'info');
+  var finalUrl = await uploadToSupabase(pendingFinalImage, 'finals');
+  var btsUrl = pendingBtsImage ? await uploadToSupabase(pendingBtsImage, 'bts') : 'https://picsum.photos/seed/sw-bts'+Date.now()+'/800/500';
+  if(!finalUrl) return;
+  var newPost = {id:'p'+Date.now(),parentId:null,author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,btsImage:btsUrl,caption:caption:tags:tags:timestamp:Date.now(),likes:0,collabOpen:collabOpen};
+  if(isLive) { await supabaseClient.from('posts').insert([{ author: currentUser.name, avatar: currentUser.avatar, title: title, image: finalUrl, bts_image: btsUrl, caption: caption, tags: tags, collab_open: collab }]); }
+  DB.posts.unshift(newPost);
   closeModal();renderFeed();showToast('Story published!','success');
 }
-
-function submitStory(parentId){
+async function submitStory(parentId){
   var title=document.getElementById('ch-title').value.trim(),caption=document.getElementById('ch-caption').value.trim(),tagsRaw=document.getElementById('ch-tags').value.trim();
   if(!title||!caption){showToast('Title and caption required','error');return;}
   if(!pendingFinalImage){showToast('Please upload your shot','error');return;}
   var tags=tagsRaw?tagsRaw.split(',').map(function(t){return t.trim().toLowerCase();}).filter(Boolean):[];
-  var bts=pendingBtsImage||'https://picsum.photos/seed/sw-ch'+Date.now()+'/800/500';
-  DB.posts.push({id:'p'+Date.now(),parentId:parentId,author:currentUser.name,avatar:currentUser.avatar,title:title,image:pendingFinalImage,btsImage:bts,caption:caption,tags:tags,timestamp:Date.now(),likes:0,collabOpen:false});
+  showToast('Uploading images...', 'info');
+  var finalUrl = await uploadToSupabase(pendingFinalImage, 'chapters');
+  var btsUrl = pendingBtsImage ? await uploadToSupabase(pendingBtsImage, 'bts') : 'https://picsum.photos/seed/sw-ch'+Date.now()+'/800/500';
+  if(!finalUrl) return;
+  var newPost = {id:'p'+Date.now(),parentId:parentId:parentId,author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,btsImage:btsUrl,caption:caption:tags:tags,timestamp:Date.now(),likes:0,collabOpen:false};
+  if(isLive) { await supabaseClient.from('posts').insert([{ parent_id: parentId, author: currentUser.name, avatar: currentUser.avatar, title: title, image: finalUrl, bts_image: btsUrl, caption: caption, tags: tags }]); }
+  DB.posts.push(newPost);
   closeModal();renderFeed();showToast('Chapter added!','success');
 }
-
-function initMap(){var c=document.getElementById('map-content');c.innerHTML='<div id="map-container"><div id="leaflet-map" style="width:100%;height:100%;"></div><div class="map-panel" style="top:16px;left:16px;padding:20px;min-width:220px;"><div class="flex items-center gap-3 mb-4"><i class="fa-solid fa-map-location-dot" style="color:var(--cyan);font-size:18px;"></i><span class="font-display font-bold text-lg tracking-wider" style="color:var(--cyan)">TOY MAP</span></div><button id="pin-toggle" onclick="togglePinMode()" class="sw-btn sw-btn-ghost map-pin-btn w-full justify-center mb-3"><i class="fa-solid fa-map-pin"></i> PIN MODE</button><div class="flex gap-2 mb-3"><button onclick="filterMap(\'all\')" class="mfb sw-btn sw-btn-outline flex-1 justify-center" data-filter="all" style="padding:6px 10px;font-size:10px">ALL</button><button onclick="filterMap(\'Spot\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Spot" style="padding:6px 10px;font-size:10px">SPOTS</button><button onclick="filterMap(\'Store\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Store" style="padding:6px 10px;font-size:10px">STORES</button></div><div class="sys-label mb-2">'+DB.locations.length+' PINNED</div></div><div class="map-panel" style="top:16px;right:16px;width:320px;max-height:calc(100vh-120px);overflow-y:auto;padding:20px;" id="loc-list-panel"><h3 class="font-display font-bold text-base tracking-wider mb-4" style="color:var(--amber)">LOCATION INDEX</h3><div id="loc-list"></div></div><div class="map-panel" style="bottom:16px;left:16px;padding:12px 16px;"><div class="flex items-center gap-4"><span class="flex items-center gap-2 text-xs" style="color:var(--txt2)"><span style="width:10px;height:10px;border-radius:50%;border:2px solid var(--cyan);display:inline-block;background:rgba(0,229,255,0.2);"></span> Spot</span><span class="flex items-center gap-2 text-xs" style="color:var(--txt2)"><span style="width:10px;height:10px;border-radius:50%;border:2px solid var(--amber);display:inline-block;background:rgba(255,179,0,0.2);"></span> Store</span></div></div></div>';
-  mapInstance=L.map('leaflet-map',{zoomControl:false}).setView([40.7282,-73.95],11);L.control.zoom({position:'bottomright'}).addTo(mapInstance);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'CartoDB',maxZoom:19}).addTo(mapInstance);
-  mapInstance.on('click',function(e){if(isPinning){pendingPinCoords={lat:e.latlng.lat,lng:e.latlng.lng};openModal('add-location');}});
-  renderMapMarkers('all');renderLocList();
-}
+function initMap(){var c=document.getElementById('map-content');c.innerHTML='<div id="map-container"><div id="leaflet-map" style="width:100%;height:100%;"></div><div class="map-panel" style="top:16px;left:16px;padding:20px;min-width:220px;"><div class="flex items-center gap-3 mb-4"><i class="fa-solid fa-map-location-dot" style="color:var(--cyan);font-size:18px;"></i><span class="font-display font-bold text-lg tracking-wider" style="color:var(--cyan)">TOY MAP</span></div><button id="pin-toggle" onclick="togglePinMode()" class="sw-btn sw-btn-ghost map-pin-btn w-full justify-center mb-3"><i class="fa-solid fa-map-pin"></i> PIN MODE</button><div class="flex gap-2 mb-3"><button onclick="filterMap(\'all\')" class="mfb sw-btn sw-btn-outline flex-1 justify-center" data-filter="all" style="padding:6px 10px;font-size:10px">ALL</button><button onclick="filterMap(\'Spot\')" class="mfb sw-btn sw-btn-px-ghost flex-1 justify-center" data-filter="Spot" style="padding:6px 10px;font-size:10px">SPOTS</button><button onclick="filterMap(\'Store\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Store" style="padding:6px 10px;font-size:10px">STORES</button></div><div class="sys-label mb-2">'+DB.locations.length+' PINNED</div></div><div class="map-panel" style="top:16px;right:16px;width:320px;max-height:calc(100vh-120px);overflow-y:auto;padding:20px;" id="loc-list-panel"><h3 class="font-display font-bold text-base tracking-wider mb-4" style="color:var(--amber)">LOCATION INDEX</h3><div id="loc-list"></div></div><div class="map-panel" style="bottom:16px;left:16px;padding:12px 16px;"><div class="flex items-center gap-4"><span class="flex items-center gap-2 text-xs" style="color:var(--txt2);"><span style="width:10px;height:10px;border-radius:50%;border:2px solid var(--cyan);display:inline-block;background:rgba(0,229,255,0.2);"></span> Spot</span><span class="flex items-center gap-2 text-xs" style="color:var(--txt2)"><span style="width:10px;height:10px;border-radius:50%;border:2px solid var(--amber);display:inline-block;background:rgba(255,179,0,0.2);"></span> Store</span></div></div></div></div></div>';
+  mapInstance=L.map('leaflet-map',{zoomControl:false}).setView([userLocation.lat, userLocation.lng],12);L.control.zoom({position:'bottomright'}).addTo(mapInstance);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'CartoDB',maxZoom:19}).addTo(mapInstance);
+  mapInstance.on('click',function(e){if(isPinning){pendingPinCoords={lat:e.latlng.lat,lng:e.latlng.lng};openModal('add-location');}}
+renderMapMarkers('all');renderLocList();}
 function renderMapMarkers(filter){if(!mapInstance)return;mapMarkers.forEach(function(m){mapInstance.removeLayer(m);});mapMarkers=[];var locs=filter==='all'?DB.locations:DB.locations.filter(function(l){return l.type===filter;});locs.forEach(function(loc){var s=loc.type==='Spot';var icon=L.divIcon({className:'',html:'<div class="custom-marker '+(s?'spot':'store')+'"><i class="fa-solid '+(s?'fa-camera':'fa-store')+'"></i></div>',iconSize:[32,32],iconAnchor:[16,16]});var marker=L.marker([loc.lat,loc.lng],{icon:icon}).addTo(mapInstance);marker.bindPopup('<div style="font-family:Rajdhani,sans-serif;font-weight:600;font-size:15px;margin-bottom:4px;">'+loc.name+'</div><div style="font-family:JetBrains Mono,monospace;font-size:10px;color:#8899B4;margin-bottom:6px;">'+loc.type.toUpperCase()+'</div><div style="font-size:12px;color:#E8ECF4;max-width:220px;">'+loc.desc+'</div>',{className:'dp'});mapMarkers.push(marker);});}
-function renderLocList(){var list=document.getElementById('loc-list');if(!list)return;var h='';DB.locations.forEach(function(loc){var s=loc.type==='Spot',bc=s?'var(--cyan)':'var(--amber)';h+='<div class="flex gap-3 mb-4 p-3 rounded cursor-pointer" style="background:var(--deep);border:1px solid var(--border);" onmouseenter="this.style.borderColor=\''+bc+'\'" onmouseleave="this.style.borderColor=\'var(--border)\'" onclick="flyToLoc('+loc.lat+','+loc.lng+')"><img src="'+loc.img+'" class="w-16 h-12 object-cover rounded flex-shrink-0" alt="'+loc.name+'"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-1"><span class="sys-dot '+(s?'cyan':'amber')+'"></span><span class="font-display font-semibold text-sm truncate">'+loc.name+'</span></div><p class="text-xs truncate" style="color:var(--txt2)">'+loc.desc+'</p></div></div>';});list.innerHTML=h;}
+function renderLocList(){var list=document.getElementById('loc-list');if(!list)return;var h='';DB.locations.forEach(function(loc){var s=loc.type==='Spot',bc=s?'var(--cyan)':'var(--amber)';h+='<div class="flex gap-3 mb-4 p-3 rounded cursor-pointer" style="background:var(--deep);border:1px solid var(--border);" onmouseenter="this.style.borderColor=\''+bc+'\'" onmouseleave="this.style.borderColor=\'var(--border)\'" onclick="flyToLoc('+loc.lat+','+loc.lng+')"><img src="'+loc.img+'" class="w-16 h-12px object-cover rounded flex-shrink-0" alt="'+loc.name+'"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-1"><span class="sys-dot '+(s?'cyan':'amber')+'"></span><span class="font-display font-semibold text-sm truncate">'+loc.name+'</span></div><p class="text-xs truncate" style="color:var(--txt2)">'+loc.desc+'</p></div></div></div></div>';});list.innerHTML=h;}
 function flyToLoc(lat,lng){if(mapInstance)mapInstance.flyTo([lat,lng],15,{duration:1.2})}
 function togglePinMode(){isPinning=!isPinning;var btn=document.getElementById('pin-toggle');if(btn){btn.classList.toggle('active',isPinning);btn.innerHTML=isPinning?'<i class="fa-solid fa-crosshairs"></i> CLICK MAP':'<i class="fa-solid fa-map-pin"></i> PIN MODE';}if(mapInstance)mapInstance.getContainer().style.cursor=isPinning?'crosshair':'';}
 function filterMap(type){document.querySelectorAll('.mfb').forEach(function(b){b.className='mfb sw-btn '+(b.getAttribute('data-filter')===type?'sw-btn-outline':'sw-btn-ghost')+' flex-1 justify-center';b.style.cssText='padding:6px 10px;font-size:10px';});renderMapMarkers(type);}
-function submitLocation(){var name=document.getElementById('loc-name').value.trim(),desc=document.getElementById('loc-desc').value.trim();if(!name||!desc||!pendingPinCoords){showToast('Name and description required','error');return;}DB.locations.push({id:'l'+Date.now(),type:selectedLocType,name:name,lat:pendingPinCoords.lat,lng:pendingPinCoords.lng,desc:desc,author:currentUser.name,votes:0,img:'https://picsum.photos/seed/sw-locnew'+Date.now()+'/400/300'});isPinning=false;pendingPinCoords=null;closeModal();renderMapMarkers('all');renderLocList();showToast('Location pinned!','success');}
-
-function renderWiki(){var cs={};DB.wiki.forEach(function(w){cs[w.category]=true;});var cats=['All'].concat(Object.keys(cs));var h='<div class="dot-grid" style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:960px;margin:0 auto;"><div class="flex items-center gap-4 mb-8"><div class="h-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--cyan)">KNOWLEDGE WIKI</h1><div class="h-px flex-1" style="background:var(--border)"></div></div><p class="text-center mb-8" style="color:var(--txt2);max-width:600px;margin:0 auto;">The community brain.</p><div class="mb-6" style="max-width:560px;margin:0 auto;"><div class="relative"><i class="fa-solid fa-magnifying-glass" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--txt3);"></i><input id="wiki-search" class="sw-input" style="padding-left:44px;height:56px;font-size:16px;" placeholder="Search..." oninput="filterWiki()"></div></div><div class="flex flex-wrap justify-center gap-3 mb-10">';
-  cats.forEach(function(c,i){h+='<button onclick="setWikiCat(\''+c+'\')" class="wcb sw-btn '+(i===0?'sw-btn-outline':'sw-btn-ghost')+'" data-cat="'+c+'" style="padding:8px 20px;font-size:12px">'+c.toUpperCase()+'</button>';});
-  h+='</div><div class="grid gap-6" id="wiki-grid">';DB.wiki.forEach(function(w){var ed=canEditWiki(w),prev=w.content.substring(0,140).trim()+'...';h+='<article class="hud-frame wa" data-cat="'+w.category+'" data-search="'+w.title.toLowerCase()+' '+w.content.toLowerCase()+'"><span class="hud-corner tl '+(ed?'amber':'')+'"></span><span class="hud-corner tr '+(ed?'amber':'')+'"></span><span class="hud-corner bl '+(ed?'amber':'')+'"></span><span class="hud-corner br '+(ed?'amber':'')+'"></span><div class="sw-card p-6"><div class="flex items-start justify-between mb-3"><div class="flex items-center gap-3"><span class="tag-pill">'+w.category+'</span>'+(ed?'<span class="sys-label" style="color:var(--amber)"><span class="sys-dot amber"></span>YOU CAN EDIT</span>':'')+'</div>'+(ed?'<button onclick="openModal(\'wiki-edit\',\''+w.id+'\')" class="sw-btn sw-btn-amber" style="padding:6px 14px;font-size:11px"><i class="fa-solid fa-pen"></i> EDIT</button>':'')+'</div><h2 class="font-display font-bold text-xl tracking-wide mb-2 cursor-pointer hover:underline" style="color:var(--txt);" onclick="openModal(\'wiki-detail\',DB.wiki.find(function(x){return x.id===\''+w.id+'\'}))">'+w.title+'</h2><p class="text-sm leading-relaxed mb-4" style="color:var(--txt2)">'+prev+'</p><div class="flex items-center justify-between"><div class="flex items-center gap-4"><span class="sys-label"><span class="sys-dot green"></span>'+w.author+'</span><span class="sys-label">'+timeAgo(w.lastUpdated)+'</span></div><button onclick="openModal(\'wiki-detail\',DB.wiki.find(function(x){return x.id===\''+w.id+'\'}))" class="sw-btn sw-btn-ghost" style="padding:6px 16px;font-size:11px">READ <i class="fa-solid fa-arrow-right"></i></button></div></div></article>';});h+='</div></div></div>';document.getElementById('wiki-content').innerHTML=h;}
+async function submitLocation(){var name=document.getElementById('loc-name').value.trim(),desc=document.getElementById('loc-desc').value.trim();if(!name||!desc||!pendingPinCoords){showToast('Name and description required','error');return;}var newLoc={id:'l'+Date.now(),type:selectedLocType,name:name,lat:pendingPinCoords.lat,lng:pendingPinCoords.lng,desc:desc,author:currentUser.name,votes:0,img:'https://showImagePlaceholder('+Date.now()+"/400/300')}';DB.locations.push(newLoc);if(isLive) { await supabaseClient.from('locations').insert([{type: selectedLocType, name: name, lat: pendingPinCoords.lat, lng: pendingPinCoords.lng, desc: desc, author: currentUser.name}]); }isPinning=false;pendingPinCoords=null;closeModal();renderMapMarkers('all');renderLocList();showToast('Location pinned!','success');}
+function renderWiki(){var cs={};DB.wiki.forEach(function(w){cs[w.category]=true;});var cats=['All'].concat(Object.keys(cs));var h='<div class="dot-grid" style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:960px;margin:0 auto;"><div class="flex items-center gap-4 mb-8"><div class="h-px flex-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--cyan)">KNOWLEDGE WIKI</h1><div class="h-px flex-px flex-1" style="background:var(--border)"></div></div><p class="text-center mb-8" style="color:var(--txt2);max-width:600px;margin:0 auto;">The community brain.</p><div class="mb-6" style="max-width:560px;margin:0 auto;"><div class="relative"><i class="fa-solid fa-magnifying-glass" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--txt3);"></i><input id="wiki-search" class="sw-input" style="padding-left:44px;height:56px;font-size:16px;" placeholder="Search..." oninput="filterWiki()"></div></div></div><div class="flex flex-wrap justify-center gap-3 mb-10">';cats.forEach(function(c,i){h+='<button onclick="setWikiCat(\''+c+'\')" class="wcb sw-btn '+(i===0?'sw-btn-outline':'sw-btn-ghost')+'" data-cat="'+c+'" style="padding:8px 20px;font-size:12px">'+c.toUpperCase()+'</button>';});h+='</div><div class="grid gap-6" id="wiki-grid">';DB.wiki.forEach(function(w){var ed=canEditWiki(w),prev=w.content.substring(0,140).trim()+'...';h+='<article class="hud-frame wa" data-cat="'+w.category+'" data-search="'+w.title.toLowerCase()+' '+w.content.toLowerCase()+'"><span class="hud-corner tl '+(ed?'amber':'')+'"></span><span class="hud-corner tr '+(ed?'amber':'')+'"></span><span class="hud-corner bl '+(ed?'amber':'')+'"></span><span class="hud-corner br '+(ed?'amber':'')+'"></span><div class="sw-card p-6"><div class="flex items-start justify-between mb-3"><div class="flex items-center gap-3"><span class="tag-pill">'+w.category+'</span>'+(ed?'<span class="sys-label" style="color:var(--amber)"><span class="sys-dot amber"></span>YOU CAN EDIT</span>':'')+'</div>'+(ed?'<button onclick="openModal(\'wiki-edit\',\''+w.id+'\')" class="sw-btn sw-btn-amber" style="padding:6px 14px;font-size:11px"><i class="fa-solid fa-pen"></i> EDIT</button>':'')+'</div></div><h2 class="font-display font-bold text-xl tracking-wide mb-2 cursor-pointer hover:underline" style="color:var(--txt);" onclick="openModal(\'wiki-detail\',DB.wiki.find(function(x){return x.id===\''+w.id+'\'}))">'+w.title+'</h2><p class="text-sm leading-relaxed mb-4" style="color:(var(--txt2)">'+prev+'</p><div class="flex items-center justify-between"><div class="flex items-center gap-4"><span class="sys-label"><span class="sys-dot green"></span>'+w.author+'</span><span class="sys-label">'+timeAgo(w.lastUpdated)+'</span></div><button onclick="openModal(\'wiki-detail\',DB.wiki.find(function(x){return x.id===\''+w.id+'\'}))" class="sw-btn sw-btn-ghost" style="padding:6px 16px;font-size:11px">READ <i class="fa-solid fa-arrow-right"></i></button></div></div></div></article>';});h+='</div></div></div>';document.getElementById('wiki-content').innerHTML=h;}
 var activeWikiCat='All';function setWikiCat(cat){activeWikiCat=cat;document.querySelectorAll('.wcb').forEach(function(b){b.className='wcb sw-btn '+(b.getAttribute('data-cat')===cat?'sw-btn-outline':'sw-btn-ghost');b.style.cssText='padding:8px 20px;font-size:12px';});filterWiki();}
 function filterWiki(){var s=(document.getElementById('wiki-search')?document.getElementById('wiki-search').value:'').toLowerCase();document.querySelectorAll('.wa').forEach(function(el){var cm=activeWikiCat==='All'||el.getAttribute('data-cat')===activeWikiCat;var sm=!s||el.getAttribute('data-search').indexOf(s)!==-1;el.style.display=(cm&&sm)?'':'none';});}
 function submitWikiEdit(id){var w=DB.wiki.find(function(x){return x.id===id;});if(!w)return;var t=document.getElementById('we-title').value.trim(),c=document.getElementById('we-cat').value,co=document.getElementById('we-content').value.trim();if(!t||!co){showToast('Required','error');return;}w.title=t;w.category=c;w.content=co;w.lastUpdated=Date.now();closeModal();renderWiki();showToast('Updated','success');}
-
-function renderBTS(){var h='<div style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:1100px;margin:0 auto;"><div class="flex items-center gap-4 mb-4"><div class="h-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--amber)">BEHIND THE SCENES</h1><div class="h-px flex-1" style="background:var(--border)"></div></div><p class="text-center mb-10" style="color:var(--txt2);max-width:600px;margin:0 auto;">Hold any card to illuminate the setup.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
-  DB.posts.forEach(function(p){h+='<div class="bts-card hud-frame" data-post-id="'+p.id+'" style="height:340px;border-radius:4px;overflow:hidden;"><span class="hud-corner tl amber"></span><span class="hud-corner tr amber"></span><span class="hud-corner bl amber"></span><span class="hud-corner br amber"></span><img src="'+p.image+'" alt="'+p.title+'" class="absolute inset-0" draggable="false"><div class="bts-layer"><img src="'+p.btsImage+'" alt="BTS" draggable="false"></div><div class="bts-indicator"><i class="fa-solid fa-bolt"></i> HOLD TO ILLUMINATE</div><div class="bts-label-reveal">BEHIND THE SCENES</div><div style="position:absolute;bottom:16px;left:16px;z-index:3;"><p class="font-display font-bold text-base tracking-wide clickable-name" style="text-shadow:0 2px 8px rgba(0,0,0,0.8);" onclick="showProfile(\''+p.author+'\')">'+p.author+'</p><p class="sys-label" style="text-shadow:0 1px 4px rgba(0,0,0,0.9);">'+p.title+'</p></div></div>';});
-  h+='</div></div></div>';document.getElementById('bts-content').innerHTML=h;attachBTSListeners();}
-function attachBTSListeners(){var cards=document.querySelectorAll('.bts-card');for(var i=0;i<cards.length;i++){(function(card){var layer=card.querySelector('.bts-layer'),fid=null;function start(e){e.preventDefault();card.classList.add('rev');var r=card.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY,x=cx-r.left,y=cy-r.top,mr=Math.sqrt(r.width*r.width+r.height*r.height),rad=0;function go(){rad+=20;if(rad<mr){layer.style.clipPath='circle('+rad+'px at '+x+'px '+y+'px)';fid=requestAnimationFrame(go)}else{layer.style.clipPath='circle(100% at 50% 50%)'}}go();}function stop(){card.classList.remove('rev');if(fid)cancelAnimationFrame(fid);fid=null;layer.style.clipPath='circle(0px at 50% 50%)';}card.addEventListener('mousedown',start);card.addEventListener('touchstart',start,{passive:false});card.addEventListener('mouseup',stop);card.addEventListener('mouseleave',stop);card.addEventListener('touchend',stop);card.addEventListener('touchcancel',stop);})(cards[i]);}}
-
+function renderBTS(){var h='<div style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:1100px;margin:0 auto;"><div class="flex items-center gap-4 mb-4"><div class="h-px flex-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--amber)">BEHIND THE SCENES</h1><div class="h-px flex-1" style="background:var(--border)"></div></div><p class="text-center mb-10" style="color:var(--txt2);max-width:600px;margin:0 auto;">Hold any card to illuminate the setup.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-6">';DB.posts.forEach(function(p){h+='<div class="bts-card hud-frame" data-post-id="'+p.id+'" style="height:340px;border-radius:4px;overflow:hidden;"><span class="hud-corner tl amber"></span><span class="hud-corner tr amber"></span><span class=" hud-corner bl amber"></span><span class="hud-corner br amber"></span><img src="'+p.image+'" alt="'+p.title+'" class="w-full h-full object-cover" draggable="false"><div class="bts-layer"><img src="'+p.btsImage+'" alt="BTS" draggable="false"><div class="bts-indicator"><i class="fa-solid fa-bolt"></i> HOLD TO ILLUMINATE</div><div class="bts-label-reveal">BEHIND THE SCENES</div><div style="position:absolute;bottom:16px;left:16px;z-index:3;"><p class="font-display font-bold text-base tracking-wide clickable-name" style="text-shadow:0 2px 8px rgba(0,0,0,0.8);" onclick="showProfile(\''+p.author+'\')">'+p.author+'</p><p class="sys-label" style="text-shadow:0 1px 4px rgba(0,0,0,0.9);">'+p.title+'</p></div></div></div></div></div></div></div></div></div></div></div>';document.getElementById('bts-content').innerHTML=h;attachBTSListeners();}
+function attachBTSListeners(){var cards=document.querySelectorAll('.bts-card');for(var i=0;i<cards.length;i++){(function(card){var layer=card.querySelector('.bts-layer'),fid=null;function start(e){e.preventDefault();card.classList.add('rev');var r=card.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.touches[0].clientY:e.touches[0].clientY=e.clientY,y=cy-r.top,x=cx-r.left,y=cy-r.top,mr=Math.sqrt(r.width*r.width+r.height*r.height),rad=0;function go(){rad+=20;if(rad<mr){layer.style.clipPath='circle('+rad+'px at '+x+'px '+y+'px)';fid=requestAnimationFrame(go)}else{layer.style.clipPath='circle(100% at 50% 50%)'}}go();}function stop(){card.classList.remove('rev');if(fid)cancelAnimationFrame(fid);fid=null;layer.style.clipPath='circle(0px at 50% 50%)';}card.addEventListener('mousedown',start);card.addEventListener('touchstart',start,{passive:false});card.addEventListener('mouseup',stop);card.addEventListener('mouseleave',stop);card.addEventListener('touchend',stop);card.addEventListener('touchcancel',stop);})(cards[i]);}}
 function renderMessages() {
   activeConvoId = null;
   var convos = DB.conversations.filter(function(c) { return c.participants.indexOf(currentUser.name) !== -1; });
-  var h = '<div class="msg-layout"><div class="msg-list-panel"><div class="p-4 border-b" style="border-color:var(--border)"><div class="flex items-center justify-between mb-4"><h2 class="font-display font-bold text-xl tracking-wider" style="color:var(--cyan)">MESSAGES</h2><button onclick="openModal(\'new-message\')" class="sw-btn sw-btn-ghost" style="padding:6px 12px;font-size:11px"><i class="fa-solid fa-pen-to-square"></i> NEW</button></div></div>';
-  
-  if (convos.length === 0) {
-    h += '<div class="p-8 text-center"><p class="sys-label">NO MESSAGES YET</p></div>';
-  } else {
-    convos.sort(function(a,b) {
-      var aM = DB.messages.filter(function(m){ return m.convoId === a.id; }).pop();
-      var bM = DB.messages.filter(function(m){ return m.convoId === b.id; }).pop();
-      return (bM ? bM.timestamp : 0) - (aM ? aM.timestamp : 0);
-    });
-
-    convos.forEach(function(c) {
-      var otherName = c.participants.filter(function(p){ return p !== currentUser.name; })[0];
-      var otherUser = findUser(otherName);
-      if(!otherUser) return;
-      var msgs = DB.messages.filter(function(m){ return m.convoId === c.id; });
-      var lastMsg = msgs[msgs.length - 1];
-      var preview = lastMsg ? (lastMsg.sender === currentUser.name ? 'You: ' : '') + lastMsg.text : 'Start a conversation...';
-      
-      h += '<div class="msg-list-item" onclick="openChat(\''+c.id+'\')">';
-      h += '<img src="'+otherUser.avatar+'" class="msg-avatar" alt="'+otherName+'">';
-      h += '<div class="msg-preview"><div class="msg-preview-name">'+otherName+'</div><div class="msg-preview-text">'+preview+'</div></div>';
-      if(c.unread > 0) { h += '<div class="msg-unread-badge">'+c.unread+'</div>'; }
-      h += '</div>';
-    });
-  }
-  h += '</div><div class="msg-empty-state msg-chat-panel"><i class="fa-solid fa-comments" style="font-size:48px;color:var(--border);"></i><p class="sys-label">SELECT A CONVERSATION</p></div></div>';
-  
-  document.getElementById('msg-content').innerHTML = h;
-}
-
-function openChat(convoId) {
-  activeConvoId = convoId;
-  var convo = DB.conversations.find(function(c){ return c.id === convoId; });
-  convo.unread = 0;
-  
-  var otherName = convo.participants.filter(function(p){ return p !== currentUser.name; })[0];
-  var otherUser = findUser(otherName);
-  var msgs = DB.messages.filter(function(m){ return m.convoId === convoId; });
-  msgs.sort(function(a,b){ return a.timestamp - b.timestamp; });
-
-  var h = '<div class="msg-layout">';
-  
-  h += '<div class="msg-list-panel hidden md:block">';
-  h += '<div class="p-4 border-b" style="border-color:var(--border)"><div class="flex items-center justify-between mb-4"><h2 class="font-display font-bold text-xl tracking-wider" style="color:var(--cyan)">MESSAGES</h2><button onclick="openModal(\'new-message\')" class="sw-btn sw-btn-ghost" style="padding:6px 12px;font-size:11px"><i class="fa-solid fa-pen-to-square"></i> NEW</button></div></div>';
-  h += '<div class="msg-list-item active" onclick="openChat(\''+convoId+'\')"><img src="'+otherUser.avatar+'" class="msg-avatar" alt="'+otherName+'"><div class="msg-preview"><div class="msg-preview-name">'+otherName+'</div><div class="msg-preview-text">Active now</div></div></div>';
-  h += '</div>';
-
-  h += '<div class="msg-chat-panel">';
-  h += '<div class="msg-chat-header">';
-  h += '<button onclick="renderMessages()" class="md:hidden sw-btn sw-btn-ghost" style="padding:8px"><i class="fa-solid fa-arrow-left"></i></button>';
-  h += '<img src="'+otherUser.avatar+'" class="msg-avatar" style="width:32px;height:32px;" alt="'+otherName+'">';
-  h += '<div><div class="font-display font-semibold tracking-wider clickable-name" onclick="showProfile(\''+otherName+'\')">'+otherName+'</div><div class="sys-label" style="margin-top:0;">ONLINE</div></div>';
-  h += '</div>';
-
-  h += '<div class="msg-chat-body" id="msg-scroll-area">';
-  msgs.forEach(function(m) {
-    var isSent = m.sender === currentUser.name;
-    h += '<div class="msg-bubble '+(isSent ? 'sent' : 'received')+'">';
-    h += m.text;
-    h += '<div class="msg-time">'+timeAgo(m.timestamp)+'</div>';
-    h += '</div>';
-  });
-  h += '</div>';
-
-  h += '<div class="msg-input-area">';
-  h += '<input id="msg-input" class="sw-input" placeholder="Type a message..." onkeydown="if(event.key===\'Enter\')sendMessage()">';
-  h += '<button onclick="sendMessage()" class="sw-btn sw-btn-primary" style="padding:12px 20px"><i class="fa-solid fa-paper-plane"></i></button>';
-  h += '</div>';
-
+  var h = '<div class="msg-layout"><div class="msg-list-panel"><div class="p-4 border-b" style="border-color: boundary:var(--border);"><div class="flex items-center justify-between mb-4"><h2 class="font-display font-bold text-xl tracking-wider" style="color:var(--cyan)">MESSAGES</h2><button onclick="openModal(\'new-message\')" class="sw-btn sw-btn-ghost" style="padding:6px 12px;font-size:11px"><i class="fa-solid fa-pen-to-square"></i> NEW</button></div></div></div>';
+  if (convos.length === 0) { h += '<div class="p-8 text-center"><p class="sys-label">NO MESSAGES YET</p></div>'; } else {
+    convos.sort(function(a,b) { var aM = DB.messages.filter(function(m){ return m.convoId === a.id; }).pop(); var bM = DB.messages.filter(function(m){ return m.convoId === b.id; }).pop(); return (bM ? bM.timestamp : 0) - (aM ? aM.timestamp : 0); });
+    convos.forEach(function(c) { var otherName = c.participants.filter(function(p){ return p !== currentUser.name; })[0]; var otherUser = findUser(otherName); if(!otherUser) return; var msgs = DB.messages.filter(function(m){ return m.convoId === c.id; }); var lastMsg = msgs[msgs.length - 1]; var preview = lastMsg ? (lastMsg.sender === currentUser.name ? 'You: ' : '') + lastMsg.text : 'Start a conversation...'; h += '<div class="msg-list-item" onclick="openChat(\''+c.id+'\')"><img src="'+otherUser.avatar+'" class="msg-avatar" alt="'+otherName+'"><div class="msg-preview"><div class="msg-preview-name">'+otherName+'</div><div class="msg-preview-text">'+preview+'</div></div>'; if(c.unread > 0) { h += '<div class="msg-unread-badge">'+c.unread+'</div>'; } h += '</div></div>'; });h+='</div><div class="msg-empty-state msg-chat-panel"><i class="fa-solid fa-comments" style="font-size:48px;color:var(--border);"></i><p class="sys-label">SELECT A CONVERSATION</p></div></div></div></div>';
   h += '</div></div>';
-
   document.getElementById('msg-content').innerHTML = h;
-  
-  setTimeout(function() {
-    var scrollArea = document.getElementById('msg-scroll-area');
-    if(scrollArea) { scrollArea.scrollTop = scrollArea.scrollHeight; }
-  }, 50);
 }
-
-function sendMessage() {
-  var input = document.getElementById('msg-input');
-  var text = input.value.trim();
-  if (!text || !activeConvoId) return;
-
-  DB.messages.push({
-    id: 'm' + Date.now(),
-    convoId: activeConvoId,
-    sender: currentUser.name,
-    text: text,
-    timestamp: Date.now()
-  });
-
-  input.value = '';
-  openChat(activeConvoId);
-}
-
-function startConvoWithName(targetName) {
-  if (targetName === currentUser.name) { showToast('Cannot message yourself', 'error'); return; }
-  
-  var existing = DB.conversations.find(function(c){ return c.participants.indexOf(currentUser.name) !== -1 && c.participants.indexOf(targetName) !== -1; });
-  
-  if (existing) {
-    closeModal();
-    showPage('msg');
-    setTimeout(function() { openChat(existing.id); }, 100);
-  } else {
-    var newId = 'c' + Date.now();
-    DB.conversations.push({ id: newId, participants: [currentUser.name, targetName], unread: 0 });
-    closeModal();
-    showPage('msg');
-    setTimeout(function() { openChat(newId); }, 100);
-  }
-}
-
-// --- CONTEST LOGIC ---
+function openChat(convoId) {
+  activeConvoId = convoId; var convo = DB.conversations.find(function(c){ return c.id === convoId; }); convo.unread = 0; var otherName = convo.participants.filter(function(p){ return p !== currentUser.name; })[0]; var otherUser = findUser(otherName); var msgs = DB.messages.filter(function(m){ return m.convoId === convoId; }); msgs.sort(function(a,b){ return a.timestamp - b.timestamp; }); 
+  var h = '<div class="msg-layout"><div class="msg-list-panel hidden md:block"><div class="p-4 border-b" style="border-color:var(--border)"><div class="flex items-center justify-between mb-4"><h2 class="font-display font-bold text-xl tracking-wider" style="color:var(--cyan)">MESSAGES</h2><button onclick="openModal(\'new-message\')" class="sw-btn sw-btn-ghost" style="padding:6px 12px;font-size:11px"><i class="fa-solid fa-pen-to-square"></i> NEW</button></div></div></div><div class="msg-list-item active" onclick="openChat(\''+convoId+'\')"><img src="'+otherUser.avatar+'" class="msg-avatar" alt="'+otherName+'"><div class="msg-preview"><div class="msg-preview-name">'+otherName+'</div><div class="msg-preview-text">Active now</div></div></div></div></div><div class="msg-list-panel hidden md:block"><div class="p-4 border-b" style="border-color:var(--border)"><div class="flex items-center justify-between mb-4"><h2 class="font-display font-bold text-xl tracking-wider" style="color:var(--cyan)">MESSAGES</h2><button onclick="openModal(\'new-message\')" class="sw-btn sw-btn-ghost" style="padding:6px 12px;font-size:11px"><i class="fa-solid fa-pen-to-square"></i> NEW</button></div></div></div><div class="msg-list-item active" onclick="openChat(\''+convoId+'\')"><img src="'+otherUser.avatar+'" class="msg-avatar" alt="'+otherName+'"><div class="msg-preview"><div class="msg-preview-name">'+otherName+'</div><div class="msg-preview-text">Active now</div></div></div></div></div></div><div class="msg-chat-panel"><div class="msg-chat-header"><button onclick="renderMessages()" class="md:hidden sw-btn sw-btn-ghost" style="padding:8px"><i class="fa-solid fa-arrow-left"></i></button><img src="'+otherUser.avatar+'" class="msg-avatar" style="width:32px;height:32px;" alt="'+otherName+'"><div class="font-display font-semibold tracking-wider clickable-name" onclick="showProfile(\''+otherName+'\')">'+otherName+'</div><div class="sys-label" style="margin-top:0;">ONLINE</div></div></div><div class="msg-chat-body" id="msg-scroll-area">';
+  msgs.forEach(function(m) { var isSent = m.sender === currentUser.name; h += '<div class="msg-bubble '+(isSent ? 'sent' : 'received')+'">'+m.text+'<div class="msg-time">'+timeAgo(m.timestamp)+'</div></div>'; });h += '</div><div class="msg-input-area"><input id="msg-input" class="sw-input" placeholder="Type a message..." onkeydown="if(event.key===\'Enter\')sendMessage()"><button onclick="sendMessage()" class="sw-btn sw-btn-primary" style="padding:12px 20px;"><i class="fa-solid fa-paper-plane"></i></button></div></div></div></div></div></div></div></div>';
+  document.getElementById('msg-content').innerHTML = h; setTimeout(function() { var scrollArea = document.getElementById('msg-scroll-area'); if(scrollArea) { scrollArea.scrollTop = scrollArea.scrollHeight; } }, 50); }
+function sendMessage() { var input = document.getElementById('msg-input'); var text = input.value.trim(); if (!text || !activeConvoId) return; DB.messages.push({ id: 'm' + Date.now(), convoId: activeConvoId, sender: currentUser.name, text: text, timestamp: Date.now() }); input.value = ''; openChat(activeConvoId); }
+function startConvoWithName(targetName) { if(targetName === currentUser.name) { showToast('Cannot message yourself', 'error'); return; } var existing = DB.conversations.find(function(c){ return c.participants.indexOf(currentUser.name) !== -1 && c.participants.indexOf(targetName) !== -1; }); if(existing) { closeModal(); showPage('msg'); setTimeout(function() { openChat(existing.id); }, 100); } else { var newId = 'c' + Date.now(); DB.conversations.push({ id: newId, participants: [currentUser.name, targetName], unread: 0 }); closeModal(); showPage('msg'); setTimeout(function() { openChat(newId); }, 100); } }
 function renderContest() {
-  activeContestTab = 'finals';
-  var c = DB.contest;
-  var daysLeft = Math.ceil((c.deadline - Date.now()) / 86400000);
-  
-  var h = '<div class="dot-grid" style="min-height:100vh;padding:0 0 80px;">'
-  
-  // HERO SECTION
-  + '<div class="hud-frame" style="height:320px;overflow:hidden;">'
-  + '<span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span>'
-  + '<img src="https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?w=1200&q=80" alt="Contest Theme" style="width:100%;height:100%;object-fit:cover;">'
-  + '<div style="position:absolute;inset:0;background:linear-gradient(to top, var(--deep) 10%, rgba(8,12,22,0.4) 50%, transparent 80%);"></div>'
-  + '<div style="position:absolute;bottom:0;left:0;right:0;padding:32px;">'
-  + '<div class="flex items-center gap-4 mb-4"><div class="h-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-4xl tracking-widest" style="color:var(--amber)">MONTHLY CONTEST</h1><div class="h-px flex-1" style="background:var(--border)"></div></div>'
-  + '<p class="sys-label" style="color:var(--cyan);margin-bottom:8px;">'+c.month+'</p>'
-  + '<h2 class="font-display font-bold text-5xl tracking-wider" style="line-height:1;">'+c.theme+'</h2>'
-  + '</div></div>'
-  
-  // ACTION BAR
-  + '<div style="max-width:960px;margin:0 auto;padding:24px 24px 0;">'
-  + '<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded" style="background:var(--card);border:1px solid var(--border);">'
-  + '<div class="flex flex-col gap-2">'
-  + '<span class="sys-label"><span class="sys-dot amber"></span>⏳ <span style="color:var(--txt)">'+daysLeft+' DAYS LEFT</span></span>'
-  + '<span class="sys-label">📸 <span style="color:var(--txt)">'+c.totalEntries+' ENTRIES</span></span>'
-  + '</div>'
-  + '<button onclick="showToast(\'Submit your final photo via the main Feed FAB!\',\'info\')" class="sw-btn sw-btn-primary"><i class="fa-solid fa-cloud-arrow-up"></i> SUBMIT FINAL PHOTO</button>'
-  + '</div>'
-  
-  // ACCORDION BRIEF
-  + '<div class="mt-4 sw-card p-0 overflow-hidden" style="cursor:pointer;" onclick="toggleContestAccordion()">'
-  + '<div class="p-4 flex items-center justify-between hover:bg-[rgba(0,229,255,0.04)] transition-colors">'
-  + '<span class="font-display font-semibold tracking-wider" style="color:var(--txt2)"><i class="fa-solid fa-list-ul mr-2"></i>THEME BRIEF, RULES & PRIZES</span>'
-  + '<i id="contest-acc-arrow" class="fa-solid fa-chevron-down" style="color:var(--txt3); transition: transform 0.2s;"></i>'
-  + '</div>'
-  + '<div id="contest-acc-body" class="accordion-body">'
-  + '<div class="px-4 pb-4 text-sm leading-relaxed" style="color:var(--txt2);border-top:1px solid var(--border); padding-top:16px;">'
-  + c.rules
-  + '<div class="mt-4 p-3 rounded" style="background:var(--deep);border:1px solid var(--border);"><span class="sys-label" style="color:var(--amber)"><i class="fa-solid fa-trophy mr-1"></i>PRIZE:</span> <span style="color:var(--txt);font-weight:bold;">'+c.prize+'</span></div>'
-  + '<p class="mt-3 sys-label" style="font-size:9px;">*Don\'t forget to share your setup in the Setups & BTS tab!*</p>'
-  + '</div></div></div>'
-  
-  // SUB-TABS
-  + '<div class="contest-subtabs mt-6">'
-  + '<button class="contest-subtab active" data-tab="finals" onclick="switchContestTab(\'finals\')"><i class="fa-solid fa-trophy mr-2"></i>FINAL ENTRIES</button>'
-  + '<button class="contest-subtab" data-tab="bts" onclick="switchContestTab(\'bts\')"><i class="fa-solid fa-wrench mr-2"></i>SETUPS & BTS</button>'
-  + '</div>'
-  
-  // TAB CONTENT CONTAINER
-  + '<div id="contest-tab-content" class="mt-6"></div>'
-  + '</div></div>';
-
-  document.getElementById('contest-content').innerHTML = h;
-  renderContestTab('finals');
-}
-
-function toggleContestAccordion() {
-  var body = document.getElementById('contest-acc-body');
-  var arrow = document.getElementById('contest-acc-arrow');
-  body.classList.toggle('open');
-  arrow.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
-}
-
-function switchContestTab(tabId) {
-  activeContestTab = tabId;
-  document.querySelectorAll('.contest-subtab').forEach(function(t) {
-    t.classList.toggle('active', t.getAttribute('data-tab') === tabId);
-  });
-  
-  // Handle FAB Visibility
-  document.getElementById('contest-fab').classList.toggle('visible', tabId === 'bts');
-  
-  renderContestTab(tabId);
-}
-
-function renderContestTab(tabId) {
-  var container = document.getElementById('contest-tab-content');
-  var c = DB.contest;
-  var h = '';
-
-  if (tabId === 'finals') {
-    h += '<div class="masonry-grid">';
-    c.finals.forEach(function(item) {
-      h += '<div class="masonry-item hud-frame"><span class="hud-corner tl"></span><span class="hud-corner br"></span>'
-      + '<div class="sw-card overflow-hidden">'
-      + '<div class="relative">'
-      + '<img src="'+item.image+'" class="w-full block" alt="Contest Entry" loading="lazy">'
-      + (item.hasBts ? '<div style="position:absolute;bottom:50px;right:8px;" class="tag-pill" style="background:rgba(0,0,0,0.7);border-color:var(--amber);color:var(--amber);">🔧 HAS BTS</div>' : '')
-      + '</div>'
-      + '<div class="p-3 flex items-center justify-between">'
-      + '<div class="flex items-center gap-2 cursor-pointer" onclick="showProfile(\''+item.author+'\')">'
-      + '<img src="'+item.avatar+'" class="w-6 h-6 rounded" style="border:1px solid var(--cyan);" alt="'+item.author+'">'
-      + '<span class="font-display text-sm font-semibold clickable-name">'+item.author+'</span>'
-      + '</div>'
-      + '<span class="flex items-center gap-1 text-xs" style="color:var(--txt3)"><i class="fa-solid fa-heart"></i> '+item.likes+'</span>'
-      + '</div></div></div>';
-    });
-    h += '</div>';
-  } else if (tabId === 'bts') {
-    h += '<div class="flex flex-col gap-6">';
-    c.btsFeed.forEach(function(item) {
-      h += '<div class="sw-card"><div class="flex items-center gap-3 p-4" style="border-bottom:1px solid var(--border);">'
-      + '<img src="'+item.avatar+'" class="w-10 h-10 rounded cursor-pointer" style="border:1px solid var(--amber);" alt="'+item.author+'" onclick="showProfile(\''+item.author+'\')">'
-      + '<span class="font-display font-semibold tracking-wider clickable-name" onclick="showProfile(\''+item.author+'\')">'+item.author+'</span>'
-      + '</div>'
-      + '<img src="'+item.image+'" class="w-full block" alt="BTS Setup" loading="lazy">'
-      + '<div class="p-4 text-sm" style="color:var(--txt2);">'+item.caption+'</div>'
-      + '<div class="px-4 pb-4"><button class="sw-btn sw-btn-ghost w-full justify-center" style="padding:8px;font-size:11px;"><i class="fa-solid fa-comment"></i> REPLY</button></div>'
-      + '</div>';
-    });
-    h += '</div>';
-  }
-
-  container.innerHTML = h;
-}
-
-
-document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
-(function(){var s=document.createElement('style');s.textContent='.dp .leaflet-popup-content-wrapper{background:#111827;color:#E8ECF4;border:1px solid #1E3048;border-radius:4px;box-shadow:0 8px 32px rgba(0,0,0,0.5)}.dp .leaflet-popup-tip{background:#111827}.dp .leaflet-popup-close-button{color:#4A5A78!important}.dp .leaflet-popup-close-button:hover{color:#E8ECF4!important}';document.head.appendChild(s);})();
-
-document.getElementById('nav-avatar-img').src=currentUser.avatar;
-renderFeed();
-</script>
-</body>
-</html>
+  activeContestTab = 'finals'; var c = DB.contest; var daysLeft = Math.ceil((c.deadline - Date.now()) / 86400000); var h = '<div class="dot-grid" style="min-height:100vh;padding:0 0 80px;"><div class="hud-frame" style="height:320px;overflow:hidden;"><span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span><img src="https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?w=1200&q=80" alt="Contest Theme" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;inset:0;background:linear-gradient(to top, var(--deep) 10%, rgba(8,12,22,0.4) 50%, transparent 80%);"></div><div style="position:absolute;bottom:0;left:0;right:0;padding:32px;"><div class="flex items-center gap-4 mb-4"><div class="h-px flex-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-4xl tracking-widest" style="color:var(--amber)">MONTHLY CONTEST</h1><div class="h-px flex-px flex-1" style="background:var(--border)"></div></div><p class="sys-label" style="color:var(--cyan);margin-bottom:8px;">'+c.month+'</p><h2 class="font-display font-bold text-5xl tracking-wider" style="line-height:1;">'+c.theme+'</h2></div></div></div><div style="max-width:960px;margin:0 auto;padding:24px 0;"><div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded" style="background:var(--card);border:1px solid var(--border);"><div class="flex flex-col gap-2 mb-4"><span class="sys-label"><span class="sys-dot amber"></span>⏳ <span style="color:var(--txt)">'+daysLeft+' DAYS LEFT</span></span></div><span class="sys-label">📸 <span style="color:var(--txt)">847 ENTRIES</span></span></div><button onclick="showToast(\'Submit your final photo via the main Feed FAB!\',\'info\')" class="sw-btn sw-btn-primary"><i class="fa-solid fa-cloud-arrow-up"></i> SUBMIT FINAL PHOTO</button></div></div><div class="mt-4 sw-card p-0 overflow-hidden" style="cursor:pointer;" onclick="toggleContestAccordion()"><div class="p-4 flex items-center justify-between hover:bg-[rgba(0,229,255,0.04)] transition-colors"><span class="font-display font-semibold tracking-wider" style="color: straightforward" style="color:var(--txt2)"><i class="fa-solid fa-list-ul mr-2"></i>THEME BRIEF, RULES & PRIZES</span><i id="contest-acc-arrow" class="fa-solid fa-chevron-down" style="color: straightforward;color:var(--txt3);transition: transform:0.2s;"></i></div></div><div id="contest-acc-body" class="accordion-body"><div class="px-4 pb-4 text-sm leading-relaxed" style="border-top:1px solid var(--border);padding-top:16px;">'+c.rules+'<div class="mt-4 p-3 rounded" style="background:var(--deep);border:1px solid var(--border);"><span class="sys-label" style="color:”; >PRIZE:</span> <span style="color:var(--txt);font-weight:bold;">'+c.prize+'</span></div><p class="mt-3 sys-label" style="font-size:9px;">*Don\'t forget to share your setup in the Setups & BTS tab!*</p></div></div></div></div><div class="contest-subtabs mt-6"><button class="contest-subtab active" data-tab="finals" onclick="switchContestTab(\'finals\')" style="border-bottom:2px solid var(--amber);">i class="fa-solid fa-trophy mr-2"></i>FINAL ENTRIES</button><button class="contest-subtab" data-tab="bts" onclick="switchContestTab(\'bts\')" style="border-bottom:2px solid transparent;"><i class="fa-solid fa-wrench mr-2"></i>SETUPS & BTS</button></div><div id="contest-tab-content" class="mt-6"></div></div></div></div></div>';
+  document.getElementById('contest-content').innerHTML = h; renderContestTab('finals'); }
+function toggleContestAccordion() { var body = document.getElementById('contest-acc-body'); var arrow = document.getElementById('contest-actual-arrow'); body.classList.toggle('open'); arrow.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)'; }
+function switchContestTab(tabId) { activeContestTab = tabId; document.querySelectorAll('.contest-subtab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-tab') === tabId); }); document.getElementById('contest-fab').classList.toggle('visible', tabId === 'bts'); renderContestTab(tabId); }
+function renderContestTab(tabId) { var container = document.getElementById('contest-tab-content'); var c = DB.contest; var h = ''; if (tabId === 'finals') { h += '<div class="masonry-grid">'; c.finals.forEach(function(item) { h += '<div class="masonry-item hud-frame"><span class="hud-corner tl"></span><span class="hud-corner br"></span><div class="sw-card overflow-hidden"><div class="relative"><img src="'+item.image+'" class="w-full block" alt="Contest Entry" loading="lazy"><div style="position:absolute;bottom:50px;right:8px;" class="tag-pill" style="position:absolute;bottom:50px;right:8px;background:rgba(0,0,0,0.7);border-color:var(--amber);color:var(--amber);">🔧 HAS BTS</div></div><div class="p-3 flex items-center justify-between"><div class="flex items-center gap-2 cursor-pointer" onclick="showProfile(\''+item.author+'\')"><img src="'+item.avatar+'" class="w-6 h-6 rounded" style="border:1px solid var(--cyan);border-radius:4px;" alt="'+item.author+'"><span class="font-display text-sm font-semibold clickable-name" onclick="showProfile(\''+item.author+'\')">'+item.author+'</span></div><span class="flex items-center gap-1 text-xs" style="color:var(--txt3);"><i class="fa-solid fa-heart"></i> '+item.likes+'</span></div></div></div></div></div></div></div></div>'; }); h += '</div>'; } else if (tabId === 'bts') { h += '<div class="flex flex-col gap-6">'; c.btsFeed.forEach(function(item) { h += '<div class="sw-card"><div class="flex items-center gap-3 p-4" style="border-bottom:1px solid var(--border);"><img src="'+item.avatar+'" class="w-10 h-10 rounded cursor-pointer" style="border:1px solid var(--amber);" alt="'+item.author+'" onclick="showProfile(\''+item.author+'\')"><span class="font-display font-semibold tracking-wider clickable-name" onclick="showProfile(\''+item.author+'\')">'+item.author+'</span></div><img src="'+item.image+'" class="w-full block" alt="BTS Setup" loading="lazy"><div class="p-4 text-sm" style="color:var(--txt2);">'+item.caption+'</div><div class="px-4 pb-4"><button class="sw-btn sw-btn-ghost w-full justify-center" style="padding:8px;font-size:11px;"><i class="fa-solid fa-comment"></i> REPLY</button></div></div></div></div></div></div>'; }) h += '</div>'; } container.innerHTML = h; }
+function renderWiki(){var cs={};DB.wiki.forEach(function(w){cs[w.category]=true;});var cats=['All'].concat(Object.keys(cs));var h='<div class="dot-grid" style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:960px;margin:0 auto;"><div class="flex items-center gap-4 mb-8"><div class="h-px flex-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--cyan)">KNOWLEDGE WIKI</h1><div class="h-px flex-px flex-1" style="background:var(--border)"></div></div><p class="text-center mb-8" style="color:(var(--txt2);max-width:600px;margin:0 auto;">The community brain.</p><div class="mb-6" style="max-width:560px;margin:0 auto;"><div class="relative"><i class="fa-solid fa-magnifying-glass" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--txt3);"></i><input id="wiki-search" class="sw-input" style="padding-left:44px;height:56px;font-size:16px;" placeholder="Search..." oninput="filterWiki()"></div></div><div class="flex flex-wrap justify-center gap-3 mb-10">';cats.forEach(function(c,i){h+='<button onclick="setWikiCat(\''+c+'\')" class="wcb sw-btn '+(i===0?'sw-btn-outline':'sw-btn-ghost')+'" data-cat="'+c+'" style="padding:8px 20px;font-size:12px">'+c.toUpperCase()+'</button>';});h+='</div><div class="grid gap-6" id="wiki-grid">';DB.wiki.forEach(function(w){var ed=canEditWiki(w),prev=w.content.substring(0,140).trim()+'...';h+='<article class="hud-frame wa" data-cat="'+w.category+'" data-search="'+w.title.toLowerCase()+' '+w.content.toLowerCase()+'"><span class="hud-corner tl '+(ed?'amber':'')+'"></span><span class="hud-corner tr '+(ed?'amber':'')+'"></span><span class="hud-corner bl '+(ed?'amber':'')+'"></span><div class="sw-card p-6"><div class="flex items-start justify-between mb-3"><div class="flex items-center gap-3"><span class="tag-pill">'+w.category+'</span>'+(ed?'<span class="sys-label" style="color:var(--amber)"><span class="sys-dot amber"></span>YOU CAN EDIT</span>':'')+'</div>'+(ed?'<button onclick="openModal(\'wiki-edit\',\''+w.id+'\')" class="sw-btn sw-btn-amber" style="padding:6px 14px;font-size:11px"><i class="fa-solid fa-pen"></i> EDIT</button>':'')+'</div></div></div></div></article>';});h+='</div></div></div></div>';document.getElementById('wiki-content').innerHTML=h;}
+var activeWikiCat='All';function setWikiCat(cat){activeWikiCat=cat;document.querySelectorAll('.wcb').forEach(function(b){b.className='wcb sw-btn '+(b.getAttribute('data-cat')===cat?'sw-btn-outline':'sw-btn-ghost');b.style.cssText='padding:8px 20px;font-size:12px;');filterWikiCat(cat);filterWiki();}';if(filterWiki()||setWikiCat('All'))filterWiki();}';function submitWikiEdit(id){var w=DB.wiki.find(function(x){return x.id===id;});if(!w)return;var t=document.getElementById('we-title').value.trim(),c=document.getElementById('we-cat').value,co=document.getElementById('we-content').value.trim();if(!t||!co){showToast('Required','error');return;}w.title=t;w.category=c;w.content=co;w.lastUpdated=Date.now();closeModal();renderWiki();showToast('Updated','success');}
+function renderBTS(){var h='<div style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:1100px;margin:0 auto;"><div class="flex items-center gap-4 mb-4"><div class="h-px flex-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-3xl tracking-widest" style="color: Beruf琥珀"></h1><div class="h-px flex-px flex-1" style="background:var(--border)"></h1 class="font-display font-bold text-5xl tracking-wider" style="line-height:1;">BEHIND THE SCENES</h1><p class="text-center mb-10" style="color:font-size:14px;max-width:600px;margin:0 auto;">Hold any card to illuminate the setup.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-6">';DB.posts.forEach(function(p){h+='<div class="bts-card hud-frame" data-post-id="'+p.id+'" style="height:340px;border-radius:4px;overflow:hidden;"><span class="hud-corner tl amber"></span><span class="hud-corner tr amber"></span><span class="hud-corner bl amber"></span><span class="hud-corner br amber"></span><img src="'+p.image+'" alt="'+p.title+'" class="absolute inset-0" draggable="false"><div class="bts-layer"><img src="'+p.btsImage+'" alt="BTS" draggable="false"><div class="bts-indicator"><i class="fa-solid fa-bolt"></i> HOLD TO ILLUMINATE</div><div class="bts-label-reveal">BEHIND THE SCENES</div><div style="position:absolute;bottom:16px;left:16px;z-index:3;"><p class="font-display font-bold text-base tracking-wide clickable-name" style="text-shadow:0 2px 8px rgba(0,0,0,0,0.8);"></i class="fa-solid fa-bolt"></i></i></div></div></div></div></div></div></div></div></div></div></div></div>';document.getElementById('bts-content').innerHTML=h;attachBTSListeners();}
+function attachBTSListeners(){var cards=document.querySelectorAll('.bts-card');for(var i=0;i<cards.length;i++){(function(card){var layer=card.querySelector('.bts-layer'),fid=null;function start(e){e.preventDefault();card.classList.add('rev');var r=card.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches[0].clientY:e.clientY,x=cx-r.left,y=cy-r.top,mr=Math.sqrt(r.width*r.width+r.height),rad=0;function go(){rad+=20;if(rad<mr){layer.style.clipPath='circle('+rad+'px at '+x+'px '+y+'px)';fid=requestAnimationFrame(go);}else{layer.style.clipPath='circle(100% at 50% 50%)';}function stop(){card.classList.remove('rev');if(fid)cancelAnimationFrame(fid);fid=null;layer.style.clipPath='circle(0px at 50% 50%)';}card.addEventListener('mousedown',start);card.addEventListener('touchstart',start,{passive:false
