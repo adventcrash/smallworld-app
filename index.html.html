@@ -77,25 +77,17 @@ textarea.sw-input{resize:vertical;min-height:100px}
 #lightbox-close{position:fixed;top:16px;right:16px;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:3001;transition:.2s}
 #lightbox-close:hover{background:rgba(255,255,255,0.18)}
 .img-zoomable{cursor:zoom-in;transition:opacity .15s}.img-zoomable:hover{opacity:0.92}
-
-/* Story image container - fixed dimensions */
 .story-img-wrap{position:relative;height:320px;overflow:hidden;cursor:zoom-in}
 .story-img-wrap.sm-chapter{height:auto;min-height:160px}
-
-/* Story image - properly sized with object-fit */
 .story-img-wrap .story-main-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
 .story-img-wrap.sm-chapter .story-main-img{position:relative;height:160px}
-
 .story-img-wrap .story-grad{position:absolute;inset:0;pointer-events:none}
 .story-img-wrap .story-text{position:absolute;bottom:0;left:0;right:0;padding:24px 28px;z-index:3}
 .story-img-wrap.sm-chapter .story-text{padding:16px 20px}
 .story-acts{position:relative;z-index:4}
-
-/* Avatar images - fixed dimensions */
 .story-avatar{width:36px;height:36px;min-width:36px;min-height:36px;max-width:36px;max-height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--cyan);cursor:pointer;transition:transform .15s}
 .story-avatar:hover{transform:scale(1.1)}
 .story-avatar-small{width:24px;height:24px;min-width:24px;min-height:24px;max-width:24px;max-height:24px;border-radius:50%;object-fit:cover;border:1px solid var(--cyan);cursor:pointer}
-
 .bts-card{position:relative;cursor:pointer;user-select:none;-webkit-user-select:none;overflow:hidden;border-radius:4px}
 .bts-card .bts-final-img{display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
 .bts-card .bts-bts-img{display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;transition:opacity .5s ease;z-index:1}
@@ -218,7 +210,7 @@ try{
 console.log('Loading data from Supabase...');
 
 var postsRes=await supabaseClient.from('posts').select('*').order('created_at',{ascending:false});
-if(postsRes.data&&postsRes.data.length>0){
+if(postsRes.error){console.error('Posts error:',postsRes.error);}else if(postsRes.data&&postsRes.data.length>0){
 DB.posts=postsRes.data.map(function(p){
 return{
 id:p.id,
@@ -239,7 +231,7 @@ console.log('Loaded '+DB.posts.length+' posts');
 }
 
 var btsRes=await supabaseClient.from('bts_entries').select('*').order('created_at',{ascending:false});
-if(btsRes.data&&btsRes.data.length>0){
+if(btsRes.error){console.error('BTS error:',btsRes.error);}else if(btsRes.data&&btsRes.data.length>0){
 DB.btsEntries=btsRes.data.map(function(b){
 return{
 id:b.id,
@@ -257,26 +249,31 @@ likes:b.likes||0
 console.log('Loaded '+DB.btsEntries.length+' BTS entries');
 }
 
+// Load locations with better error handling
 var locRes=await supabaseClient.from('locations').select('*');
-if(locRes.data&&locRes.data.length>0){
+if(locRes.error){
+console.error('Locations load error:',locRes.error);
+showToast('Error loading locations: '+locRes.error.message,'error');
+}else if(locRes.data){
+console.log('Raw locations data:',locRes.data);
 DB.locations=locRes.data.map(function(l){
 return{
 id:l.id,
 type:l.type||'Spot',
 name:l.name||'Unknown',
-lat:l.lat||0,
-lng:l.lng||0,
-desc:l.desc||'',
+lat:parseFloat(l.lat)||0,
+lng:parseFloat(l.lng)||0,
+desc:l.desc||l.description||'',
 author:l.author||'Anonymous',
 votes:l.votes||0,
-img:l.img||'https://picsum.photos/seed/loc'+l.id+'/400/300'
+img:l.img||l.image||'https://picsum.photos/seed/loc'+l.id+'/400/300'
 };
 });
 console.log('Loaded '+DB.locations.length+' locations');
 }
 
 var wikiRes=await supabaseClient.from('wiki').select('*').order('last_updated',{ascending:false});
-if(wikiRes.data&&wikiRes.data.length>0){
+if(wikiRes.error){console.error('Wiki error:',wikiRes.error);}else if(wikiRes.data&&wikiRes.data.length>0){
 DB.wiki=wikiRes.data.map(function(w){
 return{
 id:w.id,
@@ -291,7 +288,7 @@ console.log('Loaded '+DB.wiki.length+' wiki articles');
 }
 
 var usersRes=await supabaseClient.from('users').select('*');
-if(usersRes.data&&usersRes.data.length>0){
+if(usersRes.error){console.error('Users error:',usersRes.error);}else if(usersRes.data&&usersRes.data.length>0){
 DB.users=usersRes.data.map(function(u){
 return{
 id:u.id,
@@ -309,7 +306,7 @@ console.log('Loaded '+DB.users.length+' users');
 }
 
 dataLoaded=true;
-}catch(e){console.error('Error loading data:',e);}
+}catch(e){console.error('Error loading data:',e);showToast('Error loading data: '+e.message,'error');}
 hideLoading();
 renderFeed();
 document.getElementById('fab').classList.add('visible');
@@ -393,16 +390,15 @@ async function handleLogout(){if(isLive){try{await supabaseClient.auth.signOut()
 function setLocType(t){selectedLocType=t;var s=document.getElementById('loc-type-spot'),st=document.getElementById('loc-type-store');if(!s||!st)return;s.className='sw-btn sw-btn-'+(t==='Spot'?'outline':'ghost')+' flex-1 justify-center';st.className='sw-btn sw-btn-'+(t==='Store'?'outline':'ghost')+' flex-1 justify-center';s.style.fontSize='13px';st.style.fontSize='13px';}
 async function uploadToSupabase(base64Data,path){if(!isLive)return base64Data;try{var res=await fetch(base64Data);var blob=await res.blob();var fn=path+'_'+Date.now()+'.jpg';var r=await supabaseClient.storage.from('photos').upload(fn,blob,{contentType:'image/jpeg'});if(r.error)throw r.error;return supabaseClient.storage.from('photos').getPublicUrl(fn).data.publicUrl;}catch(e){console.error('Upload error:',e);showToast('Image upload failed','error');return null;}}
 
-async function submitCreateStory(){if(!currentUser.id){showToast('Please login first','error');return;}var title=document.getElementById('cs-title').value.trim(),caption=document.getElementById('cs-caption').value.trim(),tagsRaw=document.getElementById('cs-tags').value.trim(),collab=document.getElementById('cs-collab').checked;if(!title||!caption){showToast('Title and caption required','error');return;}if(!pendingFinalImage){showToast('Please upload your final shot','error');return;}var tags=tagsRaw?tagsRaw.split(',').map(function(t){return t.trim().toLowerCase();}).filter(Boolean):[];showToast('Publishing...','info');var finalUrl=await uploadToSupabase(pendingFinalImage,'finals');if(!finalUrl)return;var newPost={id:'p'+Date.now(),parentId:null,author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,btsImage:'',caption:caption,tags:tags,timestamp:Date.now(),likes:0,collabOpen:collab};DB.posts.unshift(newPost);if(isLive){try{await supabaseClient.from('posts').insert([{author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,caption:caption,tags:tags,collab_open:collab}]);}catch(e){console.error('Insert error:',e);}}closeModal();renderFeed();showToast('Story published!','success');}
+async function submitCreateStory(){if(!currentUser.id){showToast('Please login first','error');return;}var title=document.getElementById('cs-title').value.trim(),caption=document.getElementById('cs-caption').value.trim(),tagsRaw=document.getElementById('cs-tags').value.trim(),collab=document.getElementById('cs-collab').checked;if(!title||!caption){showToast('Title and caption required','error');return;}if(!pendingFinalImage){showToast('Please upload your final shot','error');return;}var tags=tagsRaw?tagsRaw.split(',').map(function(t){return t.trim().toLowerCase();}).filter(Boolean):[];showToast('Publishing...','info');var finalUrl=await uploadToSupabase(pendingFinalImage,'finals');if(!finalUrl)return;var newPost={id:'p'+Date.now(),parentId:null,author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,btsImage:'',caption:caption,tags:tags,timestamp:Date.now(),likes:0,collabOpen:collab};DB.posts.unshift(newPost);if(isLive){try{var insertRes=await supabaseClient.from('posts').insert([{author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,caption:caption,tags:tags,collab_open:collab}]);if(insertRes.error){console.error('Post insert error:',insertRes.error);showToast('Error saving: '+insertRes.error.message,'error');return;}}catch(e){console.error('Insert error:',e);showToast('Error: '+e.message,'error');return;}}closeModal();renderFeed();showToast('Story published!','success');}
 
-async function submitCreateBTS(){if(!currentUser.id){showToast('Please login first','error');return;}var title=document.getElementById('bts-title').value.trim(),caption=document.getElementById('bts-caption').value.trim(),tagsRaw=document.getElementById('bts-tags').value.trim();if(!pendingBtsFinalImage||!pendingBtsSetupImage){showToast('Both photos are required','error');return;}if(!title){showToast('Title is required','error');return;}var tags=tagsRaw?tagsRaw.split(',').map(function(t){return t.trim().toLowerCase();}).filter(Boolean):[];showToast('Publishing BTS...','info');var finalUrl=await uploadToSupabase(pendingBtsFinalImage,'bts_finals');var setupUrl=await uploadToSupabase(pendingBtsSetupImage,'bts_setups');if(!finalUrl||!setupUrl)return;var newBts={id:'bts'+Date.now(),author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,btsImage:setupUrl,caption:caption||'',tags:tags,timestamp:Date.now(),likes:0};DB.btsEntries.unshift(newBts);if(isLive){try{await supabaseClient.from('bts_entries').insert([{author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,bts_image:setupUrl,caption:caption||'',tags:tags}]);}catch(e){console.error('Insert error:',e);}}closeModal();renderBTS();showToast('BTS published!','success');}
+async function submitCreateBTS(){if(!currentUser.id){showToast('Please login first','error');return;}var title=document.getElementById('bts-title').value.trim(),caption=document.getElementById('bts-caption').value.trim(),tagsRaw=document.getElementById('bts-tags').value.trim();if(!pendingBtsFinalImage||!pendingBtsSetupImage){showToast('Both photos are required','error');return;}if(!title){showToast('Title is required','error');return;}var tags=tagsRaw?tagsRaw.split(',').map(function(t){return t.trim().toLowerCase();}).filter(Boolean):[];showToast('Publishing BTS...','info');var finalUrl=await uploadToSupabase(pendingBtsFinalImage,'bts_finals');var setupUrl=await uploadToSupabase(pendingBtsSetupImage,'bts_setups');if(!finalUrl||!setupUrl)return;var newBts={id:'bts'+Date.now(),author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,btsImage:setupUrl,caption:caption||'',tags:tags,timestamp:Date.now(),likes:0};DB.btsEntries.unshift(newBts);if(isLive){try{var insertRes=await supabaseClient.from('bts_entries').insert([{author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,bts_image:setupUrl,caption:caption||'',tags:tags}]);if(insertRes.error){console.error('BTS insert error:',insertRes.error);showToast('Error saving: '+insertRes.error.message,'error');return;}}catch(e){console.error('Insert error:',e);showToast('Error: '+e.message,'error');return;}}closeModal();renderBTS();showToast('BTS published!','success');}
 
 async function submitStory(parentId){if(!currentUser.id){showToast('Please login first','error');return;}var title=document.getElementById('ch-title').value.trim(),caption=document.getElementById('ch-caption').value.trim(),tagsRaw=document.getElementById('ch-tags').value.trim();if(!title||!caption||!pendingFinalImage){showToast('All fields required','error');return;}var tags=tagsRaw?tagsRaw.split(',').map(function(t){return t.trim().toLowerCase();}).filter(Boolean):[];showToast('Publishing chapter...','info');var finalUrl=await uploadToSupabase(pendingFinalImage,'chapters');if(!finalUrl)return;var newChapter={id:'p'+Date.now(),parentId:parentId,author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,btsImage:'',caption:caption,tags:tags,timestamp:Date.now(),likes:0,collabOpen:false};DB.posts.push(newChapter);if(isLive){try{await supabaseClient.from('posts').insert([{parent_id:parentId,author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,caption:caption,tags:tags}]);}catch(e){console.error('Insert error:',e);}}closeModal();renderFeed();showToast('Chapter added!','success');}
 function likePost(id){var p=DB.posts.find(function(x){return x.id===id;});if(p){p.likes++;if(isLive){supabaseClient.from('posts').update({likes:p.likes}).eq('id',id).catch(function(e){});}renderFeed();showToast('Liked!','success');}}
 function toggleFollow(name){if(!currentUser.id){showToast('Please login first','error');return;}var target=findUser(name);if(!target||name===currentUser.name)return;var i=currentUser.following.indexOf(name);if(i!==-1){currentUser.following.splice(i,1);var ti=target.followers.indexOf(currentUser.name);if(ti!==-1)target.followers.splice(ti,1);showToast('Unfollowed '+name,'info');}else{currentUser.following.push(name);target.followers.push(currentUser.name);showToast('Now following '+name,'success');}renderProfile(name);}
 async function submitEditProfile(){if(!currentUser.id){showToast('Please login first','error');return;}var bio=document.getElementById('ep-bio').value.trim();var avatarUrl=currentUser.avatar;if(pendingAvatarImage){showToast('Uploading avatar...','info');avatarUrl=await uploadToSupabase(pendingAvatarImage,'avatars');if(!avatarUrl){showToast('Avatar upload failed','error');return;}}currentUser.bio=bio;currentUser.avatar=avatarUrl;if(isLive){try{await supabaseClient.from('users').update({bio:bio,avatar:avatarUrl}).eq('id',currentUser.id);}catch(e){showToast('Error saving profile','error');return;}}document.getElementById('nav-avatar-img').src=currentUser.avatar;closeModal();renderProfile(currentUser.name);showToast('Profile updated!','success');}
 
-/* ===== FEED - Fixed image display ===== */
 function renderFeed(){var roots=getRootPosts(),tc=DB.posts.filter(function(p){return p.parentId!==null;}).length,as={};DB.posts.forEach(function(p){as[p.author]=true;});var ac=Object.keys(as).length;var h='<div class="dot-grid" style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:960px;margin:0 auto;"><div class="flex flex-wrap items-center gap-6 mb-8 px-2"><span class="sys-label"><span class="sys-dot cyan"></span>'+roots.length+' THREADS</span><span class="sys-label"><span class="sys-dot amber"></span>'+tc+' CHAPTERS</span><span class="sys-label"><span class="sys-dot green"></span>'+ac+' CONTRIBUTORS</span></div><div class="flex items-center gap-4 mb-8"><div class="h-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--cyan)">STORY FEED</h1><div class="h-px flex-1" style="background:var(--border)"></div></div><div class="ad-slot-container"><div class="ad-slot-hud"><span class="ad-label">Community Partner</span><span style="color:var(--txt3);font-size:12px;">[Desktop Ad Slot]</span></div></div><div class="flex flex-col gap-8">';if(roots.length===0){h+='<div style="text-align:center;padding:80px 20px;color:var(--txt3);"><i class="fa-solid fa-camera-retro" style="font-size:48px;margin-bottom:16px;color:var(--border);"></i><h3 class="font-display font-bold text-xl tracking-wider mb-2" style="color:var(--txt2)">NO STORIES YET</h3><p class="text-sm mb-6">Be the first to share your toy photography story!</p><button onclick="openModal(\'create-story\')" class="sw-btn sw-btn-primary"><i class="fa-solid fa-plus"></i> CREATE STORY</button></div>';}else{roots.forEach(function(root){var chs=getChapters(root.id),ct=root.collabOpen?'<span class="tag-pill collab"><span class="collab-pulse"><span class="cp-dot"></span></span> OPEN FOR COLLAB</span>':'<span class="tag-pill closed">CLOSED</span>';var safeImg=root.image.replace(/'/g,"\\'");h+='<article class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span><div class="sw-card"><div class="story-img-wrap" onclick="openLightbox(\''+safeImg+'\')"><img class="story-main-img" src="'+root.image+'" alt="'+root.title+'" loading="lazy"><div class="story-grad" style="background:linear-gradient(to top,rgba(8,12,22,0.95) 0%,rgba(8,12,22,0.3) 40%,transparent 70%);"></div><div class="story-text"><div class="flex items-center gap-3 mb-3 story-acts"><img src="'+root.avatar+'" class="story-avatar" alt="" onclick="event.stopPropagation();showProfile(\''+root.author+'\')"><p class="font-display font-semibold text-sm tracking-wider clickable-name" onclick="event.stopPropagation();showProfile(\''+root.author+'\')">'+root.author+'</p><p class="sys-label">'+timeAgo(root.timestamp)+'</p>'+(chs.length>0?'<span class="ml-auto sys-label"><span class="sys-dot amber"></span>'+chs.length+' CHAPTER'+(chs.length>1?'S':'')+'</span>':'<span class="ml-auto sys-label"><span class="sys-dot green"></span>ROOT</span>')+'</div><h2 class="font-display font-bold text-2xl tracking-wide mb-2">'+root.title+'</h2><p class="text-sm leading-relaxed mb-3" style="color:var(--txt2)">'+root.caption+'</p><div class="flex flex-wrap items-center gap-2 mb-4">'+root.tags.map(function(t){return '<span class="tag-pill">'+t+'</span>';}).join('')+ct+'</div><div class="flex items-center gap-4 story-acts"><button onclick="event.stopPropagation();likePost(\''+root.id+'\')" class="flex items-center gap-2 text-sm" style="color:var(--txt2)" onmouseenter="this.style.color=\'#FF3D57\'" onmouseleave="this.style.color=\'var(--txt2)\'"><i class="fa-solid fa-heart"></i> '+root.likes+'</button>'+(root.collabOpen?'<button onclick="event.stopPropagation();openModal(\'add-story\',DB.posts.find(function(p){return p.id===\''+root.id+'\'}))" class="sw-btn sw-btn-outline" style="padding:8px 18px;font-size:12px"><i class="fa-solid fa-code-branch"></i> ADD TO STORY</button>':'')+'</div></div></div></div></article>';if(chs.length>0){h+='<div class="relative ml-8 sm:ml-14" style="padding-left:36px;"><div class="thread-line"></div>';chs.forEach(function(ch){var safeCh=ch.image.replace(/'/g,"\\'");h+='<div class="relative mb-6"><div class="chapter-dot"></div><article class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner br"></span><div class="sw-card"><div class="flex flex-col sm:flex-row"><div class="sm:w-56 h-40 sm:h-auto flex-shrink-0 overflow-hidden story-img-wrap sm-chapter" onclick="openLightbox(\''+safeCh+'\')"><img class="story-main-img" src="'+ch.image+'" alt="'+ch.title+'" loading="lazy"></div><div class="p-5 flex-1"><div class="flex items-center gap-2 mb-2"><img src="'+ch.avatar+'" class="story-avatar-small" alt="" onclick="showProfile(\''+ch.author+'\')"><span class="font-display font-semibold text-xs tracking-wider clickable-name" onclick="showProfile(\''+ch.author+'\')">'+ch.author+'</span><span class="sys-label">'+timeAgo(ch.timestamp)+'</span></div><h3 class="font-display font-bold text-lg tracking-wide mb-2">'+ch.title+'</h3><p class="text-sm leading-relaxed mb-3" style="color:var(--txt2)">'+ch.caption+'</p><div class="flex flex-wrap gap-2 mb-3">'+ch.tags.map(function(t){return '<span class="tag-pill">'+t+'</span>';}).join('')+'</div><div class="flex items-center gap-4"><button onclick="likePost(\''+ch.id+'\')" class="flex items-center gap-2 text-sm" style="color:var(--txt2)" onmouseenter="this.style.color=\'#FF3D57\'" onmouseleave="this.style.color=\'var(--txt2)\'"><i class="fa-solid fa-heart"></i> '+ch.likes+'</button><button onclick="openModal(\'add-story\',DB.posts.find(function(p){return p.id===\''+root.id+'\'}))" class="sw-btn sw-btn-ghost" style="padding:6px 14px;font-size:11px"><i class="fa-solid fa-code-branch"></i> CONTINUE</button></div></div></div></div></article></div>';});h+='</div>';}});}h+='</div></div></div>';document.getElementById('feed-content').innerHTML=h;}
 
 function initMap(){var c=document.getElementById('map-content');c.innerHTML='<div id="map-container"><div id="leaflet-map" style="width:100%;height:100%;"></div><div class="map-panel" style="top:16px;left:16px;padding:20px;min-width:220px;"><div class="flex items-center gap-3 mb-4"><i class="fa-solid fa-map-location-dot" style="color:var(--cyan);font-size:18px;"></i><span class="font-display font-bold text-lg tracking-wider" style="color:var(--cyan)">TOY MAP</span></div><button id="pin-toggle" onclick="togglePinMode()" class="sw-btn sw-btn-ghost map-pin-btn w-full justify-center mb-3"><i class="fa-solid fa-map-pin"></i> PIN MODE</button><div class="flex gap-2 mb-3"><button onclick="filterMap(\'all\')" class="mfb sw-btn sw-btn-outline flex-1 justify-center" data-filter="all" style="padding:6px 10px;font-size:10px">ALL</button><button onclick="filterMap(\'Spot\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Spot" style="padding:6px 10px;font-size:10px">SPOTS</button><button onclick="filterMap(\'Store\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Store" style="padding:6px 10px;font-size:10px">STORES</button></div><div class="sys-label mb-2">'+DB.locations.length+' PINNED</div></div><div class="map-panel" style="top:16px;right:16px;width:320px;max-height:calc(100vh - 120px);overflow-y:auto;padding:20px;" id="loc-list-panel"><h3 class="font-display font-bold text-base tracking-wider mb-4" style="color:var(--amber)">LOCATION INDEX</h3><div id="loc-list"></div></div></div></div>';mapInstance=L.map('leaflet-map',{zoomControl:false}).setView([userLocation.lat,userLocation.lng],12);L.control.zoom({position:'bottomright'}).addTo(mapInstance);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'CartoDB',maxZoom:19}).addTo(mapInstance);mapInstance.on('click',function(e){if(isPinning){pendingPinCoords={lat:e.latlng.lat,lng:e.latlng.lng};openModal('add-location');}});renderMapMarkers('all');renderLocList();}
@@ -411,7 +407,74 @@ function renderLocList(){var list=document.getElementById('loc-list');if(!list)r
 function flyToLoc(lat,lng){if(mapInstance)mapInstance.flyTo([lat,lng],15,{duration:1.2});}
 function togglePinMode(){if(!currentUser.id){showToast('Please login to pin locations','error');return;}isPinning=!isPinning;var btn=document.getElementById('pin-toggle');if(btn){btn.classList.toggle('active',isPinning);btn.innerHTML=isPinning?'<i class="fa-solid fa-crosshairs"></i> CLICK MAP':'<i class="fa-solid fa-map-pin"></i> PIN MODE';}if(mapInstance)mapInstance.getContainer().style.cursor=isPinning?'crosshair':'';}
 function filterMap(type){document.querySelectorAll('.mfb').forEach(function(b){b.className='mfb sw-btn '+(b.getAttribute('data-filter')===type?'sw-btn-outline':'sw-btn-ghost')+' flex-1 justify-center';b.style.cssText='padding:6px 10px;font-size:10px';});renderMapMarkers(type);}
-async function submitLocation(){var name=document.getElementById('loc-name').value.trim(),desc=document.getElementById('loc-desc').value.trim();if(!name||!desc||!pendingPinCoords){showToast('Name and description required','error');return;}var locImg=pendingLocImage||(selectedLocType==='Spot'?'https://picsum.photos/seed/toy-photo-spot/400/300':'https://picsum.photos/seed/toy-hobby-store/400/300');if(pendingLocImage){showToast('Uploading photo...','info');var uploaded=await uploadToSupabase(pendingLocImage,'locations');if(uploaded)locImg=uploaded;}var newLoc={id:'l'+Date.now(),type:selectedLocType,name:name,lat:pendingPinCoords.lat,lng:pendingPinCoords.lng,desc:desc,author:currentUser.name,votes:0,img:locImg};DB.locations.push(newLoc);if(isLive){try{await supabaseClient.from('locations').insert([{type:selectedLocType,name:name,lat:pendingPinCoords.lat,lng:pendingPinCoords.lng,desc:desc,author:currentUser.name,img:locImg}]);}catch(e){console.error('Insert error:',e);}}isPinning=false;pendingPinCoords=null;closeModal();renderMapMarkers('all');renderLocList();showToast('Location pinned!','success');}
+
+async function submitLocation(){
+var name=document.getElementById('loc-name').value.trim(),
+desc=document.getElementById('loc-desc').value.trim();
+if(!name||!desc||!pendingPinCoords){
+showToast('Name and description required','error');
+return;
+}
+var locImg=pendingLocImage||(selectedLocType==='Spot'?'https://picsum.photos/seed/toy-photo-spot/400/300':'https://picsum.photos/seed/toy-hobby-store/400/300');
+if(pendingLocImage){
+showToast('Uploading photo...','info');
+var uploaded=await uploadToSupabase(pendingLocImage,'locations');
+if(uploaded)locImg=uploaded;
+}
+
+// Add to local DB first
+var newLoc={
+id:'l'+Date.now(),
+type:selectedLocType,
+name:name,
+lat:pendingPinCoords.lat,
+lng:pendingPinCoords.lng,
+desc:desc,
+author:currentUser.name,
+votes:0,
+img:locImg
+};
+DB.locations.push(newLoc);
+
+if(isLive){
+showToast('Saving location...','info');
+try{
+// Try inserting with the columns that should exist
+var insertData={
+type:selectedLocType,
+name:name,
+lat:pendingPinCoords.lat,
+lng:pendingPinCoords.lng,
+desc:desc,
+author:currentUser.name,
+img:locImg
+};
+console.log('Attempting to insert location:',insertData);
+var insertRes=await supabaseClient.from('locations').insert([insertData]);
+if(insertRes.error){
+console.error('Location insert error:',insertRes.error);
+showToast('Error saving location: '+insertRes.error.message,'error');
+// Check if it's a column error
+if(insertRes.error.message&&insertRes.error.message.indexOf('column')!==-1){
+showToast('Table may be missing columns. Check console.','error');
+}
+return;
+}
+console.log('Location saved successfully');
+}catch(e){
+console.error('Insert exception:',e);
+showToast('Error: '+e.message,'error');
+return;
+}
+}
+
+isPinning=false;
+pendingPinCoords=null;
+closeModal();
+renderMapMarkers('all');
+renderLocList();
+showToast('Location pinned!','success');
+}
 
 function renderWiki(){var cs={};DB.wiki.forEach(function(w){cs[w.category]=true;});var cats=['All'].concat(Object.keys(cs));var h='<div class="dot-grid" style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:960px;margin:0 auto;"><div class="flex items-center justify-between mb-8"><div class="flex items-center gap-4 flex-1"><div class="h-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--cyan)">KNOWLEDGE WIKI</h1><div class="h-px flex-1" style="background:var(--border)"></div></div><button onclick="openModal(\'wiki-create\')" class="sw-btn sw-btn-primary" style="padding:10px 16px;font-size:12px;margin-left:16px;"><i class="fa-solid fa-plus"></i> NEW</button></div><div class="mb-6" style="max-width:560px;margin:0 auto;"><div class="relative"><i class="fa-solid fa-magnifying-glass" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--txt3);"></i><input id="wiki-search" class="sw-input" style="padding-left:44px;height:56px;font-size:16px;" placeholder="Search articles..." oninput="filterWiki()"></div></div><div class="flex flex-wrap justify-center gap-3 mb-10">';cats.forEach(function(c,i){h+='<button onclick="setWikiCat(\''+c+'\')" class="wcb sw-btn '+(i===0?'sw-btn-outline':'sw-btn-ghost')+'" data-cat="'+c+'" style="padding:8px 20px;font-size:12px">'+c.toUpperCase()+'</button>';});h+='</div><div class="grid gap-6" id="wiki-grid">';if(DB.wiki.length===0){h+='<div style="text-align:center;padding:40px;color:var(--txt3);grid-column:1/-1;"><i class="fa-solid fa-book-open" style="font-size:32px;margin-bottom:12px;color:var(--border);"></i><p class="sys-label">NO ARTICLES YET</p></div>';}else{DB.wiki.forEach(function(w){var ed=canEditWiki(w),prev=w.content.substring(0,140).trim()+'...';h+='<article class="hud-frame wa" data-cat="'+w.category+'" data-search="'+w.title.toLowerCase()+' '+w.content.toLowerCase()+'"><span class="hud-corner tl '+(ed?'amber':'')+'"></span><span class="hud-corner tr '+(ed?'amber':'')+'"></span><span class="hud-corner bl '+(ed?'amber':'')+'"></span><span class="hud-corner br '+(ed?'amber':'')+'"></span><div class="sw-card p-6"><div class="flex items-start justify-between mb-3"><div class="flex items-center gap-3"><span class="tag-pill">'+w.category+'</span>'+(ed?'<span class="sys-label" style="color:var(--amber)"><span class="sys-dot amber"></span>YOU CAN EDIT</span>':'')+'</div>'+(ed?'<button onclick="openModal(\'wiki-edit\',\''+w.id+'\')" class="sw-btn sw-btn-amber" style="padding:6px 14px;font-size:11px"><i class="fa-solid fa-pen"></i> EDIT</button>':'')+'</div><h2 class="font-display font-bold text-xl tracking-wide mb-2 cursor-pointer" onclick="openModal(\'wiki-detail\',DB.wiki.find(function(x){return x.id===\''+w.id+'\'}))">'+w.title+'</h2><p class="text-sm leading-relaxed mb-4" style="color:var(--txt2)">'+prev+'</p><div class="flex items-center justify-between"><div class="flex items-center gap-4"><span class="sys-label"><span class="sys-dot green"></span>'+w.author+'</span><span class="sys-label">'+timeAgo(w.lastUpdated)+'</span></div><button onclick="openModal(\'wiki-detail\',DB.wiki.find(function(x){return x.id===\''+w.id+'\'}))" class="sw-btn sw-btn-ghost" style="padding:6px 16px;font-size:11px">READ <i class="fa-solid fa-arrow-right"></i></button></div></div></article>';});}h+='</div></div></div>';document.getElementById('wiki-content').innerHTML=h;}
 function setWikiCat(cat){activeWikiCat=cat;document.querySelectorAll('.wcb').forEach(function(b){b.className='wcb sw-btn '+(b.getAttribute('data-cat')===cat?'sw-btn-outline':'sw-btn-ghost');b.style.cssText='padding:8px 20px;font-size:12px';});filterWiki();}
@@ -427,7 +490,6 @@ function openChat(convoId){activeConvoId=convoId;var convo=DB.conversations.find
 function sendMessage(){var input=document.getElementById('msg-input');var text=input.value.trim();if(!text||!activeConvoId)return;DB.messages.push({id:'m'+Date.now(),convoId:activeConvoId,sender:currentUser.name,text:text,timestamp:Date.now()});input.value='';openChat(activeConvoId);}
 function startConvoWithName(targetName){if(targetName===currentUser.name){showToast('Cannot message yourself','error');return;}var existing=DB.conversations.find(function(c){return c.participants.indexOf(currentUser.name)!==-1&&c.participants.indexOf(targetName)!==-1;});if(existing){closeModal();showPage('msg');setTimeout(function(){openChat(existing.id);},100);}else{var newId='c'+Date.now();DB.conversations.push({id:newId,participants:[currentUser.name,targetName],unread:0});closeModal();showPage('msg');setTimeout(function(){openChat(newId);},100);}}
 
-/* ===== PROFILE - Fixed display ===== */
 function renderProfile(name){var user=findUser(name);if(!user&&name===currentUser.name)user=currentUser;if(!user)return;var stories=DB.posts.filter(function(p){return p.author===user.name&&p.parentId===null;}),chapters=DB.posts.filter(function(p){return p.author===user.name&&p.parentId!==null;}),totalLikes=0;DB.posts.forEach(function(p){if(p.author===user.name)totalLikes+=p.likes;});var isSelf=user.name===currentUser.name,isF=currentUser.following.indexOf(user.name)!==-1;var fb=isSelf?'<span class="tag-pill" style="border-color:var(--cyan);color:var(--cyan)">THIS IS YOU</span><button onclick="openModal(\'edit-profile\')" class="sw-btn sw-btn-ghost" style="padding:10px 16px;font-size:12px"><i class="fa-solid fa-pen"></i> EDIT</button>':'<button onclick="toggleFollow(\''+user.name+'\')" class="sw-btn '+(isF?'sw-btn-following':'sw-btn-follow')+'" style="padding:10px 20px;font-size:13px">'+(isF?'<i class="fa-solid fa-check"></i> FOLLOWING':'<i class="fa-solid fa-user-plus"></i> FOLLOW')+'</button>';var h='<div style="min-height:100vh;"><div class="profile-banner dot-grid"></div><div style="max-width:860px;margin:-48px auto 0;padding:0 24px 80px;position:relative;z-index:2;"><div class="flex flex-wrap items-end gap-5 mb-5"><img src="'+user.avatar+'" class="profile-avatar" width="96" height="96" alt=""><div class="flex-1 pb-1" style="min-width:200px;"><h1 class="font-display font-bold text-2xl tracking-wider mb-1">'+user.name+'</h1><p class="text-sm" style="color:var(--txt2)">'+(user.bio||'')+'</p></div><div class="flex items-center gap-3 pb-1 flex-wrap">'+fb+'<button onclick="goBack()" class="sw-btn sw-btn-ghost" style="padding:10px 16px;font-size:12px"><i class="fa-solid fa-arrow-left"></i> BACK</button></div></div><div class="mb-6"><span class="sys-label"><span class="sys-dot cyan"></span>JOINED '+timeAgo(user.joined)+'</span></div>';if(user.badges&&user.badges.length>0){h+='<div class="mb-6"><span class="sw-label" style="margin-bottom:12px;display:block;">BADGES</span><div class="badge-rack">';user.badges.forEach(function(b){var tc=b.tier===1?'t1':(b.tier===2?'t2':'t3'),ic=b.tier<=2?'fa-trophy':'fa-medal';h+='<div class="badge-item '+tc+'"><i class="fa-solid '+ic+'"></i><div class="badge-popup"><img src="'+b.image+'" alt=""><div class="badge-popup-info"><p class="sys-label" style="margin-bottom:4px;">'+(b.tier===1?'1ST':b.tier===2?'2ND':'FINALIST')+'</p><p class="font-display font-bold text-sm tracking-wider">'+b.contest+'</p></div></div></div>';});h+='</div></div>';}h+='<div class="hud-frame mb-8"><span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span><div class="grid grid-cols-5" style="background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;"><div class="stat-box"><div class="stat-num">'+stories.length+'</div><div class="stat-label">Stories</div></div><div class="stat-box"><div class="stat-num">'+chapters.length+'</div><div class="stat-label">Chapters</div></div><div class="stat-box"><div class="stat-num">'+user.followers.length+'</div><div class="stat-label">Followers</div></div><div class="stat-box"><div class="stat-num">'+user.following.length+'</div><div class="stat-label">Following</div></div><div class="stat-box"><div class="stat-num" style="color:var(--amber)">'+totalLikes+'</div><div class="stat-label">Likes</div></div></div></div><div class="flex items-center gap-4 mb-5"><span class="sys-label">STORIES</span><div class="h-px flex-1" style="background:var(--border)"></div></div>';if(stories.length===0){h+='<p style="color:var(--txt3);font-size:13px;padding:20px 0;">No stories yet.</p>';}else{h+='<div class="grid gap-5">';stories.forEach(function(r){var c=getChapters(r.id),ct=r.collabOpen?'<span class="tag-pill collab"><span class="collab-pulse"><span class="cp-dot"></span></span> OPEN</span>':'<span class="tag-pill closed">CLOSED</span>';var safeR=r.image.replace(/'/g,"\\'");h+='<div class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner br"></span><div class="sw-card"><div class="story-img-wrap" style="height:220px;" onclick="openLightbox(\''+safeR+'\')"><img class="story-main-img" src="'+r.image+'" alt="'+r.title+'" loading="lazy"><div class="story-grad" style="background:linear-gradient(to top,rgba(8,12,22,0.9) 0%,transparent 60%);"></div><div class="story-text" style="padding:16px 20px;"><div class="flex items-center gap-2 mb-1"><span class="sys-label">'+timeAgo(r.timestamp)+'</span>'+(c.length>0?'<span class="sys-label"><span class="sys-dot amber"></span>'+c.length+' CHAPTERS</span>':'')+'</div><h3 class="font-display font-bold text-base tracking-wide mb-1">'+r.title+'</h3><div class="flex flex-wrap gap-1 mb-2">'+r.tags.slice(0,3).map(function(t){return '<span class="tag-pill">'+t+'</span>';}).join('')+ct+'</div></div></div></div></div>';});h+='</div>';}h+='</div></div>';document.getElementById('profile-content').innerHTML=h;}
 
 function renderContest(){activeContestTab='finals';var c=DB.contest,daysLeft=Math.ceil((c.deadline-Date.now())/86400000);var h='<div class="dot-grid" style="min-height:100vh;padding:0 0 80px;"><div class="hud-frame" style="height:320px;overflow:hidden;"><span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span><img src="https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?w=1200&q=80" alt="Contest" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;inset:0;background:linear-gradient(to top,var(--deep) 10%,rgba(8,12,22,0.4) 50%,transparent 80%);"></div><div style="position:absolute;bottom:0;left:0;right:0;padding:32px;"><div class="flex items-center gap-4 mb-4"><div class="h-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-4xl tracking-widest" style="color:var(--amber)">MONTHLY CONTEST</h1><div class="h-px flex-1" style="background:var(--border)"></div></div><p class="sys-label" style="color:var(--cyan);margin-bottom:8px;">'+c.month+'</p><h2 class="font-display font-bold text-5xl tracking-wider" style="line-height:1;">'+c.theme+'</h2></div></div><div style="max-width:960px;margin:0 auto;padding:24px;"><div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded" style="background:var(--card);border:1px solid var(--border);"><div class="flex flex-wrap gap-6"><span class="sys-label"><span class="sys-dot amber"></span> '+daysLeft+' DAYS LEFT</span><span class="sys-label">'+c.totalEntries+' ENTRIES</span></div><button onclick="showToast(\'Submit via the Feed FAB!\',\'info\')" class="sw-btn sw-btn-primary"><i class="fa-solid fa-cloud-arrow-up"></i> SUBMIT</button></div><div class="mt-4 sw-card" style="cursor:pointer;" onclick="toggleContestAccordion()"><div class="p-4 flex items-center justify-between" onmouseenter="this.style.background=\'rgba(0,229,255,0.04)\'" onmouseleave="this.style.background=\'transparent\'"><span class="font-display font-semibold tracking-wider" style="color:var(--txt2)"><i class="fa-solid fa-list-ul mr-2"></i>RULES & PRIZES</span><i id="contest-acc-arrow" class="fa-solid fa-chevron-down" style="color:var(--txt3);transition:transform .2s;"></i></div><div id="contest-acc-body" class="accordion-body"><div class="px-4 pb-4 text-sm leading-relaxed" style="border-top:1px solid var(--border);padding-top:16px;">'+c.rules+'<div class="mt-4 p-3 rounded" style="background:var(--deep);border:1px solid var(--border);"><span class="sys-label" style="color:var(--amber)">PRIZE:</span> <span style="color:var(--txt);font-weight:bold;">'+c.prize+'</span></div></div></div></div><div class="contest-subtabs mt-6"><button class="contest-subtab active" data-tab="finals" onclick="switchContestTab(\'finals\')">FINAL ENTRIES</button><button class="contest-subtab" data-tab="bts" onclick="switchContestTab(\'bts\')">SETUPS & BTS</button></div><div id="contest-tab-content" class="mt-6"></div></div></div>';document.getElementById('contest-content').innerHTML=h;renderContestTab('finals');}
