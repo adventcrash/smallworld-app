@@ -239,7 +239,7 @@ var DB={
   btsEntries:[],
   conversations:[],
   messages:[],
-  contestEntries:[],
+  contestEntries[],
   contestConfig:{active:false,theme:'',month:'',deadline:null,prize:'',rules:''},
   siteContent:[]  // NEW: Site content blocks (About, Help, Policies)
 };
@@ -1391,7 +1391,8 @@ function renderMapMarkers(filter){
       iconAnchor:[16,16]
     });
     
-    var marker=L.marker([loc.lat,lng],{icon:icon}).addTo(mapInstance);
+    // ✅ FIXED: Changed 'lng' to 'loc.lng'
+    var marker=L.marker([loc.lat,loc.lng],{icon:icon}).addTo(mapInstance);
     
     // ✅ SAFE: Escaping location data in popup
     marker.bindPopup(
@@ -1703,7 +1704,8 @@ function attachBTSListeners(){
 // ============================================
 function renderMessages(){
   activeConvoId=null;
-  var convos=DB.conversations.filter(function(c){return c.participants.indexOf(currentUser.name)!==-1;});
+  var convos=DB.conversations.filter(function(c){return c.participants.indexOf
+(currentUser.name)!==-1;});
   
   // 🆕 HELP CARD AT TOP OF MESSAGES
   var h='<div class="msg-layout">'+
@@ -1794,7 +1796,7 @@ function openChat(convoId){
       '<div class="msg-chat-header">'+
         '<button onclick="renderMessages()" class="md:hidden sw-btn sw-btn-ghost" style="padding:8px"><i class="fa-solid fa-arrow-left"></i></button>'+
         '<img src="'+safeImgUrl(otherUser.avatar)+'" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);" alt="">'+
-        '<div class="font-display font-semibold tracking-wider clickable-name" onclick="showProfile(\''+safeOtherName+\')">'+escHTML(otherName)+'</div>'+
+        '<div class="font-display font-semibold tracking-wider clickable-name" onclick="showProfile(\''+safeOtherName+'\')">'+escHTML(otherName)+'</div>'+
         '<div class="sys-label">ONLINE</div>'+
       '</div>'+
       '<div class="msg-chat-body" id="msg-scroll-area">';
