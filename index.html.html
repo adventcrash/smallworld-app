@@ -221,6 +221,7 @@ initApp();
 
 function timeAgo(ts){var d=Date.now()-ts,m=Math.floor(d/60000),h=Math.floor(d/36e5),dd=Math.floor(d/864e5);return dd>0?dd+'d ago':h>0?h+'h ago':m>0?m+'m ago':'now';}
 function findUser(n){return DB.users.find(function(u){return u.name===n;})||null;}
+function safeTags(tags){return tags||[];}
 function getRootPosts(){return DB.posts.filter(function(p){return p.parentId===null;});}
 function getChapters(pid){return DB.posts.filter(function(p){return p.parentId===pid;}).sort(function(a,b){return a.timestamp-b.timestamp;});}
 function canEditWiki(e){return currentUser.name===e.author;}
