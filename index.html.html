@@ -972,7 +972,7 @@ function openModal(type,data){
       return x.id===data;
     });
     if(!w)return;
-    html='<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--amber)">EDIT ARTICLE</h2>'+cb+'</div><div class="flex flex-col gap-4"><div><label class="sw-label">Title</label><input id="we-title" class="sw-input" value="'+escAttr(w.title)+'"></div><div><label class="sw-label">Category</label><select id="we-cat" class="sw-input"><option value="Photography"'+(w.category==='Photography?' selected':'')+'>Photography</option><option value="DIY"'+(w.category==='DIY?' selected':'')+'>DIY</option></select>'DIY?' selected':'')+'>DIY</option></select></div><div><label class="sw-label">Content</label><textarea id="we-content" class="sw-input" style="min-height:200px">'+escHTML(w.content)+'</textarea></div><button onclick="submitWikiEdit(\''+escAttr(w.id)+'\')" class="sw-btn sw-btn-amber mt-2 justify-center"><i class="fa-solid fa-save"></i> SAVE</button></div></div>';
+    html='<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--amber)">EDIT ARTICLE</h2>'+cb+'</div><div class="flex flex-col gap-4"><div><label class="sw-label">Title</label><input id="we-title" class="sw-input" value="'+escAttr(w.title)+'"></div><div><label class="sw-label">Category</label><select id="we-cat" class="sw-input"><option value="Photography"'+(w.category==='Photography?' selected':'')+'>Photography</option><option value="DIY"'+(w.category==='DIY?' selected':'')+'>DIY</option></select></div><div><label class="sw-label">Content</label><textarea id="we-content" class="sw-input" style="min-height:200px">'+escHTML(w.content)+'</textarea></div><button onclick="submitWikiEdit(\''+escAttr(w.id)+'\')" class="sw-btn sw-btn-amber mt-2 justify-center"><i class="fa-solid fa-save"></i> SAVE</button></div></div>';
   }
   else if(type==='edit-profile'){
     pendingAvatarImage=null;
@@ -1156,7 +1156,7 @@ async function initApp(){
             avatar:u.avatar,
             bio:u.bio,
             followers:[],
-            following[],
+            following:[],
             joined:u.joined?new Date(u.joined).getTime():Date.now(),
             badges:u.badges||[],
             isAdmin:isAdminUser(uname)
@@ -1971,7 +1971,7 @@ function renderFeed(){
   });
   var ac=Object.keys(as).length;
   
-  // 🆕 HELP CARD AT TOP OF FEED
+  // HELP CARD AT TOP OF FEED
   var h=renderHelpCard('feed')+
     '<div class="dot-grid" style="min-height:100vh;padding:32px 24px 80px;">'+
     '<div style="max-width:960px;margin:0 auto;">'+
@@ -2002,7 +2002,7 @@ function renderFeed(){
         '<span class="tag-pill collab"><span class="collab-pulse"><span class="cp-dot"></span></span> OPEN FOR COLLAB</span>':
         '<span class="tag-pill closed">CLOSED</span>';
       
-      // ✅ SAFE: Using escAttr for onclick handlers
+      // SAFE: Using escAttr for onclick handlers
       var safeImg=safeImgUrl(root.image);
       var safeAuthor=escAttr(root.author);
       var safeRootId=escAttr(root.id);
@@ -2168,10 +2168,10 @@ function renderMapMarkers(filter){
       iconAnchor:[16,16]
     });
     
-    // ✅ FIX: Use loc.lat and loc.lng correctly
+    // FIX: Use loc.lat and loc.lng correctly
     var marker=L.marker([loc.lat, loc.lng],{icon:icon}).addTo(mapInstance);
     
-    // ✅ SAFE: Escaping location data in popup
+    // SAFE: Escaping location data in popup
     marker.bindPopup(
       '<div style="font-family:Rajdhani,sans-serif;font-weight:600;font-size:15px;margin-bottom:4px;">'+escHTML(loc.name)+'</div>'+
       '<div style="font-family:JetBrains Mono,monospace;font-size:10px;color:#8899B4;margin-bottom:6px;">'+escHTML(loc.type.toUpperCase())+'</div>'+
@@ -2261,7 +2261,7 @@ function renderWiki(){
   });
   var cats=['All'].concat(Object.keys(cs));
   
-  // 🆕 HELP CARD AT TOP OF WIKI
+  // HELP CARD AT TOP OF WIKI
   var h=renderHelpCard('wiki')+
     '<div class="dot-grid" style="min-height:100vh;padding:32px 24px 80px;">'+
     '<div style="max-width:960px;margin:0 auto;">'+
@@ -2357,7 +2357,7 @@ function filterWiki(){
 function renderBTS(){
   var entries=DB.btsEntries;
   
-  // 🆕 HELP CARD AT TOP OF BTS
+  // HELP CARD AT TOP OF BTS
   var h='<div style="min-height:100vh;padding:32px 24px 80px;">'+
     '<div style="max-width:1100px;margin:0 auto;">'+
     '<div class="flex items-center gap-4 mb-4">'+
@@ -2402,7 +2402,8 @@ function renderBTS(){
               '<div style="position:absolute;bottom:16px;left:16px;right:16px;">'+
                 '<p class="font-display font-bold text-base tracking-wider clickable-name" style="text-shadow:0 2px 8px rgba(0,0,0,0.9);" onclick="event.stopPropagation();showProfile(\''+safeEAuthor+'\')">'+escHTML(e.author)+'</p>'+
                 '<p class="sys-label" style="text-shadow:0 1px 4px rgba(0,0,0,0.9);">'+escHTML(e.title)+'</p>'+
-                (e.caption?'<p class="text-xs mt-1" style="color:var(--txt2);text-shadow:0 1px 4px rgba(0,0,0,0.9);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escHTML(e.caption)+'</p>':'')+
+                (e.caption?'<p class="text-xs mt-1" style="color:var(--txt2
+);text-shadow:0 1px 4px rgba(0,0,0,0.9);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escHTML(e.caption)+'</p>':'')+
               '</div>'+
               '<div style="position:absolute;top:16px;left:16px;display:flex;gap:4px;">';
               
@@ -2499,7 +2500,7 @@ function renderMessages(){
     return c.participants.indexOf(currentUser.name)!==-1;
   });
   
-  // 🆕 HELP CARD AT TOP OF MESSAGES
+  // HELP CARD AT TOP OF MESSAGES
   var h='<div class="msg-layout">'+
     '<div class="msg-list-panel">'+
       '<div class="p-4" style="border-bottom:1px solid var(--border);">'+
@@ -2639,7 +2640,7 @@ function renderContest(){
   
   var c=DB.contestConfig;
   
-  // 🆕 HELP CARD AT TOP OF CONTEST
+  // HELP CARD AT TOP OF CONTEST
   var h='<div class="dot-grid" style="min-height:100vh;padding:0 0 80px;">';
   
   if(!c.active||!c.theme){
