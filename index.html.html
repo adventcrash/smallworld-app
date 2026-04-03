@@ -55,7 +55,6 @@ body{margin:0;background:var(--deep);color:var(--txt);font-family:'IBM Plex Sans
 .sw-btn-follow{border:1px solid var(--green);color:var(--green);background:transparent}.sw-btn-follow:hover{background:rgba(0,230,118,0.1)}
 .sw-btn-following{border:1px solid var(--txt3);color:var(--txt3);background:transparent}
 .sw-btn-danger{background:transparent;border:1px solid var(--red);color:var(--red)}.sw-btn-danger:hover{background:rgba(255,61,87,0.1)}
-.sw-btn-sm{padding:8px 16px;font-size:12px}
 .sw-input{width:100%;padding:14px 16px;font-family:'IBM Plex Sans',sans-serif;font-size:15px;background:var(--deep);border:1px solid var(--border);border-radius:3px;color:var(--txt);outline:none;transition:border-color .2s}.sw-input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(0,229,255,0.1)}.sw-input::placeholder{color:var(--txt3)}
 textarea.sw-input{resize:vertical;min-height:100px}
 .sw-label{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txt2);margin-bottom:6px;display:block}
@@ -138,8 +137,6 @@ textarea.sw-input{resize:vertical;min-height:100px}
 .creator-badge i{font-size:14px}
 .admin-delete-btn{padding:6px 12px;font-size:11px;background:transparent;border:1px solid var(--red);color:var(--red);border-radius:3px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px;transition:all .2s}
 .admin-delete-btn:hover{background:rgba(255,61,87,0.1)}
-.admin-edit-btn{padding:6px 12px;font-size:11px;background:transparent;border:1px solid var(--cyan);color:var(--cyan);border-radius:3px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px;transition:all .2s}
-.admin-edit-btn:hover{background:rgba(0,229,255,0.1)}
 .ad-slot-container{max-width:960px;margin:0 auto 24px}.ad-slot-hud{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:16px;text-align:center;position:relative;overflow:hidden;min-height:100px;display:flex;align-items:center;justify-content:center}.ad-slot-hud::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:0.3}
 .ad-label{position:absolute;top:4px;right:8px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--txt3);text-transform:uppercase}
 .ad-mobile-sticky{position:fixed;bottom:0;left:0;right:0;z-index:950;background:rgba(8,12,22,0.95);backdrop-filter:blur(8px);border-top:1px solid var(--border);padding:8px;text-align:center;display:none}
@@ -147,15 +144,9 @@ textarea.sw-input{resize:vertical;min-height:100px}
 .loading-overlay.hidden{display:none}
 .loading-spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.countdown-grid{display:flex;justify-content:center;gap:16px;margin:24px 0}
-.countdown-box{text-align:center;min-width:70px;padding:16px 12px;background:rgba(255,179,0,0.1);border:1px solid rgba(255,179,0,0.3);border-radius:4px}
-.countdown-num{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:36px;color:var(--amber);line-height:1}
-.countdown-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--txt2);text-transform:uppercase;margin-top:4px}
-.coming-soon-hero{text-align:center;padding:80px 20px}
-.coming-soon-icon{font-size:64px;color:var(--amber);margin-bottom:24px;opacity:0.5}
 @media(max-width:768px){.ad-mobile-sticky{display:block}.ad-mobile-sticky .ad-slot-hud{border:none;background:transparent;min-height:60px}}
 @media(min-width:768px){.msg-layout{flex-direction:row}.msg-list-panel{width:320px;height:auto}}
-@media(max-width:768px){.nav-inner{padding:0 12px;height:60px}.nav-logo{font-size:20px;letter-spacing:2px}.nav-tab{padding:8px 12px;font-size:0}.nav-tab i{font-size:16px}.sw-btn{padding:12px 20px;font-size:13px}.stat-num{font-size:22px}.profile-avatar{width:72px;height:72px;min-width:72px;min-height:72px;margin-top:-36px}#fab,.contest-fab{bottom:20px;right:20px;width:52px;height:52px;font-size:22px}#lightbox-img{max-width:98vw;max-height:85vh}.story-img-wrap{height:260px}.story-img-wrap .story-text{padding:16px 20px}.story-img-wrap .story-text h2{font-size:1.2rem!important}.countdown-grid{gap:8px}.countdown-box{min-width:55px;padding:12px 8px}.countdown-num{font-size:24px}}
+@media(max-width:768px){.nav-inner{padding:0 12px;height:60px}.nav-logo{font-size:20px;letter-spacing:2px}.nav-tab{padding:8px 12px;font-size:0}.nav-tab i{font-size:16px}.sw-btn{padding:12px 20px;font-size:13px}.stat-num{font-size:22px}.profile-avatar{width:72px;height:72px;min-width:72px;min-height:72px;margin-top:-36px}#fab,.contest-fab{bottom:20px;right:20px;width:52px;height:52px;font-size:22px}#lightbox-img{max-width:98vw;max-height:85vh}.story-img-wrap{height:260px}.story-img-wrap .story-text{padding:16px 20px}.story-img-wrap .story-text h2{font-size:1.2rem!important}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
 </style>
 </head>
@@ -206,23 +197,13 @@ try{if(typeof window.supabase!=='undefined'){supabaseClient=window.supabase.crea
 
 var ADMIN_USERS=['toyzforshotz'];
 
-var DB={users:[],posts:[],locations:[],wiki:[],btsEntries:[],conversations:[],messages:[],contestEntries:[],
-contestConfig:{
-active:false,
-theme:'',
-month:'',
-deadline:null,
-prize:'',
-rules:''
-}
-};
+var DB={users:[],posts:[],locations:[],wiki:[],btsEntries:[],conversations:[],messages:[],contest:{theme:"MECHA MAYHEM",month:"OCTOBER 2024",deadline:Date.now()+12*86400000,prize:"'Mecha Master' Badge + $50 Store Credit",rules:"Any scale mecha is allowed. Custom kits highly encouraged. No CGI backgrounds — practical effects only!",totalEntries:0,finals:[],btsFeed:[]}};
 var currentUser={id:null,name:'Guest',email:'guest@smallworld.io',avatar:'https://picsum.photos/seed/guest/100/100',bio:'',followers:[],following:[],joined:Date.now(),badges:[],isAdmin:false};
 var currentPage='feed',previousPage='feed',lastProfileName='',isPinning=false,mapInstance=null,mapInitialized=false,mapMarkers=[];
-var pendingPinCoords=null,pendingFinalImage=null,pendingBtsFinalImage=null,pendingBtsSetupImage=null,pendingLocImage=null,pendingAvatarImage=null,pendingContestImage=null;
-var activeConvoId=null,activeContestTab='entries',activeWikiCat='All',selectedLocType='Spot';
+var pendingPinCoords=null,pendingFinalImage=null,pendingBtsFinalImage=null,pendingBtsSetupImage=null,pendingLocImage=null,pendingAvatarImage=null;
+var activeConvoId=null,activeContestTab='finals',activeWikiCat='All',selectedLocType='Spot';
 var userLocation={lat:40.7128,lng:-74.006};
 var dataLoaded=false;
-var countdownInterval=null;
 
 if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){userLocation.lat=p.coords.latitude;userLocation.lng=p.coords.longitude;if(mapInstance)mapInstance.setView([userLocation.lat,userLocation.lng],12);},function(){});}
 
@@ -330,37 +311,6 @@ badges:u.badges||[]
 console.log('Loaded '+DB.users.length+' users');
 }
 
-var contestRes=await supabaseClient.from('contest_config').select('*').limit(1).single();
-if(contestRes.error){console.log('No contest config found, using defaults');}else if(contestRes.data){
-DB.contestConfig={
-active:contestRes.data.active||false,
-theme:contestRes.data.theme||'',
-month:contestRes.data.month||'',
-deadline:contestRes.data.deadline?new Date(contestRes.data.deadline).getTime():null,
-prize:contestRes.data.prize||'',
-rules:contestRes.data.rules||''
-};
-console.log('Loaded contest config:',DB.contestConfig);
-}
-
-var entriesRes=await supabaseClient.from('contest_entries').select('*').order('created_at',{ascending:false});
-if(entriesRes.error){console.log('No contest entries table yet');}else if(entriesRes.data){
-DB.contestEntries=entriesRes.data.map(function(e){
-return{
-id:e.id,
-author:e.author||'Anonymous',
-avatar:e.avatar||'https://picsum.photos/seed/'+e.id+'/100/100',
-title:e.title||'Untitled',
-image:e.image||'',
-caption:e.caption||'',
-timestamp:e.created_at?new Date(e.created_at).getTime():Date.now(),
-likes:e.likes||0,
-isWinner:e.is_winner||false
-};
-});
-console.log('Loaded '+DB.contestEntries.length+' contest entries');
-}
-
 dataLoaded=true;
 }catch(e){console.error('Error loading data:',e);}
 hideLoading();
@@ -417,7 +367,7 @@ function openLightbox(src){if(!src)return;document.getElementById('lightbox-img'
 function closeLightbox(){document.getElementById('lightbox-overlay').classList.remove('open');document.body.style.overflow='';document.getElementById('lightbox-img').src='';}
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeLightbox();closeModal();}});
 
-function showPage(pageId){if(pageId!=='profile')previousPage=currentPage;currentPage=pageId;window.scrollTo(0,0);document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.toggle('active',t.getAttribute('data-page')===pageId);});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.getElementById('page-'+pageId).classList.add('active');var fab=document.getElementById('fab');if(pageId==='feed'){fab.classList.add('visible');fab.onclick=function(){openModal('create-story');};}else if(pageId==='bts'){fab.classList.add('visible');fab.onclick=function(){openModal('create-bts');};}else{fab.classList.remove('visible');}document.getElementById('contest-fab').classList.remove('visible');renderPage(pageId);if(pageId==='map'){if(!mapInitialized){setTimeout(initMap,150);mapInitialized=true;}else{setTimeout(function(){if(mapInstance)mapInstance.invalidateSize();},150);}}if(pageId==='contest'&&countdownInterval){clearInterval(countdownInterval);}}
+function showPage(pageId){if(pageId!=='profile')previousPage=currentPage;currentPage=pageId;window.scrollTo(0,0);document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.toggle('active',t.getAttribute('data-page')===pageId);});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.getElementById('page-'+pageId).classList.add('active');var fab=document.getElementById('fab');if(pageId==='feed'){fab.classList.add('visible');fab.onclick=function(){openModal('create-story');};}else if(pageId==='bts'){fab.classList.add('visible');fab.onclick=function(){openModal('create-bts');};}else{fab.classList.remove('visible');}document.getElementById('contest-fab').classList.remove('visible');renderPage(pageId);if(pageId==='map'){if(!mapInitialized){setTimeout(initMap,150);mapInitialized=true;}else{setTimeout(function(){if(mapInstance)mapInstance.invalidateSize();},150);}}}
 function renderPage(pageId){if(pageId==='feed')renderFeed();else if(pageId==='wiki')renderWiki();else if(pageId==='bts')renderBTS();else if(pageId==='msg')renderMessages();else if(pageId==='contest')renderContest();else if(pageId==='profile')renderProfile(lastProfileName);}
 function showProfile(name){var user=findUser(name);if(!user&&name===currentUser.name)user=currentUser;if(!user){showToast('User not found','error');return;}lastProfileName=name;previousPage=currentPage;currentPage='profile';window.scrollTo(0,0);document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.getElementById('page-profile').classList.add('active');document.getElementById('fab').classList.remove('visible');document.getElementById('contest-fab').classList.remove('visible');renderProfile(name);}
 function goBack(){showPage(previousPage);}
@@ -438,8 +388,6 @@ else if(type==='wiki-detail'){var w=data,ed=canEditWiki(w);html='<div class="p-8
 else if(type==='wiki-edit'){var w=DB.wiki.find(function(x){return x.id===data;});if(!w)return;html='<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--amber)">EDIT ARTICLE</h2>'+cb+'</div><div class="flex flex-col gap-4"><div><label class="sw-label">Title</label><input id="we-title" class="sw-input" value="'+w.title+'"></div><div><label class="sw-label">Category</label><select id="we-cat" class="sw-input"><option value="Photography"'+(w.category==='Photography'?' selected':'')+'>Photography</option><option value="DIY"'+(w.category==='DIY'?' selected':'')+'>DIY</option></select></div><div><label class="sw-label">Content</label><textarea id="we-content" class="sw-input" style="min-height:200px">'+w.content+'</textarea></div><button onclick="submitWikiEdit(\''+w.id+'\')" class="sw-btn sw-btn-amber mt-2 justify-center"><i class="fa-solid fa-save"></i> SAVE</button></div></div>';}
 else if(type==='edit-profile'){pendingAvatarImage=null;html='<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--cyan)">EDIT PROFILE</h2>'+cb+'</div><div class="flex flex-col gap-4"><div><label class="sw-label">Avatar</label>'+uploadZoneHTML('ep-avatar','AVATAR','Tap to upload','pendingAvatarImage',false)+'</div><div><label class="sw-label">Bio</label><textarea id="ep-bio" class="sw-input" placeholder="Tell us about yourself...">'+currentUser.bio+'</textarea></div><button onclick="submitEditProfile()" class="sw-btn sw-btn-primary mt-2 justify-center"><i class="fa-solid fa-save"></i> SAVE PROFILE</button></div></div>';}
 else if(type==='confirm-delete'){html='<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--red)">CONFIRM DELETE</h2>'+cb+'</div><p class="mb-6" style="color:var(--txt2)">'+data.message+'</p><div class="flex gap-3"><button onclick="closeModal()" class="sw-btn sw-btn-ghost flex-1 justify-center">CANCEL</button><button onclick="'+data.onConfirm+'" class="sw-btn sw-btn-danger flex-1 justify-center"><i class="fa-solid fa-trash"></i> DELETE</button></div></div>';}
-else if(type==='edit-contest'){var c=DB.contestConfig;html='<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--amber)">EDIT CONTEST</h2>'+cb+'</div><div class="flex flex-col gap-4"><div class="flex items-center gap-3 p-3 rounded" style="background:var(--deep);border:1px solid var(--border)"><input type="checkbox" id="ec-active" '+(c.active?'checked':'')+' style="accent-color:var(--green);width:18px;height:18px;cursor:pointer"><label for="ec-active" style="cursor:pointer"><span class="font-display font-semibold" style="color:'+(c.active?'var(--green)':'var(--txt3)')+'" id="ec-active-label">'+(c.active?'CONTEST ACTIVE':'CONTEST INACTIVE')+'</span></label></div><div><label class="sw-label">Theme</label><input id="ec-theme" class="sw-input" value="'+(c.theme||'')+'" placeholder="e.g. MECHA MAYHEM"></div><div><label class="sw-label">Month</label><input id="ec-month" class="sw-input" value="'+(c.month||'')+'" placeholder="e.g. JANUARY 2025"></div><div><label class="sw-label">Deadline</label><input id="ec-deadline" class="sw-input" type="datetime-local" value="'+(c.deadline?new Date(c.deadline).toISOString().slice(0,16):'')+'"></div><div><label class="sw-label">Prize</label><input id="ec-prize" class="sw-input" value="'+(c.prize||'')+'" placeholder="e.g. Badge + $50 Credit"></div><div><label class="sw-label">Rules</label><textarea id="ec-rules" class="sw-input" style="min-height:100px" placeholder="Contest rules...">'+(c.rules||'')+'</textarea></div><button onclick="submitContestConfig()" class="sw-btn sw-btn-amber justify-center mt-2"><i class="fa-solid fa-save"></i> SAVE CONTEST</button></div></div>';}
-else if(type==='submit-contest'){pendingContestImage=null;html='<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display font-bold text-2xl tracking-wider" style="color:var(--amber)">SUBMIT ENTRY</h2>'+cb+'</div><div class="flex flex-col gap-4"><div><label class="sw-label">Your Photo <span style="color:var(--red)">*</span></label>'+uploadZoneHTML('contest-photo','CONTEST ENTRY','Your best shot','pendingContestImage',true)+'</div><div><label class="sw-label">Title</label><input id="ce-title" class="sw-input" placeholder="Name your entry..."></div><div><label class="sw-label">Caption</label><textarea id="ce-caption" class="sw-input" placeholder="Describe your shot..."></textarea></div><button onclick="submitContestEntry()" class="sw-btn sw-btn-amber justify-center mt-2"><i class="fa-solid fa-trophy"></i> SUBMIT ENTRY</button></div></div>';}
 inner.innerHTML=html;document.getElementById('modal-overlay').classList.add('open');}
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
 document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
@@ -493,80 +441,6 @@ DB.wiki=DB.wiki.filter(function(w){return w.id!==wikiId;});
 closeModal();
 renderWiki();
 showToast('Article deleted','success');
-}
-
-async function submitContestConfig(){
-if(!currentUser.isAdmin){showToast('Admin only','error');return;}
-var active=document.getElementById('ec-active').checked;
-var theme=document.getElementById('ec-theme').value.trim();
-var month=document.getElementById('ec-month').value.trim();
-var deadlineStr=document.getElementById('ec-deadline').value;
-var prize=document.getElementById('ec-prize').value.trim();
-var rules=document.getElementById('ec-rules').value.trim();
-var deadline=deadlineStr?new Date(deadline).getTime():null;
-DB.contestConfig={active:active,theme:theme,month:month,deadline:deadline,prize:prize,rules:rules};
-if(isLive){
-try{
-var existing=await supabaseClient.from('contest_config').select('id').limit(1);
-if(existing.data&&existing.data.length>0){
-await supabaseClient.from('contest_config').update({active:active,theme:theme,month:month,deadline:deadline?new Date(deadline).toISOString():null,prize:prize,rules:rules}).eq('id',existing.data[0].id);
-}else{
-await supabaseClient.from('contest_config').insert([{active:active,theme:theme,month:month,deadline:deadline?new Date(deadline).toISOString():null,prize:prize,rules:rules}]);
-}
-}catch(e){console.error('Save contest config error:',e);}
-}
-closeModal();
-renderContest();
-showToast('Contest saved!','success');
-}
-
-async function submitContestEntry(){
-if(!currentUser.id){showToast('Please login first','error');return;}
-if(!DB.contestConfig.active){showToast('No active contest','error');return;}
-var title=document.getElementById('ce-title').value.trim();
-var caption=document.getElementById('ce-caption').value.trim();
-if(!pendingContestImage){showToast('Photo required','error');return;}
-if(!title){showToast('Title required','error');return;}
-showToast('Submitting entry...','info');
-var imageUrl=await uploadToSupabase(pendingContestImage,'contest');
-if(!imageUrl)return;
-var newEntry={
-id:'ce'+Date.now(),
-author:currentUser.name,
-avatar:currentUser.avatar,
-title:title,
-image:imageUrl,
-caption:caption||'',
-timestamp:Date.now(),
-likes:0,
-isWinner:false
-};
-DB.contestEntries.unshift(newEntry);
-if(isLive){
-try{await supabaseClient.from('contest_entries').insert([{author:currentUser.name,avatar:currentUser.avatar,title:title,image:imageUrl,caption:caption||''}]);}catch(e){console.error('Insert error:',e);}
-}
-closeModal();
-renderContest();
-showToast('Entry submitted!','success');
-}
-
-function likeContestEntry(id){
-var e=DB.contestEntries.find(function(x){return x.id===id;});
-if(e){
-e.likes++;
-if(isLive){supabaseClient.from('contest_entries').update({likes:e.likes}).eq('id',id).catch(function(){});}
-renderContest();
-showToast('Liked!','success');
-}
-}
-
-async function setWinner(entryId){
-if(!currentUser.isAdmin){showToast('Admin only','error');return;}
-DB.contestEntries.forEach(function(e){e.isWinner=false;});
-var entry=DB.contestEntries.find(function(e){return e.id===entryId;});
-if(entry){entry.isWinner=true;if(isLive){await supabaseClient.from('contest_entries').update({is_winner:false}).neq('id','00000000-0000-0000-0000-000000000000');await supabaseClient.from('contest_entries').update({is_winner:true}).eq('id',entryId);}}
-renderContest();
-showToast('Winner selected!','success');
 }
 
 function renderFeed(){var roots=getRootPosts(),tc=DB.posts.filter(function(p){return p.parentId!==null;}).length,as={};DB.posts.forEach(function(p){as[p.author]=true;});var ac=Object.keys(as).length;var h='<div class="dot-grid" style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:960px;margin:0 auto;"><div class="flex flex-wrap items-center gap-6 mb-8 px-2"><span class="sys-label"><span class="sys-dot cyan"></span>'+roots.length+' THREADS</span><span class="sys-label"><span class="sys-dot amber"></span>'+tc+' CHAPTERS</span><span class="sys-label"><span class="sys-dot green"></span>'+ac+' CONTRIBUTORS</span></div><div class="flex items-center gap-4 mb-8"><div class="h-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--cyan)">STORY FEED</h1><div class="h-px flex-1" style="background:var(--border)"></div></div><div class="ad-slot-container"><div class="ad-slot-hud"><span class="ad-label">Community Partner</span><span style="color:var(--txt3);font-size:12px;">[Desktop Ad Slot]</span></div></div><div class="flex flex-col gap-8">';if(roots.length===0){h+='<div style="text-align:center;padding:80px 20px;color:var(--txt3);"><i class="fa-solid fa-camera-retro" style="font-size:48px;margin-bottom:16px;color:var(--border);"></i><h3 class="font-display font-bold text-xl tracking-wider mb-2" style="color:var(--txt2)">NO STORIES YET</h3><p class="text-sm mb-6">Be the first to share your toy photography story!</p><button onclick="openModal(\'create-story\')" class="sw-btn sw-btn-primary"><i class="fa-solid fa-plus"></i> CREATE STORY</button></div>';}else{roots.forEach(function(root){var chs=getChapters(root.id),ct=root.collabOpen?'<span class="tag-pill collab"><span class="collab-pulse"><span class="cp-dot"></span></span> OPEN FOR COLLAB</span>':'<span class="tag-pill closed">CLOSED</span>';var safeImg=root.image.replace(/'/g,"\\'");h+='<article class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span><div class="sw-card"><div class="story-img-wrap" onclick="openLightbox(\''+safeImg+'\')"><img class="story-main-img" src="'+root.image+'" alt="'+root.title+'" loading="lazy"><div class="story-grad" style="background:linear-gradient(to top,rgba(8,12,22,0.95) 0%,rgba(8,12,22,0.3) 40%,transparent 70%);"></div><div class="story-text"><div class="flex items-center gap-3 mb-3 story-acts"><img src="'+root.avatar+'" class="story-avatar" alt="" onclick="event.stopPropagation();showProfile(\''+root.author+'\')"><p class="font-display font-semibold text-sm tracking-wider clickable-name" onclick="event.stopPropagation();showProfile(\''+root.author+'\')">'+root.author+'</p><p class="sys-label">'+timeAgo(root.timestamp)+'</p>'+(chs.length>0?'<span class="ml-auto sys-label"><span class="sys-dot amber"></span>'+chs.length+' CHAPTER'+(chs.length>1?'S':'')+'</span>':'<span class="ml-auto sys-label"><span class="sys-dot green"></span>ROOT</span>')+'</div><h2 class="font-display font-bold text-2xl tracking-wide mb-2">'+root.title+'</h2><p class="text-sm leading-relaxed mb-3" style="color:var(--txt2)">'+root.caption+'</p><div class="flex flex-wrap items-center gap-2 mb-4">'+root.tags.map(function(t){return '<span class="tag-pill">'+t+'</span>';}).join('')+ct+'</div><div class="flex items-center gap-4 story-acts"><button onclick="event.stopPropagation();likePost(\''+root.id+'\')" class="flex items-center gap-2 text-sm" style="color:var(--txt2)" onmouseenter="this.style.color=\'#FF3D57\'" onmouseleave="this.style.color=\'var(--txt2)\'"><i class="fa-solid fa-heart"></i> '+root.likes+'</button>'+(root.collabOpen?'<button onclick="event.stopPropagation();openModal(\'add-story\',DB.posts.find(function(p){return p.id===\''+root.id+'\'}))" class="sw-btn sw-btn-outline" style="padding:8px 18px;font-size:12px"><i class="fa-solid fa-code-branch"></i> ADD TO STORY</button>':'')+(currentUser.isAdmin?'<button onclick="event.stopPropagation();openModal(\'confirm-delete\',{message:\'Delete this story and all its chapters?\',onConfirm:\'deletePost(\\\''+root.id+'\\\')\'})" class="admin-delete-btn"><i class="fa-solid fa-trash"></i></button>':'')+'</div></div></div></div></article>';if(chs.length>0){h+='<div class="relative ml-8 sm:ml-14" style="padding-left:36px;"><div class="thread-line"></div>';chs.forEach(function(ch){var safeCh=ch.image.replace(/'/g,"\\'");h+='<div class="relative mb-6"><div class="chapter-dot"></div><article class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner br"></span><div class="sw-card"><div class="flex flex-col sm:flex-row"><div class="sm:w-56 h-40 sm:h-auto flex-shrink-0 overflow-hidden story-img-wrap sm-chapter" onclick="openLightbox(\''+safeCh+'\')"><img class="story-main-img" src="'+ch.image+'" alt="'+ch.title+'" loading="lazy"></div><div class="p-5 flex-1"><div class="flex items-center gap-2 mb-2"><img src="'+ch.avatar+'" class="story-avatar-small" alt="" onclick="showProfile(\''+ch.author+'\')"><span class="font-display font-semibold text-xs tracking-wider clickable-name" onclick="showProfile(\''+ch.author+'\')">'+ch.author+'</span><span class="sys-label">'+timeAgo(ch.timestamp)+'</span></div><h3 class="font-display font-bold text-lg tracking-wide mb-2">'+ch.title+'</h3><p class="text-sm leading-relaxed mb-3" style="color:var(--txt2)">'+ch.caption+'</p><div class="flex flex-wrap gap-2 mb-3">'+ch.tags.map(function(t){return '<span class="tag-pill">'+t+'</span>';}).join('')+'</div><div class="flex items-center gap-4"><button onclick="likePost(\''+ch.id+'\')" class="flex items-center gap-2 text-sm" style="color:var(--txt2)" onmouseenter="this.style.color=\'#FF3D57\'" onmouseleave="this.style.color=\'var(--txt2)\'"><i class="fa-solid fa-heart"></i> '+ch.likes+'</button><button onclick="openModal(\'add-story\',DB.posts.find(function(p){return p.id===\''+root.id+'\'}))" class="sw-btn sw-btn-ghost" style="padding:6px 14px;font-size:11px"><i class="fa-solid fa-code-branch"></i> CONTINUE</button>'+(currentUser.isAdmin?'<button onclick="openModal(\'confirm-delete\',{message:\'Delete this chapter?\',onConfirm:\'deletePost(\\\''+ch.id+'\\\')\'})" class="admin-delete-btn"><i class="fa-solid fa-trash"></i></button>':'')+'</div></div></div></div></article></div>';});h+='</div>';}});}h+='</div></div></div>';document.getElementById('feed-content').innerHTML=h;}
@@ -643,7 +517,7 @@ function submitWikiEdit(id){var w=DB.wiki.find(function(x){return x.id===id;});i
 
 function renderBTS(){var entries=DB.btsEntries;var h='<div style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:1100px;margin:0 auto;"><div class="flex items-center gap-4 mb-4"><div class="h-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--amber)">BEHIND THE SCENES</h1><div class="h-px flex-1" style="background:var(--border)"></div></div><p class="text-center mb-4" style="color:var(--txt2);max-width:600px;margin:0 auto;">Hold to reveal the setup. Tap to view full size.</p><div class="flex justify-center mb-10"><span class="sys-label"><span class="sys-dot amber"></span>'+entries.length+' SETUPS</span></div>';if(entries.length===0){h+='<div style="text-align:center;padding:80px 20px;color:var(--txt3);"><i class="fa-solid fa-bolt" style="font-size:48px;margin-bottom:16px;color:var(--border);"></i><h3 class="font-display font-bold text-xl tracking-wider mb-2" style="color:var(--txt2)">NO SETUPS YET</h3><p class="text-sm mb-6">Share how you create your shots!</p><button onclick="openModal(\'create-bts\')" class="sw-btn sw-btn-amber"><i class="fa-solid fa-bolt"></i> SHARE YOUR FIRST BTS</button></div>';}else{h+='<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';entries.forEach(function(e){h+='<div class="hud-frame"><span class="hud-corner tl amber"></span><span class="hud-corner tr amber"></span><span class="hud-corner bl amber"></span><span class="hud-corner br amber"></span><div class="sw-card"><div class="bts-card" style="height:300px;" data-final-src="'+e.image+'" data-bts-src="'+(e.btsImage||e.image)+'"><img class="bts-final-img" src="'+e.image+'" alt="Final" draggable="false"><img class="bts-bts-img" src="'+(e.btsImage||e.image)+'" alt="BTS" draggable="false"><div class="bts-card-info"><div class="bts-indicator"><i class="fa-solid fa-bolt"></i> HOLD TO SEE BTS</div><div class="bts-label-reveal">BEHIND THE SCENES</div><div style="position:absolute;bottom:16px;left:16px;right:16px;"><p class="font-display font-bold text-base tracking-wider clickable-name" style="text-shadow:0 2px 8px rgba(0,0,0,0.9);" onclick="event.stopPropagation();showProfile(\''+e.author+'\')">'+e.author+'</p><p class="sys-label" style="text-shadow:0 1px 4px rgba(0,0,0,0.9);">'+e.title+'</p>'+(e.caption?'<p class="text-xs mt-1" style="color:var(--txt2);text-shadow:0 1px 4px rgba(0,0,0,0.9);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+e.caption+'</p>':'')+'</div><div style="position:absolute;top:16px;left:16px;display:flex;gap:4px;">';e.tags.slice(0,3).forEach(function(t){h+='<span class="tag-pill" style="background:rgba(8,12,22,0.8);">'+t+'</span>';});h+='</div></div></div><div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(17,24,39,0.5);"><div class="flex items-center gap-2"><img src="'+e.avatar+'" class="w-6 h-6 rounded" style="border:1px solid var(--amber);" alt=""><span class="font-display text-xs">'+timeAgo(e.timestamp)+'</span></div><div class="flex items-center gap-2"><button onclick="likeBTS(\''+e.id+'\')" class="flex items-center gap-1 text-xs" style="color:var(--txt2);background:none;border:none;cursor:pointer;"><i class="fa-solid fa-heart"></i> '+e.likes+'</button>'+(currentUser.isAdmin?'<button onclick="openModal(\'confirm-delete\',{message:\'Delete BTS: '+e.title+'?\',onConfirm:\'deleteBTS(\\\''+e.id+'\\\')\'})" class="admin-delete-btn"><i class="fa-solid fa-trash"></i></button>':'')+'</div></div></div></div>';});h+='</div>';}h+='</div></div>';document.getElementById('bts-content').innerHTML=h;attachBTSListeners();}
 function attachBTSListeners(){var cards=document.querySelectorAll('.bts-card');for(var i=0;i<cards.length;i++){(function(card){var holdTimer=null,wasHolding=false;card.addEventListener('contextmenu',function(e){e.preventDefault();});function onDown(){wasHolding=false;holdTimer=setTimeout(function(){wasHolding=true;card.classList.add('revealing');},200);}function onUp(){clearTimeout(holdTimer);if(wasHolding){card.classList.remove('revealing');setTimeout(function(){wasHolding=false;},100);}}function onLeave(){clearTimeout(holdTimer);card.classList.remove('revealing');wasHolding=false;}card.addEventListener('mousedown',onDown);card.addEventListener('touchstart',onDown,{passive:true});card.addEventListener('mouseup',onUp);card.addEventListener('touchend',onUp);card.addEventListener('mouseleave',onLeave);card.addEventListener('touchcancel',onLeave);card.addEventListener('click',function(e){if(!wasHolding){e.stopPropagation();var src=card.getAttribute('data-final-src');if(src)openLightbox(src);}});})(cards[i]);}}
-function likeBTS(btsId){var b=DB.btsEntries.find(function(x){return x.id===btsId;});if(b){b.likes++;if(isLive){supabaseClient.from('bts_entries').update({likes:b.likes}).eq('id',btsId).catch(function(){});}renderBTS();showToast('Liked!','success');}}
+function likeBTS(btsId){var b=DB.btsEntries.find(function(x){return x.id===btsId;});if(b){b.likes++;if(isLive){supabaseClient.from('bts_entries').update({likes:b.likes}).eq('id',btsId).catch(function(e){});}renderBTS();showToast('Liked!','success');}}
 
 function renderMessages(){activeConvoId=null;var convos=DB.conversations.filter(function(c){return c.participants.indexOf(currentUser.name)!==-1;});var h='<div class="msg-layout"><div class="msg-list-panel"><div class="p-4" style="border-bottom:1px solid var(--border);"><div class="flex items-center justify-between mb-4"><h2 class="font-display font-bold text-xl tracking-wider" style="color:var(--cyan)">MESSAGES</h2><button onclick="openModal(\'new-message\')" class="sw-btn sw-btn-ghost" style="padding:6px 12px;font-size:11px"><i class="fa-solid fa-pen-to-square"></i> NEW</button></div></div>';if(convos.length===0){h+='<div class="p-8 text-center"><i class="fa-solid fa-inbox" style="font-size:32px;color:var(--border);margin-bottom:12px;"></i><p class="sys-label">NO MESSAGES YET</p></div>';}else{convos.sort(function(a,b){var aM=DB.messages.filter(function(m){return m.convoId===a.id;});var bM=DB.messages.filter(function(m){return m.convoId===b.id;});var aL=aM.length>0?aM[aM.length-1].timestamp:0;var bL=bM.length>0?bM[bM.length-1].timestamp:0;return bL-aL;});convos.forEach(function(c){var otherName=c.participants.filter(function(p){return p!==currentUser.name;})[0];var otherUser=findUser(otherName);if(!otherUser)return;var msgs=DB.messages.filter(function(m){return m.convoId===c.id;});var lastMsg=msgs.length>0?msgs[msgs.length-1]:null;var preview=lastMsg?(lastMsg.sender===currentUser.name?'You: ':'')+lastMsg.text:'Start a conversation...';h+='<div class="msg-list-item" onclick="openChat(\''+c.id+'\')"><img src="'+otherUser.avatar+'" class="msg-avatar" alt=""><div class="msg-preview"><div class="msg-preview-name">'+otherName+'</div><div class="msg-preview-text">'+preview+'</div></div>';if(c.unread>0)h+='<div class="msg-unread-badge">'+c.unread+'</div>';h+='</div>';});}h+='</div><div class="msg-empty-state msg-chat-panel"><i class="fa-solid fa-comments" style="font-size:48px;color:var(--border);"></i><p class="sys-label">SELECT A CONVERSATION</p></div></div>';document.getElementById('msg-content').innerHTML=h;}
 function openChat(convoId){activeConvoId=convoId;var convo=DB.conversations.find(function(c){return c.id===convoId;});if(!convo)return;convo.unread=0;var otherName=convo.participants.filter(function(p){return p!==currentUser.name;})[0];var otherUser=findUser(otherName);if(!otherUser)return;var msgs=DB.messages.filter(function(m){return m.convoId===convoId;});msgs.sort(function(a,b){return a.timestamp-b.timestamp;});var h='<div class="msg-layout"><div class="msg-list-panel hidden md:block"><div class="p-4" style="border-bottom:1px solid var(--border);"><div class="flex items-center justify-between mb-4"><h2 class="font-display font-bold text-xl tracking-wider" style="color:var(--cyan)">MESSAGES</h2><button onclick="openModal(\'new-message\')" class="sw-btn sw-btn-ghost" style="padding:6px 12px;font-size:11px"><i class="fa-solid fa-pen-to-square"></i> NEW</button></div></div><div class="msg-list-item active"><img src="'+otherUser.avatar+'" class="msg-avatar" alt=""><div class="msg-preview"><div class="msg-preview-name">'+otherName+'</div><div class="msg-preview-text">Active now</div></div></div></div><div class="msg-chat-panel"><div class="msg-chat-header"><button onclick="renderMessages()" class="md:hidden sw-btn sw-btn-ghost" style="padding:8px"><i class="fa-solid fa-arrow-left"></i></button><img src="'+otherUser.avatar+'" style="width:32px;height:32px;border-radius:4px;border:1px solid var(--border);" alt=""><div class="font-display font-semibold tracking-wider clickable-name" onclick="showProfile(\''+otherName+'\')">'+otherName+'</div><div class="sys-label">ONLINE</div></div><div class="msg-chat-body" id="msg-scroll-area">';msgs.forEach(function(m){var isSent=m.sender===currentUser.name;h+='<div class="msg-bubble '+(isSent?'sent':'received')+'">'+m.text+'<div class="msg-time">'+timeAgo(m.timestamp)+'</div></div>';});h+='</div><div class="msg-input-area"><input id="msg-input" class="sw-input" placeholder="Type a message..." onkeydown="if(event.key===\'Enter\')sendMessage()"><button onclick="sendMessage()" class="sw-btn sw-btn-primary" style="padding:12px 20px;"><i class="fa-solid fa-paper-plane"></i></button></div></div></div>';document.getElementById('msg-content').innerHTML=h;setTimeout(function(){var area=document.getElementById('msg-scroll-area');if(area)area.scrollTop=area.scrollHeight;},50);}
@@ -652,61 +526,10 @@ function startConvoWithName(targetName){if(targetName===currentUser.name){showTo
 
 function renderProfile(name){var user=findUser(name);if(!user&&name===currentUser.name)user=currentUser;if(!user)return;var isSiteCreator=isAdminUser(user.name);var stories=DB.posts.filter(function(p){return p.author===user.name&&p.parentId===null;}),chapters=DB.posts.filter(function(p){return p.author===user.name&&p.parentId!==null;}),totalLikes=0;DB.posts.forEach(function(p){if(p.author===user.name)totalLikes+=p.likes;});var isSelf=user.name===currentUser.name,isF=currentUser.following.indexOf(user.name)!==-1;var fb=isSelf?'<span class="tag-pill" style="border-color:var(--cyan);color:var(--cyan)">THIS IS YOU</span><button onclick="openModal(\'edit-profile\')" class="sw-btn sw-btn-ghost" style="padding:10px 16px;font-size:12px"><i class="fa-solid fa-pen"></i> EDIT</button>':'<button onclick="toggleFollow(\''+user.name+'\')" class="sw-btn '+(isF?'sw-btn-following':'sw-btn-follow')+'" style="padding:10px 20px;font-size:13px">'+(isF?'<i class="fa-solid fa-check"></i> FOLLOWING':'<i class="fa-solid fa-user-plus"></i> FOLLOW')+'</button>';var h='<div style="min-height:100vh;"><div class="profile-banner dot-grid"></div><div style="max-width:860px;margin:-48px auto 0;padding:0 24px 80px;position:relative;z-index:2;"><div class="flex flex-wrap items-end gap-5 mb-5"><img src="'+user.avatar+'" class="profile-avatar" width="96" height="96" alt=""><div class="flex-1 pb-1" style="min-width:200px;"><div class="flex items-center gap-3 mb-1"><h1 class="font-display font-bold text-2xl tracking-wider">'+user.name+'</h1>'+(isSiteCreator?'<span class="creator-badge"><i class="fa-solid fa-crown"></i> SITE CREATOR</span>':'')+'</div><p class="text-sm" style="color:var(--txt2)">'+(user.bio||'')+'</p></div><div class="flex items-center gap-3 pb-1 flex-wrap">'+fb+'<button onclick="goBack()" class="sw-btn sw-btn-ghost" style="padding:10px 16px;font-size:12px"><i class="fa-solid fa-arrow-left"></i> BACK</button></div></div><div class="mb-6"><span class="sys-label"><span class="sys-dot cyan"></span>JOINED '+timeAgo(user.joined)+'</span></div>';if(user.badges&&user.badges.length>0){h+='<div class="mb-6"><span class="sw-label" style="margin-bottom:12px;display:block;">BADGES</span><div class="badge-rack">';user.badges.forEach(function(b){var tc=b.tier===1?'t1':(b.tier===2?'t2':'t3'),ic=b.tier<=2?'fa-trophy':'fa-medal';h+='<div class="badge-item '+tc+'"><i class="fa-solid '+ic+'"></i><div class="badge-popup"><img src="'+b.image+'" alt=""><div class="badge-popup-info"><p class="sys-label" style="margin-bottom:4px;">'+(b.tier===1?'1ST':b.tier===2?'2ND':'FINALIST')+'</p><p class="font-display font-bold text-sm tracking-wider">'+b.contest+'</p></div></div></div>';});h+='</div></div>';}h+='<div class="hud-frame mb-8"><span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span><div class="grid grid-cols-5" style="background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;"><div class="stat-box"><div class="stat-num">'+stories.length+'</div><div class="stat-label">Stories</div></div><div class="stat-box"><div class="stat-num">'+chapters.length+'</div><div class="stat-label">Chapters</div></div><div class="stat-box"><div class="stat-num">'+user.followers.length+'</div><div class="stat-label">Followers</div></div><div class="stat-box"><div class="stat-num">'+user.following.length+'</div><div class="stat-label">Following</div></div><div class="stat-box"><div class="stat-num" style="color:var(--amber)">'+totalLikes+'</div><div class="stat-label">Likes</div></div></div></div><div class="flex items-center gap-4 mb-5"><span class="sys-label">STORIES</span><div class="h-px flex-1" style="background:var(--border)"></div></div>';if(stories.length===0){h+='<p style="color:var(--txt3);font-size:13px;padding:20px 0;">No stories yet.</p>';}else{h+='<div class="grid gap-5">';stories.forEach(function(r){var c=getChapters(r.id),ct=r.collabOpen?'<span class="tag-pill collab"><span class="collab-pulse"><span class="cp-dot"></span></span> OPEN</span>':'<span class="tag-pill closed">CLOSED</span>';var safeR=r.image.replace(/'/g,"\\'");h+='<div class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner br"></span><div class="sw-card"><div class="story-img-wrap" style="height:220px;" onclick="openLightbox(\''+safeR+'\')"><img class="story-main-img" src="'+r.image+'" alt="'+r.title+'" loading="lazy"><div class="story-grad" style="background:linear-gradient(to top,rgba(8,12,22,0.9) 0%,transparent 60%);"></div><div class="story-text" style="padding:16px 20px;"><div class="flex items-center gap-2 mb-1"><span class="sys-label">'+timeAgo(r.timestamp)+'</span>'+(c.length>0?'<span class="sys-label"><span class="sys-dot amber"></span>'+c.length+' CHAPTERS</span>':'')+'</div><h3 class="font-display font-bold text-base tracking-wide mb-1">'+r.title+'</h3><div class="flex flex-wrap gap-1 mb-2">'+r.tags.slice(0,3).map(function(t){return '<span class="tag-pill">'+t+'</span>';}).join('')+ct+'</div></div></div></div></div>';});h+='</div>';}h+='</div></div>';document.getElementById('profile-content').innerHTML=h;}
 
-function renderContest(){
-if(countdownInterval){clearInterval(countdownInterval);countdownInterval=null;}
-var c=DB.contestConfig;
-var h='<div class="dot-grid" style="min-height:100vh;padding:0 0 80px;">';
-if(!c.active||!c.theme){
-h+='<div class="coming-soon-hero"><div class="coming-soon-icon"><i class="fa-solid fa-trophy"></i></div><h1 class="font-display font-bold text-4xl tracking-widest mb-4" style="color:var(--amber)">CONTEST</h1><h2 class="font-display font-bold text-2xl tracking-wider mb-6" style="color:var(--txt2)">COMING SOON</h2><p class="text-lg mb-8" style="color:var(--txt2);max-width:400px;margin:0 auto;">We\'re preparing something special. Check back soon for our first monthly toy photography contest!</p>';
-if(currentUser.isAdmin){
-h+='<button onclick="openModal(\'edit-contest\')" class="sw-btn sw-btn-amber"><i class="fa-solid fa-gear"></i> SETUP CONTEST</button>';
-}
-h+='</div>';
-}else{
-h+='<div class="hud-frame" style="height:280px;overflow:hidden;"><span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span><img src="https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?w=1200&q=80" alt="Contest" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;inset:0;background:linear-gradient(to top,var(--deep) 10%,rgba(8,12,22,0.4) 50%,transparent 80%);"></div><div style="position:absolute;bottom:0;left:0;right:0;padding:32px;"><div class="flex items-center gap-4 mb-4"><div class="h-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--amber)">MONTHLY CONTEST</h1><div class="h-px flex-1" style="background:var(--border)"></div></div><p class="sys-label" style="color:var(--cyan);margin-bottom:8px;">'+c.month+'</p><h2 class="font-display font-bold text-4xl tracking-wider" style="line-height:1;">'+c.theme+'</h2></div></div><div style="max-width:960px;margin:0 auto;padding:24px;">';
-if(c.deadline&&c.deadline>Date.now()){
-h+='<div class="sw-card p-6 mb-6"><div class="flex flex-col sm:flex-row items-center justify-between gap-4"><div><span class="sys-label"><span class="sys-dot amber"></span> TIME REMAINING</span><div id="countdown" class="countdown-grid"></div></div>';
-if(currentUser.isAdmin){
-h+='<button onclick="openModal(\'edit-contest\')" class="sw-btn sw-btn-ghost sw-btn-sm"><i class="fa-solid fa-pen"></i> EDIT</button>';
-}
-h+='</div></div>';
-}
-h+='<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded mb-4" style="background:var(--card);border:1px solid var(--border);"><div class="flex flex-wrap gap-6"><span class="sys-label"><span class="sys-dot amber"></span> '+DB.contestEntries.length+' ENTRIES</span></div><button onclick="openModal(\'submit-contest\')" class="sw-btn sw-btn-primary"><i class="fa-solid fa-cloud-arrow-up"></i> SUBMIT</button></div><div class="sw-card" style="cursor:pointer;" onclick="this.querySelector(\'.accordion-body\').classList.toggle(\'open\');this.querySelector(\'#contest-acc-arrow\').style.transform=this.querySelector(\'.accordion-body\').classList.contains(\'open\')?\'rotate(180deg)\':\'rotate(0)\';"><div class="p-4 flex items-center justify-between" onmouseenter="this.style.background=\'rgba(0,229,255,0.04)\'" onmouseleave="this.style.background=\'transparent\'"><span class="font-display font-semibold tracking-wider" style="color:var(--txt2)"><i class="fa-solid fa-list-ul mr-2"></i>RULES & PRIZES</span><i id="contest-acc-arrow" class="fa-solid fa-chevron-down" style="color:var(--txt3);transition:transform .2s;"></i></div><div class="accordion-body"><div class="px-4 pb-4 text-sm leading-relaxed" style="border-top:1px solid var(--border);padding-top:16px;">'+(c.rules||'No rules specified')+'<div class="mt-4 p-3 rounded" style="background:var(--deep);border:1px solid var(--border);"><span class="sys-label" style="color:var(--amber)">PRIZE:</span> <span style="color:var(--txt);font-weight:bold;">'+(c.prize||'TBA')+'</span></div></div></div></div></div>';
-if(currentUser.isAdmin){
-h+='<div class="mb-4 p-4 rounded" style="background:rgba(255,179,0,0.1);border:1px solid rgba(255,179,0,0.3);"><span class="sys-label" style="color:var(--amber)"><i class="fa-solid fa-shield-halved mr-2"></i>ADMIN CONTROLS</span><div class="flex gap-3 mt-3"><button onclick="openModal(\'edit-contest\')" class="admin-edit-btn"><i class="fa-solid fa-pen"></i> EDIT CONTEST</button><button onclick="if(confirm(\'End contest and select winner?\')){DB.contestConfig.active=false;renderContest();}" class="admin-delete-btn"><i class="fa-solid fa-flag-checkered"></i> END CONTEST</button></div></div>';
-}
-h+='<div class="contest-subtabs"><button class="contest-subtab '+(activeContestTab==='entries'?'active':'')+'" data-tab="entries" onclick="switchContestTab(\'entries\')">ENTRIES</button><button class="contest-subtab '+(activeContestTab==='winners'?'active':'')+'" data-tab="winners" onclick="switchContestTab(\'winners\')">WINNERS</button></div><div id="contest-tab-content" class="mt-6"></div>';
-}
-h+='</div>';
-document.getElementById('contest-content').innerHTML=h;
-if(c.active&&c.deadline&&c.deadline>Date.now()){startCountdown(c.deadline);}
-renderContestTab(activeContestTab);
-}
-
-function startCountdown(deadline){
-if(countdownInterval){clearInterval(countdownInterval);}
-function update(){
-var now=Date.now(),diff=deadline-now;
-if(diff<=0){document.getElementById('countdown').innerHTML='<span style="color:var(--red)">ENDED</span>';clearInterval(countdownInterval);return;}
-var d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
-var el=document.getElementById('countdown');
-if(el){el.innerHTML='<div class="countdown-box"><div class="countdown-num">'+d+'</div><div class="countdown-label">DAYS</div></div><div class="countdown-box"><div class="countdown-num">'+h+'</div><div class="countdown-label">HRS</div></div><div class="countdown-box"><div class="countdown-num">'+m+'</div><div class="countdown-label">MIN</div></div><div class="countdown-box"><div class="countdown-num">'+s+'</div><div class="countdown-label">SEC</div></div>';}
-}
-update();
-countdownInterval=setInterval(update,1000);
-}
-
-function switchContestTab(tabId){
-activeContestTab=tabId;
-document.querySelectorAll('.contest-subtab').forEach(function(t){t.classList.toggle('active',t.getAttribute('data-tab')===tabId);});
-renderContestTab(tabId);
-}
-
-function renderContestTab(tabId){
-var container=document.getElementById('contest-tab-content');
-if(!container)return;
-var h='';
-if(tabId==='entries'){
-var entries=DB.contestEntries.filter(function(e){return!e.isWinner;});
-if(entries.length===0){
-h+='<div style="text-align:center;padding:60
+function renderContest(){activeContestTab='finals';var c=DB.contest,daysLeft=Math.ceil((c.deadline-Date.now())/86400000);var h='<div class="dot-grid" style="min-height:100vh;padding:0 0 80px;"><div class="hud-frame" style="height:320px;overflow:hidden;"><span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span><img src="https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?w=1200&q=80" alt="Contest" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;inset:0;background:linear-gradient(to top,var(--deep) 10%,rgba(8,12,22,0.4) 50%,transparent 80%);"></div><div style="position:absolute;bottom:0;left:0;right:0;padding:32px;"><div class="flex items-center gap-4 mb-4"><div class="h-px flex-1" style="background:var(--border)"></div><h1 class="font-display font-bold text-4xl tracking-widest" style="color:var(--amber)">MONTHLY CONTEST</h1><div class="h-px flex-1" style="background:var(--border)"></div></div><p class="sys-label" style="color:var(--cyan);margin-bottom:8px;">'+c.month+'</p><h2 class="font-display font-bold text-5xl tracking-wider" style="line-height:1;">'+c.theme+'</h2></div></div><div style="max-width:960px;margin:0 auto;padding:24px;"><div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded" style="background:var(--card);border:1px solid var(--border);"><div class="flex flex-wrap gap-6"><span class="sys-label"><span class="sys-dot amber"></span> '+daysLeft+' DAYS LEFT</span><span class="sys-label">'+c.totalEntries+' ENTRIES</span></div><button onclick="showToast(\'Submit via the Feed FAB!\',\'info\')" class="sw-btn sw-btn-primary"><i class="fa-solid fa-cloud-arrow-up"></i> SUBMIT</button></div><div class="mt-4 sw-card" style="cursor:pointer;" onclick="toggleContestAccordion()"><div class="p-4 flex items-center justify-between" onmouseenter="this.style.background=\'rgba(0,229,255,0.04)\'" onmouseleave="this.style.background=\'transparent\'"><span class="font-display font-semibold tracking-wider" style="color:var(--txt2)"><i class="fa-solid fa-list-ul mr-2"></i>RULES & PRIZES</span><i id="contest-acc-arrow" class="fa-solid fa-chevron-down" style="color:var(--txt3);transition:transform .2s;"></i></div><div id="contest-acc-body" class="accordion-body"><div class="px-4 pb-4 text-sm leading-relaxed" style="border-top:1px solid var(--border);padding-top:16px;">'+c.rules+'<div class="mt-4 p-3 rounded" style="background:var(--deep);border:1px solid var(--border);"><span class="sys-label" style="color:var(--amber)">PRIZE:</span> <span style="color:var(--txt);font-weight:bold;">'+c.prize+'</span></div></div></div></div><div class="contest-subtabs mt-6"><button class="contest-subtab active" data-tab="finals" onclick="switchContestTab(\'finals\')">FINAL ENTRIES</button><button class="contest-subtab" data-tab="bts" onclick="switchContestTab(\'bts\')">SETUPS & BTS</button></div><div id="contest-tab-content" class="mt-6"></div></div></div>';document.getElementById('contest-content').innerHTML=h;renderContestTab('finals');}
+function toggleContestAccordion(){var body=document.getElementById('contest-acc-body'),arrow=document.getElementById('contest-acc-arrow');if(body&&arrow){body.classList.toggle('open');arrow.style.transform=body.classList.contains('open')?'rotate(180deg)':'rotate(0deg)';}}
+function switchContestTab(tabId){activeContestTab=tabId;document.querySelectorAll('.contest-subtab').forEach(function(t){t.classList.toggle('active',t.getAttribute('data-tab')===tabId);});document.getElementById('contest-fab').classList.toggle('visible',tabId==='bts');renderContestTab(tabId);}
+function renderContestTab(tabId){var container=document.getElementById('contest-tab-content'),c=DB.contest,h='';if(tabId==='finals'){if(c.finals.length===0){h+='<div style="text-align:center;padding:80px 20px;color:var(--txt3);"><i class="fa-solid fa-trophy" style="font-size:48px;margin-bottom:16px;color:var(--border);"></i><h3 style="color:var(--txt2);" class="font-display font-bold text-xl tracking-wider">NO ENTRIES YET</h3></div>';}else{h+='<div class="masonry-grid">';c.finals.forEach(function(item){h+='<div class="masonry-item hud-frame"><span class="hud-corner tl"></span><span class="hud-corner br"></span><div class="sw-card overflow-hidden"><img src="'+item.image+'" class="w-full block img-zoomable" alt="Contest Entry" loading="lazy" onclick="openLightbox(this.src)"><div class="p-3 flex items-center justify-between"><div class="flex items-center gap-2"><img src="'+item.avatar+'" class="w-6 h-6 rounded" style="border:1px solid var(--cyan);border-radius:4px;" alt=""><span class="font-display text-sm font-semibold clickable-name" onclick="showProfile(\''+item.author+'\')">'+item.author+'</span></div><span class="flex items-center gap-1 text-xs" style="color:var(--txt3);"><i class="fa-solid fa-heart"></i> '+item.likes+'</span></div></div></div></div>';});h+='</div>';}}else{if(c.btsFeed.length===0){h+='<div style="text-align:center;padding:80px 20px;color:var(--txt3);"><i class="fa-solid fa-wrench" style="font-size:48px;margin-bottom:16px;color:var(--border);"></i><h3 style="color:var(--txt2);" class="font-display font-bold text-xl tracking-wider">NO BTS YET</h3></div>';}else{h+='<div class="flex flex-col gap-6">';c.btsFeed.forEach(function(item){h+='<div class="sw-card"><div class="flex items-center gap-3 p-4" style="border-bottom:1px solid var(--border);"><img src="'+item.avatar+'" class="w-10 h-10 rounded" style="border:1px solid var(--amber);" alt=""><span class="font-display font-semibold tracking-wider clickable-name" onclick="showProfile(\''+item.author+'\')">'+item.author+'</span></div><img src="'+item.image+'" class="w-full block img-zoomable" alt="BTS" loading="lazy" onclick="openLightbox(this.src)"><div class="p-4 text-sm" style="color:var(--txt2);">'+item.caption+'</div></div>';});h+='</div>';}}container.innerHTML=h;}
+</script>
+</body>
+</html>
