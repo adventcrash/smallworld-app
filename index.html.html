@@ -280,10 +280,31 @@ function toggleFollow(name){if(!currentUser.id){showToast('Please login first','
 
 async function submitEditProfile(){if(!currentUser.id){showToast('Please login first','error');return;}var bio=document.getElementById('ep-bio').value.trim();var avatarUrl=currentUser.avatar;if(pendingAvatarImage){showToast('Uploading avatar...','info');avatarUrl=await uploadToSupabase(pendingAvatarImage,'avatars');if(!avatarUrl){showToast('Avatar upload failed','error');return;}}currentUser.bio=bio;currentUser.avatar=avatarUrl;if(isLive){try{await supabaseClient.from('users').update({bio:bio,avatar:avatarUrl}).eq('id',currentUser.id);}catch(e){showToast('Error saving profile','error');return;}}document.getElementById('nav-avatar-img').src=currentUser.avatar;closeModal();renderProfile(currentUser.name);showToast('Profile updated!','success');}
 
-async function deletePost(postId){if(isLive){try{await supabaseClient.from('posts').delete().eq('id',postId);}catch(e){}}DB.posts=DB.posts.filter(function(p){return p.id!==postId;});closeModal();renderPage(currentPage);showToast('Post deleted','success');}
-async function deleteBTS(btsId){if(isLive){try{await supabaseClient.from('bts_entries').delete().eq('id',btsId);}catch(e){}}DB.btsEntries=DB.btsEntries.filter(function(b){return b.id!==btsId;});closeModal();renderBTS();showToast('BTS entry deleted','success');}
-async function deleteLocation(locId){if(isLive){try{await supabaseClient.from('locations').delete().eq('id',locId);}catch(e){}}DB.locations=DB.locations.filter(function(l){return l.id!==locId;});closeModal();if(mapInstance)renderMapMarkers('all');renderLocList();showToast('Location deleted','success');}
-async function deleteWiki(wikiId){if(isLive){try{await supabaseClient.from('wiki').delete().eq('id',wikiId);}catch(e){}}DB.wiki=DB.wiki.filter(function(w){return w.id!==wikiId;});closeModal();renderWiki();showToast('Article deleted','success');}
+async function deletePost(postId){
+  var chapters=DB.posts.filter(function(p){return p.parentId===postId;});
+  var allIds=[postId].concat(chapters.map(function(c){return c.id;}));
+  if(isLive){var r=await supabaseClient.from('posts').delete().in('id',allIds);if(r.error){showToast('Delete failed: '+r.error.message,'error');console.error('Post delete error:',r.error);return;}}
+  DB.posts=DB.posts.filter(function(p){return allIds.indexOf(p.id)===-1;});
+  renderPage(currentPage);showToast('Post deleted','success');
+}
+
+async function deleteBTS(btsId){
+  if(isLive){var r=await supabaseClient.from('bts_entries').delete().eq('id',btsId);if(r.error){showToast('Delete failed: '+r.error.message,'error');console.error('BTS delete error:',r.error);return;}}
+  DB.btsEntries=DB.btsEntries.filter(function(b){return b.id!==btsId;});
+  renderBTS();showToast('BTS entry deleted','success');
+}
+
+async function deleteLocation(locId){
+  if(isLive){var r=await supabaseClient.from('locations').delete().eq('id',locId);if(r.error){showToast('Delete failed: '+r.error.message,'error');console.error('Location delete error:',r.error);return;}}
+  DB.locations=DB.locations.filter(function(l){return l.id!==locId;});
+  if(mapInstance)renderMapMarkers('all');renderLocList();showToast('Location deleted','success');
+}
+
+async function deleteWiki(wikiId){
+  if(isLive){var r=await supabaseClient.from('wiki').delete().eq('id',wikiId);if(r.error){showToast('Delete failed: '+r.error.message,'error');console.error('Wiki delete error:',r.error);return;}}
+  DB.wiki=DB.wiki.filter(function(w){return w.id!==wikiId;});
+  renderWiki();showToast('Article deleted','success');
+}
 
 async function submitContestConfig(){if(!currentUser.isAdmin){showToast('Admin only','error');return;}var active=document.getElementById('ec-active').checked;var theme=document.getElementById('ec-theme').value.trim();var month=document.getElementById('ec-month').value.trim();var deadlineStr=document.getElementById('ec-deadline').value;var prize=document.getElementById('ec-prize').value.trim();var rules=document.getElementById('ec-rules').value.trim();var deadline=deadlineStr?new Date(deadlineStr).getTime():null;DB.contestConfig={active:active,theme:theme,month:month,deadline:deadline,prize:prize,rules:rules};if(isLive){try{var existing=await supabaseClient.from('contest_config').select('id').limit(1);if(existing.data&&existing.data.length>0){await supabaseClient.from('contest_config').update({active:active,theme:theme,month:month,deadline:deadline?new Date(deadline).toISOString():null,prize:prize,rules:rules}).eq('id',existing.data[0].id);}else{await supabaseClient.from('contest_config').insert([{active:active,theme:theme,month:month,deadline:deadline?new Date(deadline).toISOString():null,prize:prize,rules:rules}]);}}catch(e){}}closeModal();renderContest();showToast('Contest saved!','success');}
 
