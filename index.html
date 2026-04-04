@@ -230,7 +230,7 @@ function updateUserDropdown(){var dd=document.getElementById('user-dropdown');if
 
 async function initApp(){
   try{var saved=localStorage.getItem('sw_liked');if(saved)currentUser.likedPosts=JSON.parse(saved);}catch(e){}
-  if(isLive){try{var sr=await supabaseClient.auth.getSession();if(sr.data.session){var uid=sr.data.session.user.id;var pr=await supabaseClient.from('users').select('*').eq('id',uid).single();if(pr.data){var u=pr.data,uname=u.name||u.email.split('@')[0];currentUser={id:uid,email:u.email,name:uname,avatar:u.avatar,bio:u.bio,followers:[],following:[],joined:u.joined?new Date(u.joined).getTime():Date.now(),badges:u.badges||[],isAdmin:isAdminUser(uname)};document.getElementById('nav-avatar-img').src=currentUser.avatar;updateUserDropdown();}}}catch(e){}}await loadAllDataFromSupabase();await loadAboutFromDB();updateUserDropdown();}
+  if(isLive){try{var sr=await supabaseClient.auth.getSession();if(sr.data.session){var uid=sr.data.session.user.id;var pr=await supabaseClient.from('users').select('*').eq('id',uid).single();if(pr.data){var u=pr.data,uname=u.name||u.email.split('@')[0];currentUser={id:uid,email:u.email,name:uname,avatar:u.avatar,bio:u.bio,followers:[],following:[],joined:u.joined?new Date(u.joined).getTime():Date.now(),badges:u.badges||[],isAdmin:isAdminUser(uname),likedPosts:currentUser.likedPosts||[]};document.getElementById('nav-avatar-img').src=currentUser.avatar;updateUserDropdown();}}}catch(e){}}await loadAllDataFromSupabase();await loadAboutFromDB();updateUserDropdown();}
 initApp();
 
 function timeAgo(ts){var d=Date.now()-ts,m=Math.floor(d/60000),h=Math.floor(d/36e5),dd=Math.floor(d/864e5);return dd>0?dd+'d ago':h>0?h+'h ago':m>0?m+'m ago':'now';}
