@@ -182,8 +182,7 @@ var isLive=false,supabaseClient=null;
 try{if(typeof window.supabase!=='undefined'){supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);isLive=true;}}catch(e){console.error('Supabase init error:',e);}
 var ADMIN_USERS=['toyzforshotz'];
 var DB={users:[],posts:[],locations:[],wiki:[],btsEntries:[],conversations:[],messages:[],contestEntries:[],contestConfig:{active:false,theme:'',month:'',deadline:null,prize:'',rules:''},aboutContent:null};
-var currentUser={id:null,name:'Guest',email:'guest@smallworld.io',avatar:'https://picsum.photos/seed/guest/100/100',bio:'',followers:[],following:[],joined:Date.now(),badges:[],isAdmin:false};
-var currentPage='feed',previousPage='feed',lastProfileName='',isPinning=false,mapInstance=null,mapInitialized=false,mapMarkers=[];
+var currentUser={id:null,name:'Guest',email:'guest@smallworld.io',avatar:'https://picsum.photos/seed/guest/100/100',bio:'',followers:[],following:[],joined:Date.now(),badges:[],isAdmin:false,likedPosts:[]};var currentPage='feed',previousPage='feed',lastProfileName='',isPinning=false,mapInstance=null,mapInitialized=false,mapMarkers=[];
 var pendingPinCoords=null,pendingFinalImage=null,pendingBtsFinalImage=null,pendingBtsSetupImage=null,pendingLocImage=null,pendingAvatarImage=null,pendingContestImage=null;
 var activeConvoId=null,activeContestTab='entries',activeWikiCat='All',selectedLocType='Spot';
 var userLocation={lat:40.7128,lng:-74.006};
