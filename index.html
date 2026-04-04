@@ -304,7 +304,7 @@ function likePost(id){
   currentUser.likedPosts.push(id);
   post.likes++;
   try{localStorage.setItem('sw_liked',JSON.stringify(currentUser.likedPosts));}catch(err){}
-  if(isLive){try{supabaseClient.from('posts').update({likes:post.likes}).eq('id',id);}catch(e){}}
+  if(isLive){try{supabaseClient.from('posts').update({likes:post.likes}).eq('id',post.id);}catch(e){}}
   showToast('Liked! '+post.likes,'success');
   setTimeout(function(){renderFeed();},100);
 }
@@ -321,8 +321,23 @@ async function submitContestConfig(){if(!currentUser.isAdmin){showToast('Admin o
 
 async function submitContestEntry(){if(!currentUser.id){showToast('Please login first','error');return;}if(!DB.contestConfig.active){showToast('No active contest','error');return;}var title=document.getElementById('ce-title').value.trim();var caption=document.getElementById('ce-caption').value.trim();if(!pendingContestImage){showToast('Photo required','error');return;}if(!title){showToast('Title required','error');return;}showToast('Submitting entry...','info');var imageUrl=await uploadToSupabase(pendingContestImage,'contest');if(!imageUrl)return;var newEntry={id:'ce'+Date.now(),author:currentUser.name,avatar:currentUser.avatar,title:title,image:imageUrl,caption:caption||'',timestamp:Date.now(),likes:0,isWinner:false};DB.contestEntries.unshift(newEntry);if(isLive){try{await supabaseClient.from('contest_entries').insert([{author:currentUser.name,avatar:currentUser.avatar,title:title,image:imageUrl,caption:caption||''}]);}catch(e){}}closeModal();renderContest();showToast('Entry submitted!','success');}
 
-function likeContestEntry(id){var e=DB.contestEntries.find(function(x){return x.id===id;});if(e){e.likes++;if(isLive){supabaseClient.from('contest_entries').update({likes:e.likes}).eq('id',id).catch(function(){});}renderContest();showToast('Liked!','success');}}
-
+function likeContestEntry(id){
+  if(!currentUser.id){showToast('Please login','error');return;}
+  if(!Array.isArray(currentUser.likedPosts)){currentUser.likedPosts=[];}
+  var entry=DB.contestEntries.find(function(x){return x.id===id;});
+  if(!entry){showToast('Entry not found','error');return;}
+  var alreadyLiked=false;
+  for(var i=0;i<currentUser.likedPosts.length;i++){
+    if(currentUser.likedPosts[i]===id){alreadyLiked=true;break;}
+  }
+  if(alreadyLiked){showToast('Already liked!','info');return;}
+  currentUser.likedPosts.push(id);
+  entry.likes++;
+  try{localStorage.setItem('sw_liked',JSON.stringify(currentUser.likedPosts));}catch(err){}
+  if(isLive){try{supabaseClient.from('contest_entries').update({likes:entry.likes}).eq('id',id);}catch(e){}}
+  showToast('Liked! '+entry.likes,'success');
+  setTimeout(function(){renderContest();},100);
+}
 async function setWinner(entryId){if(!currentUser.isAdmin){showToast('Admin only','error');return;}DB.contestEntries.forEach(function(e){e.isWinner=false;});var entry=DB.contestEntries.find(function(e){return e.id===entryId;});if(entry){entry.isWinner=true;if(isLive){try{await supabaseClient.from('contest_entries').update({is_winner:false}).neq('id','00000000-0000-0000-0000-000000000000');await supabaseClient.from('contest_entries').update({is_winner:true}).eq('id',entryId);}catch(e){}}}renderContest();showToast('Winner selected!','success');}
 
 function renderAbout(){
