@@ -292,7 +292,6 @@ async function submitCreateBTS(){if(!currentUser.id){showToast('Please login fir
 async function submitStory(parentId){if(!currentUser.id){showToast('Please login first','error');return;}var title=document.getElementById('ch-title').value.trim(),caption=document.getElementById('ch-caption').value.trim(),tagsRaw=document.getElementById('ch-tags').value.trim();if(!title||!caption||!pendingFinalImage){showToast('All fields required','error');return;}var tags=tagsRaw?tagsRaw.split(',').map(function(t){return t.trim().toLowerCase();}).filter(Boolean):[];showToast('Publishing chapter...','info');var finalUrl=await uploadToSupabase(pendingFinalImage,'chapters');if(!finalUrl)return;var newChapter={id:'p'+Date.now(),parentId:parentId,author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,btsImage:'',caption:caption,tags:tags,timestamp:Date.now(),likes:0,collabOpen:false};DB.posts.push(newChapter);if(isLive){try{await supabaseClient.from('posts').insert([{parent_id:parentId,author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,caption:caption,tags:tags}]);}catch(e){}}closeModal();renderFeed();showToast('Chapter added!','success');}
 
 function likePost(id){
-  if(!currentUser.id){showToast('Please login','error');return;}
   if(!Array.isArray(currentUser.likedPosts)){currentUser.likedPosts=[];}
   var post=DB.posts.find(function(x){return x.id===id;});
   if(!post){showToast('Post not found','error');return;}
