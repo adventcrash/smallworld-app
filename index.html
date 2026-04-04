@@ -229,32 +229,40 @@ async function loadAboutFromDB(){
 function updateUserDropdown(){var dd=document.getElementById('user-dropdown');if(currentUser.id){var ah=currentUser.isAdmin?'<button onclick="showToast(\'Admin enabled\',\'info\');closeUserDropdown()"><i class="fa-solid fa-shield-halved"></i> ADMIN</button>':'';dd.innerHTML=ah+'<button onclick="showProfile(currentUser.name);closeUserDropdown()"><i class="fa-solid fa-user"></i> MY PROFILE</button><button onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> LOGOUT</button>';}else{dd.innerHTML='<button onclick="openModal(\'auth\');closeUserDropdown()"><i class="fa-solid fa-right-to-bracket"></i> LOGIN / SIGNUP</button>';}}
 
 async function initApp(){
-  try{var saved=localStorage.getItem('sw_liked');if(saved)currentUser.likedPosts=JSON.parse(saved);}catch(e){}
+  try{var saved=localStorage.getItem('sw_liked');if(saved){currentUser.likedPosts=JSON.parse(saved);console.log('📦 Loaded likes:',currentUser.likedPosts.length);}}catch(e){console.log('⚠️ Error loading likes:',e);}
   if(isLive){try{var sr=await supabaseClient.auth.getSession();if(sr.data.session){var uid=sr.data.session.user.id;var pr=await supabaseClient.from('users').select('*').eq('id',uid).single();if(pr.data){var u=pr.data,uname=u.name||u.email.split('@')[0];var savedLikes=currentUser.likedPosts||[];
 currentUser={id:uid,email:u.email,name:uname,avatar:u.avatar,bio:u.bio,followers:[],following:[],joined:u.joined?new Date(u.joined).getTime():Date.now(),badges:u.badges||[],isAdmin:isAdminUser(uname),likedPosts:savedLikes};document.getElementById('nav-avatar-img').src=currentUser.avatar;updateUserDropdown();}}}catch(e){}}await loadAllDataFromSupabase();await loadAboutFromDB();
 
 // RESTORE LIKES FROM LOCALSTORAGE AFTER DATA LOADS
+console.log('🔄 Restoring likes. Current likedPosts:',currentUser.likedPosts?currentUser.likedPosts.length:'NONE');
 if(Array.isArray(currentUser.likedPosts)&&currentUser.likedPosts.length>0){
   currentUser.likedPosts.forEach(function(likedId){
     var feedPost=DB.posts.find(function(p){return p.id===likedId;});
-    if(feedPost)feedPost.likes++;
+    if(feedPost){feedPost.likes++;console.log('❤️ Restored like to feed post:',feedPost.title);}
     var btsEntry=DB.btsEntries.find(function(b){return b.id===likedId;});
-    if(btsEntry)btsEntry.likes++;
+    if(btsEntry){btsEntry.likes++;console.log('⚡ Restored like to BTS entry:',btsEntry.title);}
     var contestEntry=DB.contestEntries.find(function(c){return c.id===likedId;});
-    if(contestEntry)contestEntry.likes++;
+    if(contestEntry){contestEntry.likes++;console.log('🏆 Restored like to contest entry:',contestEntry.title);}
   });
   
-  // RE-RENDER PAGES WITH CORRECT LIKE COUNTS
-  var activePage=document.querySelector('.page.active');
-  if(activePage){
-    var pageId=activePage.id.replace('page-','');
-    if(pageId==='feed')setTimeout(function(){renderFeed();},50);
-    if(pageId==='bts')setTimeout(function(){renderBTS();},50);
-    if(pageId==='contest')setTimeout(function(){renderContest();},50);
-  }
+  // FORCE-SAVE THE RESTORED STATE BACK TO LOCALSTORAGE
+  try{localStorage.setItem('sw_liked',JSON.stringify(currentUser.likedPosts));console.log('💾 Force-saved likes to localStorage');}catch(err){console.log('❌ Force-save failed:',err);}
+  
+  // RE-RENDER CURRENT PAGE WITH CORRECT COUNTS
+  setTimeout(function(){
+    var activePage=document.querySelector('.page.active');
+    if(activePage){
+      var pageId=activePage.id.replace('page-','');
+      console.log('🖥️ Re-rendering page:',pageId);
+      if(pageId==='feed')renderFeed();
+      if(pageId==='bts')renderBTS();
+      if(pageId==='contest')renderContest();
+    }
+  },100);
 }
 
 updateUserDropdown();
+console.log('✅ Init complete. Final likedPosts count:',currentUser.likedPosts?currentUser.likedPosts.length:'NONE');
 }
 initApp();
 
