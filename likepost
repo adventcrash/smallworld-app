@@ -291,11 +291,12 @@ async function submitStory(parentId){if(!currentUser.id){showToast('Please login
 
 function likePost(id){
   if(!currentUser.id){showToast('Please login to like','error');return;}
+  if(!currentUser.likedPosts)currentUser.likedPosts=[];
   var p=DB.posts.find(function(x){return x.id===id;});
   if(!p)return;
   if(currentUser.likedPosts.indexOf(id)!==-1){showToast('Already liked!','info');return;}
   currentUser.likedPosts.push(id);
-  localStorage.setItem('sw_likedPosts',JSON.stringify(currentUser.likedPosts));
+  try{localStorage.setItem('sw_likedPosts',JSON.stringify(currentUser.likedPosts));}catch(e){}
   p.likes++;
   if(isLive){supabaseClient.from('posts').update({likes:p.likes}).eq('id',id).catch(function(){});}
   renderFeed();
@@ -317,11 +318,12 @@ async function submitContestEntry(){if(!currentUser.id){showToast('Please login 
 
 function likeContestEntry(id){
   if(!currentUser.id){showToast('Please login to like','error');return;}
+  if(!currentUser.likedPosts)currentUser.likedPosts=[];
   var e=DB.contestEntries.find(function(x){return x.id===id;});
   if(!e)return;
   if(currentUser.likedPosts.indexOf(id)!==-1){showToast('Already liked!','info');return;}
   currentUser.likedPosts.push(id);
-  localStorage.setItem('sw_likedPosts',JSON.stringify(currentUser.likedPosts));
+  try{localStorage.setItem('sw_likedPosts',JSON.stringify(currentUser.likedPosts));}catch(e){}
   e.likes++;
   if(isLive){supabaseClient.from('contest_entries').update({likes:e.likes}).eq('id',id).catch(function(){});}
   renderContest();
@@ -449,11 +451,12 @@ function renderBTS(){var entries=DB.btsEntries;var h='<div style="min-height:100
 function attachBTSListeners(){var cards=document.querySelectorAll('.bts-card');for(var i=0;i<cards.length;i++){(function(card){var holdTimer=null,wasHolding=false;card.addEventListener('contextmenu',function(e){e.preventDefault();});function onDown(){wasHolding=false;holdTimer=setTimeout(function(){wasHolding=true;card.classList.add('revealing');},200);}function onUp(){clearTimeout(holdTimer);if(wasHolding){card.classList.remove('revealing');setTimeout(function(){wasHolding=false;},100);}}function onLeave(){clearTimeout(holdTimer);card.classList.remove('revealing');wasHolding=false;}card.addEventListener('mousedown',onDown);card.addEventListener('touchstart',onDown,{passive:true});card.addEventListener('mouseup',onUp);card.addEventListener('touchend',onUp);card.addEventListener('mouseleave',onLeave);card.addEventListener('touchcancel',onLeave);card.addEventListener('click',function(e){if(!wasHolding){e.stopPropagation();var src=card.getAttribute('data-final-src');if(src)openLightbox(src);}});})(cards[i]);}}
 function likeBTS(btsId){
   if(!currentUser.id){showToast('Please login to like','error');return;}
+  if(!currentUser.likedPosts)currentUser.likedPosts=[];
   var b=DB.btsEntries.find(function(x){return x.id===btsId;});
   if(!b)return;
   if(currentUser.likedPosts.indexOf(btsId)!==-1){showToast('Already liked!','info');return;}
   currentUser.likedPosts.push(btsId);
-  localStorage.setItem('sw_likedPosts',JSON.stringify(currentUser.likedPosts));
+  try{localStorage.setItem('sw_likedPosts',JSON.stringify(currentUser.likedPosts));}catch(e){}
   b.likes++;
   if(isLive){supabaseClient.from('bts_entries').update({likes:b.likes}).eq('id',btsId).catch(function(){});}
   renderBTS();
