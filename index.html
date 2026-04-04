@@ -288,8 +288,19 @@ async function submitCreateBTS(){if(!currentUser.id){showToast('Please login fir
 
 async function submitStory(parentId){if(!currentUser.id){showToast('Please login first','error');return;}var title=document.getElementById('ch-title').value.trim(),caption=document.getElementById('ch-caption').value.trim(),tagsRaw=document.getElementById('ch-tags').value.trim();if(!title||!caption||!pendingFinalImage){showToast('All fields required','error');return;}var tags=tagsRaw?tagsRaw.split(',').map(function(t){return t.trim().toLowerCase();}).filter(Boolean):[];showToast('Publishing chapter...','info');var finalUrl=await uploadToSupabase(pendingFinalImage,'chapters');if(!finalUrl)return;var newChapter={id:'p'+Date.now(),parentId:parentId,author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,btsImage:'',caption:caption,tags:tags,timestamp:Date.now(),likes:0,collabOpen:false};DB.posts.push(newChapter);if(isLive){try{await supabaseClient.from('posts').insert([{parent_id:parentId,author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,caption:caption,tags:tags}]);}catch(e){}}closeModal();renderFeed();showToast('Chapter added!','success');}
 
-function likePost(id){var p=DB.posts.find(function(x){return x.id===id;});if(p){p.likes++;if(isLive){supabaseClient.from('posts').update({likes:p.likes}).eq('id',id).catch(function(){});}renderFeed();showToast('Liked!','success');}}
-
+function likePost(id){
+  if(!currentUser.id){showToast('Please login to like','error');return;}
+  if(!currentUser.likedPosts)currentUser.likedPosts=[];
+  var p=DB.posts.find(function(x){return x.id===id;});
+  if(!p)return;
+  if(currentUser.likedPosts.indexOf(id)!==-1){showToast('Already liked!','info');return;}
+  currentUser.likedPosts.push(id);
+  try{localStorage.setItem('sw_likedPosts',JSON.stringify(currentUser.likedPosts));}catch(e){}
+  p.likes++;
+  if(isLive){supabaseClient.from('posts').update({likes:p.likes}).eq('id',id).catch(function(){});}
+  renderFeed();
+  showToast('Liked!','success');
+}
 function toggleFollow(name){if(!currentUser.id){showToast('Please login first','error');return;}var target=findUser(name);if(!target||name===currentUser.name)return;var i=currentUser.following.indexOf(name);if(i!==-1){currentUser.following.splice(i,1);var ti=target.followers.indexOf(currentUser.name);if(ti!==-1)target.followers.splice(ti,1);showToast('Unfollowed '+name,'info');}else{currentUser.following.push(name);target.followers.push(currentUser.name);showToast('Now following '+name,'success');}renderProfile(name);}
 
 async function submitEditProfile(){if(!currentUser.id){showToast('Please login first','error');return;}var bio=document.getElementById('ep-bio').value.trim();var avatarUrl=currentUser.avatar;if(pendingAvatarImage){showToast('Uploading avatar...','info');avatarUrl=await uploadToSupabase(pendingAvatarImage,'avatars');if(!avatarUrl){showToast('Avatar upload failed','error');return;}}currentUser.bio=bio;currentUser.avatar=avatarUrl;if(isLive){try{await supabaseClient.from('users').update({bio:bio,avatar:avatarUrl}).eq('id',currentUser.id);}catch(e){showToast('Error saving profile','error');return;}}document.getElementById('nav-avatar-img').src=currentUser.avatar;closeModal();renderProfile(currentUser.name);showToast('Profile updated!','success');}
