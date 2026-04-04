@@ -243,6 +243,15 @@ if(Array.isArray(currentUser.likedPosts)&&currentUser.likedPosts.length>0){
     var contestEntry=DB.contestEntries.find(function(c){return c.id===likedId;});
     if(contestEntry)contestEntry.likes++;
   });
+  
+  // RE-RENDER PAGES WITH CORRECT LIKE COUNTS
+  var activePage=document.querySelector('.page.active');
+  if(activePage){
+    var pageId=activePage.id.replace('page-','');
+    if(pageId==='feed')setTimeout(function(){renderFeed();},50);
+    if(pageId==='bts')setTimeout(function(){renderBTS();},50);
+    if(pageId==='contest')setTimeout(function(){renderContest();},50);
+  }
 }
 
 updateUserDropdown();
