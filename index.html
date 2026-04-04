@@ -190,6 +190,15 @@ var dataLoaded=false,countdownInterval=null;
 if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(p){userLocation.lat=p.coords.latitude;userLocation.lng=p.coords.longitude;if(mapInstance)mapInstance.setView([userLocation.lat,userLocation.lng],12);},function(){});}
 
 function compressImage(dataUrl,maxW,quality){return new Promise(function(resolve){var img=new Image();img.onerror=function(){resolve(dataUrl);};img.onload=function(){var w=img.width,h=img.height;if(w<=maxW){resolve(dataUrl);return;}h=Math.round(h*maxW/w);w=maxW;var c=document.createElement('canvas');c.width=w;c.height=h;var ctx=c.getContext('2d');ctx.fillStyle='#0B1120';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);try{resolve(c.toDataURL('image/jpeg',quality));}catch(e){resolve(dataUrl);}};img.src=dataUrl;});}
+function escapeHTML(str){
+  if(!str)return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
 function hideLoading(){var el=document.getElementById('loading-overlay');if(el)el.classList.add('hidden');}
 function isAdminUser(n){return ADMIN_USERS.indexOf(n.toLowerCase())!==-1;}
 setTimeout(function(){hideLoading();},5000);
