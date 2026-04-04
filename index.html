@@ -292,18 +292,49 @@ async function submitCreateBTS(){if(!currentUser.id){showToast('Please login fir
 async function submitStory(parentId){if(!currentUser.id){showToast('Please login first','error');return;}var title=document.getElementById('ch-title').value.trim(),caption=document.getElementById('ch-caption').value.trim(),tagsRaw=document.getElementById('ch-tags').value.trim();if(!title||!caption||!pendingFinalImage){showToast('All fields required','error');return;}var tags=tagsRaw?tagsRaw.split(',').map(function(t){return t.trim().toLowerCase();}).filter(Boolean):[];showToast('Publishing chapter...','info');var finalUrl=await uploadToSupabase(pendingFinalImage,'chapters');if(!finalUrl)return;var newChapter={id:'p'+Date.now(),parentId:parentId,author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,btsImage:'',caption:caption,tags:tags,timestamp:Date.now(),likes:0,collabOpen:false};DB.posts.push(newChapter);if(isLive){try{await supabaseClient.from('posts').insert([{parent_id:parentId,author:currentUser.name,avatar:currentUser.avatar,title:title,image:finalUrl,caption:caption,tags:tags}]);}catch(e){}}closeModal();renderFeed();showToast('Chapter added!','success');}
 
 function likePost(id){
-  if(!Array.isArray(currentUser.likedPosts)){currentUser.likedPosts=[];}
+  console.log('🔴 STEP 1: Function called, id=', id);
+  if(!Array.isArray(currentUser.likedPosts)){
+    console.log('⚠️ Creating empty likedPosts array');
+    currentUser.likedPosts=[];
+  }
+  console.log('🔴 STEP 2: likedPosts=', currentUser.likedPosts);
+  
   var post=DB.posts.find(function(x){return x.id===id;});
-  if(!post){showToast('Post not found','error');return;}
+  console.log('🔴 STEP 3: Found post=', post);
+  
+  if(!post){
+    console.log('❌ FAIL: No post found');
+    showToast('Post not found','error');
+    return;
+  }
+  
   var alreadyLiked=false;
   for(var i=0;i<currentUser.likedPosts.length;i++){
     if(currentUser.likedPosts[i]===id){alreadyLiked=true;break;}
   }
-  if(alreadyLiked){showToast('Already liked!','info');return;}
+  console.log('🔴 STEP 4: alreadyLiked=', alreadyLiked);
+  
+  if(alreadyLiked){
+    console.log('❌ FAIL: Already liked');
+    showToast('Already liked!','info');
+    return;
+  }
+  
   currentUser.likedPosts.push(id);
   post.likes++;
-  try{localStorage.setItem('sw_liked',JSON.stringify(currentUser.likedPosts));}catch(err){}
-  if(isLive){try{supabaseClient.from('posts').update({likes:post.likes}).eq('id',post.id);}catch(e){}}
+  console.log('🔴 STEP 5: Pushed to array, new count=', post.likes);
+  
+  try{localStorage.setItem('sw_liked',JSON.stringify(currentUser.likedPosts));}catch(err){
+    console.log('⚠️ localStorage error:', err);
+  }
+  
+  if(isLive){
+    try{supabaseClient.from('posts').update({likes:post.likes}).eq('id',post.id);}catch(e){
+      console.log('⚠️ Supabase error:', e);
+    }
+  }
+  
+  console.log('✅ SUCCESS! About to show toast and render');
   showToast('Liked! '+post.likes,'success');
   setTimeout(function(){renderFeed();},100);
 }
