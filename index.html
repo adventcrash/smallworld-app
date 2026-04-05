@@ -585,7 +585,7 @@ function sendMessage(){
   
   input.value='';
   openChat(activeConvoId);}
-function startConvoWithName(targetName){
+  function startConvoWithName(targetName){
   if(!currentUser.id){showToast('Please login to send messages','error');return;}
   if(targetName===currentUser.name){showToast('Cannot message yourself','error');return;}
   var existing=DB.conversations.find(function(c){return c.participants.indexOf(currentUser.name)!==-1&&c.participants.indexOf(targetName)!==-1;});
