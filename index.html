@@ -199,6 +199,42 @@ function escapeHTML(str){
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#39;');
 }
+// ==================== DM DATABASE FUNCTIONS ====================
+async function saveConvoToDB(convo){
+  if(!isLive)return;
+  try{
+    var existing=await supabaseClient.from('conversations').select('id').eq('id',convo.id).maybeSingle();
+    if(existing.data){
+      await supabaseClient.from('conversations').update({
+        unread:convo.unread,
+        participants:convo.participants
+      }).eq('id',convo.id);
+    }else{
+      await supabaseClient.from('conversations').insert([{
+        id:convo.id,
+        participants:convo.participants,
+        unread:convo.unread
+      }]);
+    }
+  }catch(e){
+    console.log('Error saving convo:',e);
+  }
+}
+async function saveMessageToDB(msg){
+  if(!isLive)return;
+  try{
+    await supabaseClient.from('messages').insert([{
+      id:msg.id,
+      convo_id:msg.convoId,
+      sender:msg.sender,
+      text:msg.text,
+      timestamp:new Date().toISOString()
+    }]);
+  }catch(e){
+    console.log('Error saving message:',e);
+  }
+}
+function hideLoading(){
   function hideLoading(){var el=document.getElementById('loading-overlay');if(el)el.classList.add('hidden');}
 function isAdminUser(n){return ADMIN_USERS.indexOf(n.toLowerCase())!==-1;}
 setTimeout(function(){hideLoading();},5000);
