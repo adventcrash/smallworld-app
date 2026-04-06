@@ -2363,7 +2363,7 @@ function startCountdown(deadline) {
 }
 
 // NEW: Helper function to safely restart countdown from anywhere
-function ensureCountdownRunning() 
+function ensureCountdownRunning() {
   if (COUNTDOWN_DEADLINE && COUNTDOWN_DEADLINE > Date.now()) {
     // Check if we need to start or restart
     var el = document.getElementById('countdown');
