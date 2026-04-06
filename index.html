@@ -1103,7 +1103,7 @@ async function submitCreateStory() {
   if (!finalUrl) return;
 
   var newPost = {
-    id: 'p' + Date.now(), parentId: null, author: currentUser.name, avatar: currentUser.avatar,
+    id: crypto.randomUUID(), parentId: null, author: currentUser.name, avatar: currentUser.avatar,
     title: title, image: finalUrl, btsImage: '', caption: caption, tags: tags,
     timestamp: Date.now(), likes: 0, collabOpen: collab
   };
@@ -1141,7 +1141,7 @@ async function submitCreateBTS() {
   if (!finalUrl || !setupUrl) return;
 
   var newBts = {
-    id: 'bts' + Date.now(), author: currentUser.name, avatar: currentUser.avatar,
+    id: crypto.randomUUID(), author: currentUser.name, avatar: currentUser.avatar,
     title: title, image: finalUrl, btsImage: setupUrl, caption: caption || '', tags: tags,
     timestamp: Date.now(), likes: 0
   };
@@ -1432,7 +1432,7 @@ async function submitContestEntry() {
     if (!imageUrl) { showToast('Image upload failed.', 'error'); return; }
 
     var newEntry = {
-      id: 'ce' + Date.now(), author: currentUser.name, avatar: currentUser.avatar,
+      id: crypto.randomUUID(), author: currentUser.name, avatar: currentUser.avatar,
       title: title, image: imageUrl, caption: caption || '',
       timestamp: Date.now(), likes: 0, isWinner: false
     };
@@ -1531,8 +1531,7 @@ async function sendMessage() {
 
   if (!text || !activeConvoId) { showToast('Cannot send empty message', 'error'); return; }
 
-  var messageId = 'm' + Date.now();
-  var newMsg = {
+var messageId = crypto.randomUUID();  var newMsg = {
     id: messageId, convoId: activeConvoId, sender: currentUser.name,
     text: text, timestamp: Date.now()
   };
@@ -1570,8 +1569,7 @@ async function startConvoWithName(targetName) {
     showPage('msg');
     setTimeout(function() { openChat(existing.id); }, 100);
   } else {
-    var newId = 'c' + Date.now();
-    var newConvo = {
+var newId = crypto.randomUUID();    var newConvo = {
       id: newId, participants: [currentUser.name, targetName],
       unread: 0, lastMessage: '', lastActive: Date.now()
     };
@@ -1796,7 +1794,7 @@ async function submitLocation() {
   }
 
   var newLoc = {
-    id: 'l' + Date.now(), type: selectedLocType, name: name,
+    id: crypto.randomUUID(), type: selectedLocType, name: name,
     lat: pendingPinCoords.lat, lng: pendingPinCoords.lng,
     description: description, author: currentUser.name, votes: 0, img: locImg
   };
@@ -1894,7 +1892,7 @@ async function submitWikiCreate() {
 
   if (!t || !co) { showToast('Title and content required', 'error'); return; }
 
-  var newWiki = { id: 'w' + Date.now(), author: currentUser.name, title: t, category: c, content: co, lastUpdated: Date.now() };
+  var newWiki = { id: crypto.randomUUID(), author: currentUser.name, title: t, category: c, content: co, lastUpdated: Date.now() };
   DB.wiki.push(newWiki);
 
   if (isLive) {
