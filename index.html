@@ -1927,53 +1927,53 @@ function submitWikiEdit(id) {
   showToast('Article updated!', 'success');
 }
 
-function renderBTS() {
-  var entries = DB.btsEntries;
-  var h = '<div style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:1100px;margin:0 auto;">' +
-    '<div class="flex items-center gap-4 mb-4"><div class="h-px flex-1" style="background:var(--border)"></div>' +
-    '<h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--amber)">BEHIND THE SCENES</h1>' +
-    '<div class="h-px flex-1" style="background:var(--border)"></div></div>' +
-    '<p class="text-center mb-4" style="color:var(--txt2);max-width:600px;margin:0 auto;">Hold to reveal the setup. Tap to view full size.</p>' +
-    '<div class="flex justify-center mb-10"><span class="sys-label"><span class="sys-dot amber"></span>' + entries.length + ' SETUPS</span></div>';
+function renderBTS(){
+var entries=DB.btsEntries;
+var h='<div style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:1100px;margin:0 auto;">';
+h+='<div class="flex items-center gap-4 mb-4"><div class="h-px flex-1" style="background:var(--border)"></div>';
+h+='<h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--amber)">BEHIND THE SCENES</h1>';
+h+='<div class="h-px flex-1" style="background:var(--border)"></div></div>';
+h+='<p class="text-center mb-4" style="color:var(--txt2);max-width:600px;margin:0 auto;">Hold to reveal the setup. Tap to view full size.</p>';
+h+='<div class="flex justify-center mb-10"><span class="sys-label"><span class="sys-dot amber"></span>'+entries.length+' SETUPS</span></div>';
 
-  if (entries.length === 0) {
-    h += '<div style="text-align:center;padding:80px 20px;color:var(--txt3);">' +
-      '<i class="fa-solid fa-bolt" style="font-size:48px;margin-bottom:16px;color:var(--border);"></i>' +
-      '<h3 class="font-display font-bold text-xl tracking-wider mb-2" style="color:var(--txt2)">NO SETUPS YET</h3>' +
-      '<p class="text-sm mb-6">Share how you create your shots!</p>' +
-      '<button onclick="openModal(\'create-bts\')" class="sw-btn sw-btn-amber"><i class="fa-solid fa-bolt"></i> SHARE YOUR FIRST BTS</button></div>';
-  } else {
-    h += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
-    entries.forEach(function(e) {
-      h += '<div class="hud-frame"><span class="hud-corner tl amber"></span><span class="hud-corner tr amber"></span>' +
-        '<span class="hud-corner bl amber"></span><span class="hud-corner br amber"></span><div class="sw-card">' +
-        '<div class="bts-card" style="height:300px;" data-final-src="' + e.image + '" data-bts-src="' + (e.btsImage || e.image) + '">' +
-        '<img class="bts-final-img" src="' + e.image + '" alt="Final" draggable="false">' +
-        '<img class="bts-bts-img" src="' + (e.btsImage || e.image) + '" alt="BTS" draggable="false">' +
-        '<div class="bts-card-info"><div class="bts-indicator"><i class="fa-solid fa-bolt"></i> HOLD TO SEE BTS</div>' +
-        '<div class="bts-label-reveal">BEHIND THE SCENES</div>' +
-        '<div style="position:absolute;bottom:16px;left:16px;right:16px;">' +
-        '<p class="font-display font-bold text-base tracking-wider clickable-name" style="text-shadow:0 2px 8px rgba(0,0,0,0.9);" onclick="event.stopPropagation();showProfile(\'' + e.author + '\')">' + e.author + '</p>' +
-        '<p class="sys-label" style="text-shadow:0 1px 4px rgba(0,0,0,0.9);">' + e.title + '</p>' +
-        (e.caption ? '<p class="text-xs mt-1" style="color:var(--txt2);text-shadow:0 1px 4px rgba(0,0,0,0.9);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + e.caption + '</p>' : '') + '</div>' +
-        '<div style="position:absolute;top:16px;left:16px;display:flex;gap:4px;">';
-      e.tags.slice(0, 3).forEach(function(t) { h += '<span class="tag-pill" style="background:rgba(8,12,22,0.8);">' + t + '</span>'; });
-      h += '</div></div></div>' +
-        '<div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(17,24,39,0.5);">' +
-        '<div class="flex items-center gap-2"><img src="' + e.avatar + '" class="w-6 h-6 rounded" style="border:1px solid var(--amber);" alt="">' +
-        '<span class="font-display text-xs">' + timeAgo(e.timestamp) + '</span></div>' +
-        '<div class="flex items-center gap-2">' +
-        '<button onclick="likeBTS(\'' + e.id + '\')" class="flex items-center gap-1 text-xs" style="color:var(--txt2);background:none;border:none;cursor:pointer;"><i class="fa-solid fa-heart"></i> ' + e.likes + '</button>' +
-        (currentUser.isAdmin ? '<button onclick="openModal(\'confirm-delete\',{message:\'Delete BTS: ' + e.title + '?\',onConfirm:\'deleteBTS(\\\'' + e.id + '\\\')\'})" class="admin-delete-btn"><i class="fa-solid fa-trash"></i></button>' : '') +
-        '</div></div></div></div></div>';
-    });
-    h += '</div>';
-  }
-
+if(entries.length===0){
+h+='<div style="text-align:center;padding:80px 20px;color:var(--txt3);">';
+h+='<i class="fa-solid fa-bolt" style="font-size:48px;margin-bottom:16px;color:var(--border);"></i>';
+h+='<h3 class="font-display font-bold text-xl tracking-wider mb-2" style="color:var(--txt2)">NO SETUPS YET</h3>';
+h+='<p class="text-sm mb-6">Share how you create your shots!</p>';
+h+='<button onclick="openModal(\'create-bts\')" class="sw-btn sw-btn-amber"><i class="fa-solid fa-bolt"></i> SHARE YOUR FIRST BTS</button>';
+h+='</div>';
+}else{
+h+='<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
+entries.forEach(function(e){
+h+='<div class="hud-frame"><span class="hud-corner tl amber"></span><span class="hud-corner tr amber"></span>';
+h+='<span class="hud-corner bl amber"></span><span class="hud-corner br amber"></span><div class="sw-card">';
+h+='<div class="bts-card" style="height:300px;" data-final-src="'+e.image+'" data-bts-src="'+(e.btsImage||e.image)+'">';
+h+='<img class="bts-final-img" src="'+e.image+'" alt="Final" draggable="false">';
+h+='<img class="bts-bts-img" src="'+(e.btsImage||e.image)+'" alt="BTS" draggable="false">';
+h+='<div class="bts-card-info"><div class="bts-indicator"><i class="fa-solid fa-bolt"></i> HOLD TO SEE BTS</div>';
+h+='<div class="bts-label-reveal">BEHIND THE SCENES</div>';
+h+='<div style="position:absolute;bottom:16px;left:16px;right:16px;">';
+h+='<p class="font-display font-bold text-base tracking-wider clickable-name" style="text-shadow:0 2px 8px rgba(0,0,0,0.9);" onclick="event.stopPropagation();showProfile(\''+e.author+'\')">'+e.author+'</p>';
+h+='<p class="sys-label" style="text-shadow:0 1px 4px rgba(0,0,0,0.9);">'+e.title+'</p>';
+if(e.caption){h+='<p class="text-xs mt-1" style="color:var(--txt2);text-shadow:0 1px 4px rgba(0,0,0,0.9);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+e.caption+'</p>';}
+h+='</div>';
+h+='<div style="position:absolute;top:16px;left:16px;display:flex;gap:4px;">';
+e.tags.slice(0,3).forEach(function(t){h+='<span class="tag-pill" style="background:rgba(8,12,22,0.8);">'+t+'</span>';});
+h+='</div></div></div>';
+h+='<div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(17,24,39,0.5);">';
+h+='<div class="flex items-center gap-2"><img src="'+e.avatar+'" class="w-6 h-6 rounded" style="border:1px solid var(--amber);" alt="">';
+h+='<span class="font-display text-xs">'+timeAgo(e.timestamp)+'</span></div>';
+h+='<div class="flex items-center gap-2">';
+h+='<button onclick="likeBTS(\''+e.id+'\')" class="flex items-center gap-1 text-xs" style="color:var(--txt2);background:none;border:none;cursor:pointer;"><i class="fa-solid fa-heart"></i> '+e.likes+'</button>';
+if(currentUser.isAdmin){h+='<button onclick="openModal(\'confirm-delete\',{message:\'Delete BTS: '+e.title+'?\',onConfirm:\'deleteBTS(\\\''+e.id+'\\\')\'})" class="admin-delete-btn"><i class="fa-solid fa-trash"></i></button>';}
+h+='</div></div></div></div></div>';
+});
+h+='</div>';}
 h+='</div></div>';
-document.getElementById('bts-content').innerHTML=h;attachBTSListeners();
+document.getElementById('bts-content').innerHTML=h;
+attachBTSListeners();
 }
-
 function attachBTSListeners() {
   var cards = document.querySelectorAll('.bts-card');
   for (var i = 0; i < cards.length; i++) {
