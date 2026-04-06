@@ -1276,6 +1276,7 @@ function likeContestEntry(id) {
 // ==================== FOLLOW FUNCTION (FEATURE 3) ====================
 async function toggleFollow(name) {
   if (!currentUser.id) { showToast('Please login first', 'error'); return; }
+  console.log('FOLLOW DEBUG: currentUser.id=', currentUser.id, 'type=', typeof currentUser.id);
 
   var target = findUser(name);
   if (!target || name === currentUser.name) return;
@@ -1528,6 +1529,7 @@ async function persistMessage(messageId) {
 async function sendMessage() {
   var input = document.getElementById('msg-input');
   var text = input.value.trim();
+  console.log('DM DEBUG: convoId=', activeConvoId, 'type=', typeof activeConvoId);
 
   if (!text || !activeConvoId) { showToast('Cannot send empty message', 'error'); return; }
 
