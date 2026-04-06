@@ -324,8 +324,65 @@ function closeModal(){document.getElementById('modal-overlay').classList.remove(
 
 async function handleLogin(){if(!isLive)return;var email=document.getElementById('auth-email').value.trim(),pass=document.getElementById('auth-pass').value;if(!email||!pass){showToast('Email and password required','error');return;}showToast('Logging in...','info');try{var r=await supabaseClient.auth.signInWithPassword({email:email,password:pass});if(r.error){showToast(r.error.message,'error');return;}var uid=r.data.user.id;var pr=await supabaseClient.from('users').select('*').eq('id',uid).single();if(pr.data){var u=pr.data,uname=u.name||email.split('@')[0];currentUser={id:uid,email:email,name:uname,avatar:u.avatar,bio:u.bio,followers:[],following:[],joined:u.joined?new Date(u.joined).getTime():Date.now(),badges:u.badges||[],isAdmin:isAdminUser(uname)};}document.getElementById('nav-avatar-img').src=currentUser.avatar;updateUserDropdown();closeModal();renderPage(currentPage);showToast('Welcome back, '+currentUser.name+'!','success');}catch(e){showToast('Error: '+e.message,'error');}}
 
-async function handleSignup(){if(!isLive)return;var username=document.getElementById('auth-username').value.trim(),email=document.getElementById('auth-email').value.trim(),pass=document.getElementById('auth-pass').value;if(!username||username.length<2){showToast('Username must be at least 2 characters','error');return;}if(!email||!pass){showToast('Email and password required','error');return;}showToast('Creating account...','info');try{var r=await supabaseClient.auth.signUp({email:email,password:pass});if(r.error){showToast(r.error.message,'error');return;}await supabaseClient.from('users').insert([{id:r.data.user.id,email:email,name:username,avatar:'https://picsum.photos/seed/'+Date.now()+'/100/100',bio:'New to SmallWorld!'}]);var nu={id:r.data.user.id,email:email,name:username,avatar:'https://picsum.photos/seed/'+Date.now()+'/100/100',bio:'New to SmallWorld!',followers:[],following:[],joined:Date.now(),badges:[],isAdmin:isAdminUser(username)};DB.users.push(nu);currentUser=nu;document.getElementById('nav-avatar-img').src=currentUser.avatar;updateUserDropdown();closeModal();renderPage(currentPage);showToast('Welcome to SmallWorld, '+username+'!','success');}catch(e){showToast('Error: '+e.message,'error');}}
-
+async function handleSignup(){
+  if(!isLive)return;
+  var username=document.getElementById('auth-username').value.trim(),email=document.getElementById('auth-email').value.trim(),pass=document.getElementById('auth-pass').value;
+  
+  // SANITIZE USERNAME - Remove dangerous characters for Supabase compatibility
+  username=username.replace(/[^a-zA-Z0-9_\-]/g,''); // Only allow letters, numbers, hyphens, underscores
+  if(username.length<2||username.length>30){
+    showToast('Username must be 2-30 characters','error');
+    return;
+  }
+  if(!email||!pass){
+    showToast('Email and password required','error');
+    return;
+  }
+  
+  showToast('Creating account...','info');
+  try{
+    var r=await supabaseClient.auth.signUp({email:email,password:pass});
+    if(r.error){
+      showToast(r.error.message,'error');
+      return;
+    }
+    
+    await supabaseClient.from('users').insert([{
+      id:r.data.user.id,
+      email:email,
+      name:username,
+      avatar:'https://picsum.photos/seed/'+Date.now()+'/100/100',
+      bio:'New to SmallWorld!',
+      followers:[],
+      following:[],joined:Date.now(),
+      badges:[],
+      isAdmin:isAdminUser(username)
+    }]);
+    
+    var nu={
+      id:r.data.user.id,
+      email:email,
+      name:username,
+      avatar:'https://picsum.photos/seed/'+Date.now()+'/100/100',
+      bio:'New to SmallWorld!',
+      followers:[],following:[],
+      joined:Date.now(),
+      badges:[],
+      isAdmin:isAdminUser(username)
+    };
+    
+    DB.users.push(nu);
+    currentUser=nu;
+    document.getElementById('nav-avatar-img').src=currentUser.avatar;
+    updateUserDropdown();
+    closeModal();
+    renderPage(currentPage);
+    showToast('Welcome to SmallWorld, '+username+'!','success');
+    
+  }catch(e){
+    showToast('Error: '+e.message,'error');
+  }
+}
 async function handleLogout(){if(isLive){try{await supabaseClient.auth.signOut();}catch(e){}}currentUser={id:null,name:'Guest',email:'guest@smallworld.io',avatar:'https://picsum.photos/seed/guest/100/100',bio:'',followers:[],following:[],joined:Date.now(),badges:[],isAdmin:false};document.getElementById('nav-avatar-img').src=currentUser.avatar;updateUserDropdown();showPage('feed');showToast('Logged out','info');}
 
 function setLocType(t){selectedLocType=t;var s=document.getElementById('loc-type-spot'),st=document.getElementById('loc-type-store');if(!s||!st)return;s.className='sw-btn sw-btn-'+(t==='Spot'?'outline':'ghost')+' flex-1 justify-center';st.className='sw-btn sw-btn-'+(t==='Store'?'outline':'ghost')+' flex-1 justify-center';s.style.fontSize='13px';st.style.fontSize='13px';}
