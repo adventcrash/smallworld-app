@@ -244,6 +244,7 @@ var selectedLocType = 'Spot';
 var userLocation = { lat: 40.7128, lng: -74.006 };
 var dataLoaded = false;
 var countdownInterval = null;
+var COUNTDOWN_DEADLINE = null;
 
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(function(p) {
@@ -670,6 +671,8 @@ function showPage(pageId) {
   }
 
   renderPage(pageId);
+  // Keep countdown alive across page switches
+setTimeout(ensureCountdownRunning, 200);
 
   if (pageId === 'map') {
     if (!mapInitialized) {
@@ -2298,33 +2301,40 @@ function renderContest() {
   h += '</div>';
   document.getElementById('contest-content').innerHTML = h;
 
-  if (c.active && c.deadline && c.deadline > Date.now()) {
-    startCountdown(c.deadline);
-  }
+  if(c.active && c.deadline && c.deadline > Date.now()){
+  startCountdown(c.deadline);
+} else if (!c.active || !c.deadline) {
+  // Clear stored deadline if contest inactive
+  COUNTDOWN_DEADLINE = null;
+}
 
   renderContestTab(activeContestTab);
 }
 
 function startCountdown(deadline) {
-  // Clear any existing interval to prevent duplicates
+  // Store deadline globally so we can recover it
+  COUNTDOWN_DEADLINE = deadline;
+  
+  // Kill any existing interval
   if (countdownInterval) {
     clearInterval(countdownInterval);
     countdownInterval = null;
   }
 
   function tick() {
+    var el = document.getElementById('countdown');
+    
+    // If element doesn't exist yet (page not visible), keep interval alive silently
+    if (!el) return;
+    
     var now = Date.now();
-    var diff = deadline - now;
+    var diff = COUNTDOWN_DEADLINE - now;
 
     if (diff <= 0) {
-      var el = document.getElementById('countdown');
-      if (el) {
-        el.innerHTML = '<div class="countdown-box" style="border-color:var(--red);background:rgba(255,61,87,0.1);"><div class="countdown-num" style="color:var(--red)">ENDED</div><div class="countdown-label">CONTEST OVER</div></div>';
-        // Pulse animation when ended
-        el.style.animation = 'pinPulse 1s ease infinite';
-        el.style.borderColor = 'var(--red)';
-      }
+      el.innerHTML = '<div class="countdown-box" style="border-color:var(--red);background:rgba(255,61,87,0.1);"><div class="countdown-num" style="color:var(--red)">ENDED</div><div class="countdown-label">CONTEST OVER</div></div>';
+      el.style.animation = 'pinPulse 1s ease infinite';
       clearInterval(countdownInterval);
+      countdownInterval = null;
       return;
     }
 
@@ -2333,33 +2343,34 @@ function startCountdown(deadline) {
     var m = Math.floor((diff % 3600000) / 60000);
     var s = Math.floor((diff % 60000) / 1000);
 
-    // Pad single digits
-    var dStr = d.toString().padStart(2, '0');
-    var hrStr = hr.toString().padStart(2, '0');
-    var mStr = m.toString().padStart(2, '0');
-    var sStr = s.toString().padStart(2, '0');
+    el.innerHTML =
+      '<div class="countdown-box"><div class="countdown-num">' + d.toString().padStart(2,'0') + '</div><div class="countdown-label">DAYS</div></div>' +
+      '<div class="countdown-box"><div class="countdown-num">' + hr.toString().padStart(2,'0') + '</div><div class="countdown-label">HRS</div></div>' +
+      '<div class="countdown-box"><div class="countdown-num">' + m.toString().padStart(2,'0') + '</div><div class="countdown-label">MIN</div></div>' +
+      '<div class="countdown-box"><div class="countdown-num">' + s.toString().padStart(2,'0') + '</div><div class="countdown-label">SEC</div></div>';
 
-    var el = document.getElementById('countdown');
-    if (el) {
-      el.innerHTML =
-        '<div class="countdown-box"><div class="countdown-num">' + dStr + '</div><div class="countdown-label">DAYS</div></div>' +
-        '<div class="countdown-box"><div class="countdown-num">' + hrStr + '</div><div class="countdown-label">HRS</div></div>' +
-        '<div class="countdown-box"><div class="countdown-num">' + mStr + '</div><div class="countdown-label">MIN</div></div>' +
-        '<div class="countdown-box"><div class="countdown-num">' + sStr + '</div><div class="countdown-label">SEC</div></div>';
-
-      // Flash effect on last 10 seconds
-      if (diff < 10000) {
-        el.style.animation = 'none';
-        el.style.boxShadow = diff % 1000 < 500 
-          ? '0 0 20px rgba(255,179,0,0.4)' 
-          : '0 0 10px rgba(255,179,0,0.1)';
-      }
+    // Last 10 seconds pulse
+    if (diff < 10000) {
+      el.style.boxShadow = diff % 1000 < 500 
+        ? '0 0 25px rgba(255,179,0,0.5)' 
+        : '0 0 8px rgba(255,179,0,0.15)';
     }
   }
 
-  // Run immediately, then every second
+  // Start ticking immediately, then every second
   tick();
   countdownInterval = setInterval(tick, 1000);
+}
+
+// NEW: Helper function to safely restart countdown from anywhere
+function ensureCountdownRunning() 
+  if (COUNTDOWN_DEADLINE && COUNTDOWN_DEADLINE > Date.now()) {
+    // Check if we need to start or restart
+    var el = document.getElementById('countdown');
+    if (el && !countdownInterval) {
+      startCountdown(COUNTDOWN_DEADLINE);
+    }
+  }
 }
 function switchContestTab(tabId) {
   activeContestTab = tabId;
@@ -2368,9 +2379,10 @@ function switchContestTab(tabId) {
   });
   renderContestTab(tabId);
   
-  // Restart countdown if contest is active and we're on entries tab
-  if (tabId === 'entries' && DB.contestConfig.active && DB.contestConfig.deadline && DB.contestConfig.deadline > Date.now()) {
-    startCountdown(DB.contestConfig.deadline);
+  // Restart countdown when viewing entries tab
+  if (tabId === 'entries' && COUNTDOWN_DEADLINE && COUNTDOWN_DEADLINE > Date.now()) {
+    // Small delay to ensure DOM is ready
+    setTimeout(function() { startCountdown(COUNTDOWN_DEADLINE); }, 50);
   }
 }
 function renderContestTab(tabId) {
