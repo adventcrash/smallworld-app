@@ -2012,9 +2012,9 @@ function renderBTS(){
       h+='<i class="fa-solid fa-heart"></i> '+e.likes;
       h+='</button>';
       
-      // Admin delete button - NO quotes around ID since UUIDs are safe
+      // Admin delete button - using data attribute to avoid quote hell
 if(currentUser.isAdmin){
-  h+='<button onclick="openModal(\'confirm-delete\',{message:\'Delete this BTS entry?\',onConfirm:\'deleteBTS('+e.id+')\'}')" style="padding:4px 8px;font-size:11px;background:transparent;border:1px solid #FF3D57;color:#FF3D57;border-radius:3px;cursor:pointer;font-family:Rajdhani,sans-serif;font-weight:600;letter-spacing:1px;">';
+  h+='<button class="admin-bts-delete" data-id="'+e.id+'" style="padding:4px 8px;font-size:11px;background:transparent;border:1px solid #FF3D57;color:#FF3D57;border-radius:3px;cursor:pointer;font-family:Rajdhani,sans-serif;font-weight:600;letter-spacing:1px;">';
   h+='<i class="fa-solid fa-trash"></i>';
   h+='</button>';
 }
@@ -2032,7 +2032,17 @@ if(currentUser.isAdmin){
   }
   
   document.getElementById('bts-content').innerHTML=h;
-  setTimeout(function(){attachBTSListeners();},50);
+    setTimeout(function(){
+    attachBTSListeners();
+    // Attach click handlers to admin delete buttons (avoids quote escaping issues)
+    document.querySelectorAll('.admin-bts-delete').forEach(function(btn){
+      btn.addEventListener('click',function(e){
+        e.stopPropagation();
+        var id = btn.getAttribute('data-id');
+        openModal('confirm-delete',{message:'Delete this BTS entry?',onConfirm:'deleteBTS(\''+id+'\')'});
+      });
+    });
+  },50);
 }
 function attachBTSListeners(){
   var cards=document.querySelectorAll('.bts-card');
