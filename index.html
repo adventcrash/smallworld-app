@@ -154,23 +154,6 @@ textarea.sw-input{resize:vertical;min-height:100px}
 @media(min-width:768px){.msg-layout{flex-direction:row}.msg-list-panel{width:320px;height:auto}}
 @media(max-width:768px){.nav-inner{padding:0 12px;height:60px}.nav-logo{font-size:20px;letter-spacing:2px}.nav-tab{padding:8px 12px;font-size:0}.nav-tab i{font-size:16px}.sw-btn{padding:12px 20px;font-size:13px}.stat-num{font-size:22px}.profile-avatar{width:72px;height:72px;min-width:72px;min-height:72px;margin-top:-36px}#fab{bottom:20px;right:20px;width:52px;height:52px;font-size:22px}#lightbox-img{max-width:98vw;max-height:85vh}.story-img-wrap{height:260px}.story-img-wrap .story-text{padding:16px 20px}.story-img-wrap .story-text h2{font-size:1.2rem!important}.countdown-grid{gap:8px}.countdown-box{min-width:55px;padding:12px 8px}.countdown-num{font-size:24px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
-/* === DEBUG: Force BTS reveal to work === */
-.bts-card .bts-bts-img {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  transition: opacity 0.4s ease, visibility 0s linear 0.4s !important;
-}
-
-.bts-card.revealing .bts-bts-img {
-  opacity: 1 !important;
-  visibility: visible !important;
-  z-index: 10 !important;
-}
-
-.bts-card.revealing .bts-final-img,
-.bts-card.revealing .bts-indicator {
-  opacity: 0.3 !important;
-}
 </style>
 </head>
 <body>
@@ -688,7 +671,8 @@ function showPage(pageId) {
   }
 
   renderPage(pageId);
-  setTimeout(ensureCountdownRunning, 200);
+  // Keep countdown alive across page switches
+setTimeout(ensureCountdownRunning, 200);
 
   if (pageId === 'map') {
     if (!mapInitialized) {
@@ -1196,7 +1180,7 @@ async function submitStory(parentId) {
   if (!finalUrl) return;
 
   var newChapter = {
-    id: crypto.randomUUID(), parentId: parentId, author: currentUser.name, avatar: currentUser.avatar,
+    id: 'p' + Date.now(), parentId: parentId, author: currentUser.name, avatar: currentUser.avatar,
     title: title, image: finalUrl, btsImage: '', caption: caption, tags: tags,
     timestamp: Date.now(), likes: 0, collabOpen: false
   };
@@ -1552,8 +1536,7 @@ async function sendMessage() {
 
   if (!text || !activeConvoId) { showToast('Cannot send empty message', 'error'); return; }
 
-  var messageId = crypto.randomUUID();
-  var newMsg = {
+var messageId = crypto.randomUUID();  var newMsg = {
     id: messageId, convoId: activeConvoId, sender: currentUser.name,
     text: text, timestamp: Date.now()
   };
@@ -1591,8 +1574,7 @@ async function startConvoWithName(targetName) {
     showPage('msg');
     setTimeout(function() { openChat(existing.id); }, 100);
   } else {
-    var newId = crypto.randomUUID();
-    var newConvo = {
+var newId = crypto.randomUUID();    var newConvo = {
       id: newId, participants: [currentUser.name, targetName],
       unread: 0, lastMessage: '', lastActive: Date.now()
     };
@@ -1949,56 +1931,141 @@ function submitWikiEdit(id) {
 }
 
 function renderBTS(){
-  var entries=DB.btsEntries;
-  var h='<div style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:1100px;margin:0 auto;">';
-  h+='<h1 class="font-display font-bold text-3xl tracking-widest mb-4" style="color:var(--amber);text-align:center;">BEHIND THE SCENES</h1>';
-  h+='<p style="text-align:center;color:var(--txt2);margin-bottom:20px;">Hold to reveal setup</p>';
-  
-  if(entries.length===0){
-    h+='<p style="text-align:center;color:var(--txt3);padding:60px 20px;">No setups yet</p>';
-  }else{
-    h+='<div id="bts-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:16px;">';
-    
-    entries.forEach(function(e){
-      var t = escapeHTML(e.title);
-      h+='<div class="bts-card" style="height:280px;position:relative;cursor:pointer;user-select:none;" data-src="'+e.image+'" data-bts="'+(e.btsImage||e.image)+'">';
-      h+='<img src="'+e.image+'" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:0;">';
-      h+='<img class="bts-img" src="'+(e.btsImage||e.image)+'" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1;opacity:0;transition:opacity .4s;">';
-      h+='<div style="position:absolute;bottom:16px;left:16px;z-index:2;"><span style="background:rgba(8,12,22,0.92);padding:6px 12px;border-radius:2px;font-size:10px;color:var(--amber);">HOLD</span></div>';
-      h+='<div style="position:absolute;bottom:16px;right:16px;z-index:2;"><span style="font-weight:700;font-size:14px;color:#E8ECF4;">'+t+'</div>';
-      if(e.caption) h+='<div style="position:absolute;bottom:40px;left:16px;z-index:2;font-size:12px;color:#8899B4;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escapeHTML(e.caption)+'</div>';
-      h+='</div>';
-    });
-    
-    h+='</div>';
-  }
-  
-  document.getElementById('bts-content').innerHTML=h;
-  setTimeout(attachBTSListeners,50);
-}
+var entries=DB.btsEntries;
+var h='';
+h+='<div style="min-height:100vh;padding:32px 24px 80px;">';
+h+='<div style="max-width:1100px;margin:0 auto;">';
+h+='<div class="flex items-center gap-4 mb-4">';
+h+='<div class="h-px flex-1" style="background:var(--border)"></div>';
+h+='<h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--amber)">BEHIND THE SCENES</h1>';
+h+='<div class="h-px flex-1" style="background:var(--border)"></div>';
+h+='</div>';
+h+='<p class="text-center mb-4" style="color:var(--txt2);max-width:600px;margin:0 auto;">Hold to reveal the setup. Tap to view full size.</p>';
+h+='<div class="flex justify-center mb-10">';
+h+='<span class="sys-label"><span class="sys-dot amber"></span>'+entries.length+' SETUPS</span>';
+h+='</div>';
 
-function attachBTSListeners(){
-  var c=document.querySelectorAll('.bts-card');
-  for(var i=0;i<c.length;i++){
-    (function(card){
-      var t=null,is=false;
-      card.addEventListener('mousedown',function(){is=false;t=setTimeout(function(){is=true;card.classList.add('rv');},200)});
-      card.addEventListener('mouseup',function(){clearTimeout(t);if(is){card.classList.remove('rv');is=false;}});
-      card.addEventListener('mouseleave',function(){clearTimeout(t);card.classList.remove('rv');is=false;});
-      card.addEventListener('touchstart',function(){is=false;t=setTimeout(function(){is=true;card.classList.add('rv');},200)},{passive:true});
-      card.addEventListener('touchend',function(){clearTimeout(t);if(is){card.classList.remove('rv');is=false;}});
-      card.addEventListener('touchcancel',function(){clearTimeout(t);card.classList.remove('rv');is=false;});
-      card.addEventListener('touchmove',function(){clearTimeout(t);card.classList.remove('rv');is=false;},{passive:true});
-      card.addEventListener('click',function(e){
-        if(!is){
+if(entries.length===0){
+h+='<div style="text-align:center;padding:80px 20px;color:var(--txt3);">';
+h+='<i class="fa-solid fa-bolt" style="font-size:48px;margin-bottom:16px;color:var(--border);"></i>';
+h+='<h3 class="font-display font-bold text-xl tracking-wider mb-2" style="color:var(--txt2)">NO SETUPS YET</h3>';
+h+='<p class="text-sm mb-6">Share how you create your shots!</p>';
+h+='<button onclick="openModal(\'create-bts\')" class="sw-btn sw-btn-amber"><i class="fa-solid fa-bolt"></i> SHARE YOUR FIRST BTS</button>';
+h+='</div>';
+}else{
+h+='<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
+
+entries.forEach(function(e){
+/* --- CARD START --- */
+h+='<div class="hud-frame">';
+h+='<span class="hud-corner tl amber"></span>';
+h+='<span class="hud-corner tr amber"></span>';
+h+='<span class="hud-corner bl amber"></span>';
+h+='<span class="hud-corner br amber"></span>';
+
+h+='<div class="sw-card">';
+
+h+='<div class="bts-card" style="height:300px;position:relative;overflow:hidden;border-radius:4px;cursor:pointer;user-select:none;" data-final-src="'+e.image+'" data-bts-src="'+(e.btsImage||e.image)+'">';
+
+h+='<img class="bts-final-img" src="'+e.image+'" alt="Final" draggable="false" style="display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">';
+
+h+='<img class="bts-bts-img" src="'+(e.btsImage||e.image)+'" alt="BTS" draggable="false" style="display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;transition:opacity .5s ease;z-index:1;">';
+
+h+='<div class="bts-card-info" style="position:absolute;inset:0;z-index:2;pointer-events:none;">';
+
+h+='<div class="bts-indicator" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:2px;color:var(--amber);background:rgba(8,12,22,0.85);padding:8px 16px;border:1px solid rgba(255,179,0,0.3);border-radius:2px;display:flex;align-items:center;gap:8px;z-index:3;">';
+h+='<i class="fa-solid fa-bolt"></i> HOLD TO SEE BTS';
+h+='</div>';
+
+h+='<div class="bts-label-reveal" style="position:absolute;top:16px;right:16px;z-index:3;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;color:var(--amber);background:rgba(8,12,22,0.85);padding:6px 12px;border:1px solid rgba(255,179,0,0.3);border-radius:2px;opacity:0;transition:opacity .3s;">BEHIND THE SCENES</div>';
+
+h+='<div style="position:absolute;bottom:16px;left:16px;right:16px;">';
+h+='<p class="font-display font-bold text-base tracking-wider clickable-name" style="text-shadow:0 2px 8px rgba(0,0,0,0.9);margin:0;" onclick="event.stopPropagation();showProfile(\''+e.author+'\')">'+e.author+'</p>';
+h+='<p class="sys-label" style="text-shadow:0 1px 4px rgba(0,0,0,0.9);margin:2px 0 0;">'+e.title+'</p>';
+if(e.caption){h+='<p class="text-xs mt-1" style="color:var(--txt2);text-shadow:0 1px 4px rgba(0,0,0,0.9);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:4px 0 0;">'+e.caption+'</p>';}
+h+='</div>';
+
+h+='<div style="position:absolute;top:16px;left:16px;display:flex;gap:4px;">';
+e.tags.slice(0,3).forEach(function(t){h+='<span class="tag-pill" style="background:rgba(8,12,22,0.8);">'+t+'</span>';});
+h+='</div>';
+
+h+='</div>'; /* bts-card-info */
+h+='</div>'; /* bts-card */
+
+h+='<div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(17,24,39,0.5);">';
+h+='<div class="flex items-center gap-2">';
+h+='<img src="'+e.avatar+'" class="w-6 h-6 rounded" style="border:1px solid var(--amber);" alt="">';
+h+='<span class="font-display text-xs">'+timeAgo(e.timestamp)+'</span>';
+h+='</div>';
+h+='<div class="flex items-center gap-2">';
+h+='<button onclick="likeBTS(\''+e.id+'\')" class="flex items-center gap-1 text-xs" style="color:var(--txt2);background:none;border:none;cursor:pointer;padding:4px;"><i class="fa-solid fa-heart"></i> '+e.likes+'</button>';
+if(currentUser.isAdmin){h+='<button onclick="openModal(\'confirm-delete\',{message:\'Delete BTS: '+e.title+'?\',onConfirm:\'deleteBTS(\\\''+e.id+'\\\')\'})" class="admin-delete-btn" style="padding:4px 8px;"><i class="fa-solid fa-trash"></i></button>';}
+h+='</div>';
+h+='</div>'; /* footer bar */
+
+h+='</div>'; /* sw-card */
+h+='</div>'; /* hud-frame */
+/* --- CARD END --- */
+});
+
+h+='</div>'; /* grid */
+} /* else */
+
+h+='</div>'; /* max-width container */
+h+='</div>'; /* min-height wrapper */
+
+document.getElementById('bts-content').innerHTML=h;
+attachBTSListeners();
+}
+function attachBTSListeners() {
+  var cards = document.querySelectorAll('.bts-card');
+  for (var i = 0; i < cards.length; i++) {
+    (function(card) {
+      var holdTimer = null, wasHolding = false;
+
+      card.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+
+      function onDown() {
+        wasHolding = false;
+        holdTimer = setTimeout(function() {
+          wasHolding = true;
+          card.classList.add('revealing');
+        }, 200);
+      }
+
+      function onUp() {
+        clearTimeout(holdTimer);
+        if (wasHolding) {
+          card.classList.remove('revealing');
+          setTimeout(function() { wasHolding = false; }, 100);
+        }
+      }
+
+      function onLeave() {
+        clearTimeout(holdTimer);
+        card.classList.remove('revealing');
+        wasHolding = false;
+      }
+
+      card.addEventListener('mousedown', onDown);
+      card.addEventListener('touchstart', onDown, { passive: true });
+      card.addEventListener('mouseup', onUp);
+      card.addEventListener('touchend', onUp);
+      card.addEventListener('mouseleave', onLeave);
+      card.addEventListener('touchcancel', onLeave);
+
+      card.addEventListener('click', function(e) {
+        if (!wasHolding) {
           e.stopPropagation();
-          openLightbox(card.getAttribute('data-src'));
+          var src = card.getAttribute('data-final-src');
+          if (src) openLightbox(src);
         }
       });
-    })(c[i]);
+    })(cards[i]);
   }
 }
-// ==================== MESSAGE RENDERING ====================
+
+// ==================== MESSAGE RENDERING (FEATURE 1) ====================
 function renderMessages() {
   activeConvoId = null;
 
@@ -2091,7 +2158,7 @@ function openChat(convoId) {
   }, 50);
 }
 
-// ==================== PROFILE RENDERING ====================
+// ==================== PROFILE RENDERING (FEATURE 3) ====================
 function renderProfile(name) {
   var user = findUser(name);
   if (!user && name === currentUser.name) user = currentUser;
@@ -2168,7 +2235,7 @@ function renderProfile(name) {
         '<div class="story-text" style="padding:16px 20px;"><div class="flex items-center gap-2 mb-1">' +
         '<span class="sys-label">' + timeAgo(r.timestamp) + '</span>' +
         (c.length > 0 ? '<span class="sys-label"><span class="sys-dot amber"></span>' + c.length + ' CHAPTERS</span>' : '') + '</div>' +
-        '<h3 class="font-display font-bold text-base tracking-wide mb-1">' + escapeHTML(r.title) + '</h3>' +
+        '<h3 class="font-display font-bold text-base tracking-wide mb-1">' + r.title + '</h3>' +
         '<div class="flex flex-wrap gap-1 mb-2">' +
         rTags.slice(0, 3).map(function(t) { return '<span class="tag-pill">' + t + '</span>'; }).join('') + ct + '</div></div></div></div></div></div>';
     });
@@ -2179,7 +2246,7 @@ function renderProfile(name) {
   document.getElementById('profile-content').innerHTML = h;
 }
 
-// ==================== CONTEST RENDERING ====================
+// ==================== CONTEST RENDERING (FEATURE 2) ====================
 function renderContest() {
   if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
 
@@ -2235,17 +2302,20 @@ function renderContest() {
   document.getElementById('contest-content').innerHTML = h;
 
   if(c.active && c.deadline && c.deadline > Date.now()){
-    startCountdown(c.deadline);
-  } else if (!c.active || !c.deadline) {
-    COUNTDOWN_DEADLINE = null;
-  }
+  startCountdown(c.deadline);
+} else if (!c.active || !c.deadline) {
+  // Clear stored deadline if contest inactive
+  COUNTDOWN_DEADLINE = null;
+}
 
   renderContestTab(activeContestTab);
 }
 
 function startCountdown(deadline) {
+  // Store deadline globally so we can recover it
   COUNTDOWN_DEADLINE = deadline;
   
+  // Kill any existing interval
   if (countdownInterval) {
     clearInterval(countdownInterval);
     countdownInterval = null;
@@ -2254,6 +2324,7 @@ function startCountdown(deadline) {
   function tick() {
     var el = document.getElementById('countdown');
     
+    // If element doesn't exist yet (page not visible), keep interval alive silently
     if (!el) return;
     
     var now = Date.now();
@@ -2278,6 +2349,7 @@ function startCountdown(deadline) {
       '<div class="countdown-box"><div class="countdown-num">' + m.toString().padStart(2,'0') + '</div><div class="countdown-label">MIN</div></div>' +
       '<div class="countdown-box"><div class="countdown-num">' + s.toString().padStart(2,'0') + '</div><div class="countdown-label">SEC</div></div>';
 
+    // Last 10 seconds pulse
     if (diff < 10000) {
       el.style.boxShadow = diff % 1000 < 500 
         ? '0 0 25px rgba(255,179,0,0.5)' 
@@ -2285,19 +2357,21 @@ function startCountdown(deadline) {
     }
   }
 
+  // Start ticking immediately, then every second
   tick();
   countdownInterval = setInterval(tick, 1000);
 }
 
+// NEW: Helper function to safely restart countdown from anywhere
 function ensureCountdownRunning() {
   if (COUNTDOWN_DEADLINE && COUNTDOWN_DEADLINE > Date.now()) {
+    // Check if we need to start or restart
     var el = document.getElementById('countdown');
     if (el && !countdownInterval) {
       startCountdown(COUNTDOWN_DEADLINE);
     }
   }
 }
-
 function switchContestTab(tabId) {
   activeContestTab = tabId;
   document.querySelectorAll('.contest-subtab').forEach(function(t) {
@@ -2305,11 +2379,12 @@ function switchContestTab(tabId) {
   });
   renderContestTab(tabId);
   
+  // Restart countdown when viewing entries tab
   if (tabId === 'entries' && COUNTDOWN_DEADLINE && COUNTDOWN_DEADLINE > Date.now()) {
+    // Small delay to ensure DOM is ready
     setTimeout(function() { startCountdown(COUNTDOWN_DEADLINE); }, 50);
   }
 }
-
 function renderContestTab(tabId) {
   var container = document.getElementById('contest-tab-content');
   if (!container) return;
@@ -2366,12 +2441,12 @@ function renderAbout() {
     title: 'Welcome to SmallWorld',
     mission: 'A collaborative platform for toy photographers worldwide',
     sections: [
-      { title: 'Story Feed', icon: 'fa-layer-group', desc: 'Share your toy photography stories with images, captions, and tags.' },
-      { title: 'Interactive Map', icon: 'fa-map-location-dot', desc: 'Discover and pin great photography locations worldwide.' },
-      { title: 'Knowledge Wiki', icon: 'fa-book', desc: 'Learn and share photography techniques and DIY builds.' },
-      { title: 'Behind The Scenes', icon: 'fa-bolt', desc: 'Reveal your setup secrets with hold-to-reveal interaction!' },
-      { title: 'Monthly Contests', icon: 'fa-trophy', desc: 'Compete in themed photo contests with prizes.' },
-      { title: 'Direct Messages', icon: 'fa-comment-dots', desc: 'Connect with fellow photographers through DMs.' }
+      { title: 'Story Feed', icon: 'fa-layer-group', desc: 'Share your toy photography stories with images, captions, and tags. Open stories for collaboration and let others add creative chapters to your narrative.' },
+      { title: 'Interactive Map', icon: 'fa-map-location-dot', desc: 'Discover and pin great photography locations - from urban spots to hidden gems. Share hobby stores and favorite shooting locations with the community.' },
+      { title: 'Knowledge Wiki', icon: 'fa-book', desc: 'Learn and share photography techniques, DIY builds, lighting setups, and tips. Collaborative articles written by photographers, for photographers.' },
+      { title: 'Behind The Scenes', icon: 'fa-bolt', desc: 'Reveal your setup secrets! Share your final photo alongside the behind-the-scenes shot showing how you created the magic.' },
+      { title: 'Monthly Contests', icon: 'fa-trophy', desc: 'Compete in themed monthly photo contests with prizes. Submit your best work, vote for favorites, and win recognition.' },
+      { title: 'Direct Messages', icon: 'fa-comment-dots', desc: 'Connect with fellow photographers through direct messages. Collaborate, share tips, and build your network.' }
     ]
   };
 
@@ -2441,7 +2516,12 @@ async function submitAboutEdit() {
   showToast('About page saved!', 'success');
 }
 
-console.log('✅ SmallWorld v2.0 loaded - BTS hold-to-reveal FIXED');
+// ==================== INITIALIZATION COMPLETE ====================
+console.log('✅ SmallWorld v2.0 loaded with 4 new features:');
+console.log('✅ 1. Persisted DMs to Supabase');
+console.log('✅ 2. Functional Contest Submission Flow');
+console.log('✅ 3. Database Followers/Following');
+console.log('✅ 4. Real-time Likes Sync');
 
 </script>
 </body>
