@@ -154,6 +154,23 @@ textarea.sw-input{resize:vertical;min-height:100px}
 @media(min-width:768px){.msg-layout{flex-direction:row}.msg-list-panel{width:320px;height:auto}}
 @media(max-width:768px){.nav-inner{padding:0 12px;height:60px}.nav-logo{font-size:20px;letter-spacing:2px}.nav-tab{padding:8px 12px;font-size:0}.nav-tab i{font-size:16px}.sw-btn{padding:12px 20px;font-size:13px}.stat-num{font-size:22px}.profile-avatar{width:72px;height:72px;min-width:72px;min-height:72px;margin-top:-36px}#fab{bottom:20px;right:20px;width:52px;height:52px;font-size:22px}#lightbox-img{max-width:98vw;max-height:85vh}.story-img-wrap{height:260px}.story-img-wrap .story-text{padding:16px 20px}.story-img-wrap .story-text h2{font-size:1.2rem!important}.countdown-grid{gap:8px}.countdown-box{min-width:55px;padding:12px 8px}.countdown-num{font-size:24px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+/* === DEBUG: Force BTS reveal to work === */
+.bts-card .bts-bts-img {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.4s ease, visibility 0s linear 0.4s !important;
+}
+
+.bts-card.revealing .bts-bts-img {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 10 !important;
+}
+
+.bts-card.revealing .bts-final-img,
+.bts-card.revealing .bts-indicator {
+  opacity: 0.3 !important;
+}
 </style>
 </head>
 <body>
@@ -2044,21 +2061,100 @@ if(currentUser.isAdmin){
   },50);
 }
 function attachBTSListeners(){
+  console.log('🔧 Attaching BTS listeners...', document.querySelectorAll('.bts-card').length + ' cards found');
+  
   var cards=document.querySelectorAll('.bts-card');
+  
+  if(cards.length === 0){
+    console.warn('⚠️ No .bts-card elements found! Check if renderBTS ran.');
+    return;
+  }
+  
   for(var i=0;i<cards.length;i++){
     (function(card){
       var holdTimer=null;
       var isHolding=false;
       
+      // Prevent context menu
       card.addEventListener('contextmenu',function(e){e.preventDefault();});
       
-      function startHold(){
+      function startHold(e){
+        e.preventDefault(); // Prevent text selection
+        console.log('🖐️ HOLD STARTED');
         isHolding=false;
+        
+        clearTimeout(holdTimer);
         holdTimer=setTimeout(function(){
+          console.log('⏱️ HOLD COMPLETE - revealing!');
           isHolding=true;
           card.classList.add('revealing');
-        },200);
+          
+          // Debug: Check if class was added
+          setTimeout(function(){
+            console.log('📸 Card classes:', card.className);
+            var btsImg = card.querySelector('.bts-bts-img');
+            if(btsImg) {
+              console.log('✅ BTS img found, computed opacity:', getComputedStyle(btsImg).opacity);
+            } else {
+              console.error('❌ NO .bts-bts-img FOUND! Class name mismatch!');
+            }
+          }, 100);
+        },200); // 200ms hold time
       }
+      
+      function endHold(e){
+        e.preventDefault();
+        console.log('🖐️ HOLD ENDED, wasHolding:', isHolding);
+        clearTimeout(holdTimer);
+        
+        if(isHolding){
+          console.log('🔄 HIDING BTS...');
+          card.classList.remove('revealing');
+          setTimeout(function(){isHolding=false;},100);
+        } else {
+          console.log('➡️ Was a click (hold < 200ms)');
+        }
+      }
+      
+      function cancelHold(){
+        console.log('❌ CANCELLED (moved out)');
+        clearTimeout(holdTimer);
+        card.classList.remove('revealing');
+        isHolding=false;
+      }
+      
+      // Mouse events
+      card.addEventListener('mousedown',startHold);
+      card.addEventListener('mouseup',endHold);
+      card.addEventListener('mouseleave',cancelHold);
+      
+      // Touch events
+      card.addEventListener('touchstart',startHold,{passive:false}); // Changed to passive:false!
+      card.addEventListener('touchend',endHold);
+      card.addEventListener('touchcancel',cancelHold);
+      card.addEventListener('touchmove',function(e){
+        // Only cancel if actually moving (not just tiny jitters)
+        if(e.touches.length > 1 || Math.abs(e.touches[0].clientX - e.touches[0].targetTouches[0].clientX) > 5){
+          cancelHold();
+        }
+      },{passive:true});
+      
+      // Click handler
+      card.addEventListener('click',function(e){
+        console.log('🖱️ CLICK! isHolding:', isHolding);
+        if(!isHolding){
+          e.stopPropagation();
+          var src=card.getAttribute('data-final-src');
+          console.log('🔍 Opening lightbox:', src);
+          if(src)openLightbox(src);
+        } else {
+          console.log('↩️ Hold complete, not opening lightbox');
+        }
+      });
+      
+    })(cards[i]);
+  }
+}
       
       function endHold(){
         clearTimeout(holdTimer);
