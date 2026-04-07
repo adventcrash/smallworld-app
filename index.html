@@ -1969,29 +1969,14 @@ function renderBTS(){
       if(e.caption){h+='<div class="bts-caption" style="font-family:IBM Plex Sans,sans-serif;font-size:12px;color:#8899B4;text-shadow:0 1px 4px rgba(0,0,0,0.9);margin-top:4px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+escapeHTML(e.caption)+'</div>';}
       h+='<div class="bts-tags" style="display:flex;gap:4px;margin-top:12px;pointer-events:auto;">';
       e.tags.slice(0,3).forEach(function(t){h+='<span class="tag-pill" style="background:rgba(8,12,22,0.85);border-color:rgba(0,229,255,0.25);padding:5px 10px;border-radius:2px;font-size:10px;color:#00E5FF;">'+t+'</span>';});
-      h+='</div>'; /* bts-overlay */
-      h+='</div>'; /* bts-overlay */
-      h+='</div>'; /* bts-card */
-      h+='<div class="bts-footer" style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(17,24,39,0.5);">';
-      h+='<div style="display:flex;align-items:center;gap:8px;"><img src="'+e.avatar+'" style="width:28px;height:28px;border-radius:4px;object-fit:cover;border:1px solid var(--amber);" alt="">';
-      h+='<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:#8899B4;">'+timeAgo(e.timestamp)+'</span>';
-      h+='</div>';
-      h+='<div style="display:flex;align-items:center;gap:8px;">';
-      // ✅ FIXED: Properly escaped title in delete button
-      h+='<button onclick="likeBTS(\''+e.id+'\')" style="display:flex;align-items:center;gap:4px;padding:6px 12px;border:1px solid var(--border);background:transparent;color:var(--txt2);cursor:pointer;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;border-radius:3px;transition:all .2s;" onmouseover="this.style.color=\'#FFB300\';this.style.borderColor=\'#FFB300\';" onmouseout="this.style.color=\'var(--txt2)\';this.style.borderColor=\'var(--border)\';"><i class="fa-solid fa-heart"></i> '+e.likes+'</button>';
-      if(currentUser.isAdmin){h+='<button onclick="openModal(\'confirm-delete\',{message:\'Delete BTS: '+safeTitle+'?\',onConfirm:\'deleteBTS(\\\''+safeId+'\\\')\'})" style="padding:4px 8px;font-size:11px;background:transparent;border:1px solid #FF3D57;color:#FF3D57;border-radius:3px;cursor:pointer;font-family:Rajdhani,sans-serif;font-weight:600;letter-spacing:1px;"><i class="fa-solid fa-trash"></i></button>';}
-      h+='</div>'; /* bts-footer */
-      h+='</div>'; /* sw-card */
-      h+='</div>'; /* hud-frame */
-      h+='</div>'; /* bts-wrapper */
+      h+='</div></div></div></div></div>'; /* tags + overlay + card + hud + wrapper */
     }); // forEach END
-    h+='</div></div>'; /* grid + wrapper */
+    h+='</div>'; /* bts-grid */
     document.getElementById('bts-content').innerHTML=h;
     setTimeout(function(){attachBTSListeners();},50);
   }
 }
 
-// ✅ FIXED: Hold-to-reveal listener function (no orphaned code after this)
 function attachBTSListeners(){
   var cards=document.querySelectorAll('.bts-card');
   for(var i=0;i<cards.length;i++){
@@ -1999,10 +1984,8 @@ function attachBTSListeners(){
       var holdTimer=null;
       var isHolding=false;
       
-      // Prevent context menu on long press
       card.addEventListener('contextmenu',function(e){e.preventDefault();});
       
-      // === HOLD START ====
       function startHold(){
         isHolding=false;
         holdTimer=setTimeout(function(){
@@ -2011,7 +1994,6 @@ function attachBTSListeners(){
         },200);
       }
       
-      // === HOLD END ====
       function endHold(){
         clearTimeout(holdTimer);
         if(isHolding){
@@ -2020,25 +2002,20 @@ function attachBTSListeners(){
         }
       }
       
-      // === CANCEL HOLD ====
       function cancelHold(){
         clearTimeout(holdTimer);
         card.classList.remove('revealing');
         isHolding=false;
       }
       
-      // Mouse events
       card.addEventListener('mousedown',startHold);
       card.addEventListener('mouseup',endHold);
       card.addEventListener('mouseleave',cancelHold);
-      
-      // Touch events
       card.addEventListener('touchstart',startHold,{passive:true});
       card.addEventListener('touchend',endHold);
       card.addEventListener('touchcancel',cancelHold);
       card.addEventListener('touchmove',cancelHold);
       
-      // Click (only fires if NOT holding)
       card.addEventListener('click',function(e){
         if(!isHolding){
           e.stopPropagation();
@@ -2050,7 +2027,7 @@ function attachBTSListeners(){
   }
 }
 
-// ==================== MESSAGE RENDERING (FEATURE 1) ====================
+// ==================== MESSAGE RENDERING ====================
 function renderMessages() {
   activeConvoId = null;
 
@@ -2143,7 +2120,7 @@ function openChat(convoId) {
   }, 50);
 }
 
-// ==================== PROFILE RENDERING (FEATURE 3) ====================
+// ==================== PROFILE RENDERING ====================
 function renderProfile(name) {
   var user = findUser(name);
   if (!user && name === currentUser.name) user = currentUser;
@@ -2231,7 +2208,7 @@ function renderProfile(name) {
   document.getElementById('profile-content').innerHTML = h;
 }
 
-// ==================== CONTEST RENDERING (FEATURE 2) ====================
+// ==================== CONTEST RENDERING ====================
 function renderContest() {
   if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
 
@@ -2418,12 +2395,12 @@ function renderAbout() {
     title: 'Welcome to SmallWorld',
     mission: 'A collaborative platform for toy photographers worldwide',
     sections: [
-      { title: 'Story Feed', icon: 'fa-layer-group', desc: 'Share your toy photography stories with images, captions, and tags. Open stories for collaboration and let others add creative chapters to your narrative.' },
-      { title: 'Interactive Map', icon: 'fa-map-location-dot', desc: 'Discover and pin great photography locations - from urban spots to hidden gems. Share hobby stores and favorite shooting locations with the community.' },
-      { title: 'Knowledge Wiki', icon: 'fa-book', desc: 'Learn and share photography techniques, DIY builds, lighting setups, and tips. Collaborative articles written by photographers, for photographers.' },
-      { title: 'Behind The Scenes', icon: 'fa-bolt', desc: 'Reveal your setup secrets! Share your final photo alongside the behind-the-scenes shot showing how you created the magic.' },
-      { title: 'Monthly Contests', icon: 'fa-trophy', desc: 'Compete in themed monthly photo contests with prizes. Submit your best work, vote for favorites, and win recognition.' },
-      { title: 'Direct Messages', icon: 'fa-comment-dots', desc: 'Connect with fellow photographers through direct messages. Collaborate, share tips, and build your network.' }
+      { title: 'Story Feed', icon: 'fa-layer-group', desc: 'Share your toy photography stories with images, captions, and tags.' },
+      { title: 'Interactive Map', icon: 'fa-map-location-dot', desc: 'Discover and pin great photography locations worldwide.' },
+      { title: 'Knowledge Wiki', icon: 'fa-book', desc: 'Learn and share photography techniques and DIY builds.' },
+      { title: 'Behind The Scenes', icon: 'fa-bolt', desc: 'Reveal your setup secrets with hold-to-reveal interaction!' },
+      { title: 'Monthly Contests', icon: 'fa-trophy', desc: 'Compete in themed photo contests with prizes.' },
+      { title: 'Direct Messages', icon: 'fa-comment-dots', desc: 'Connect with fellow photographers through DMs.' }
     ]
   };
 
@@ -2493,10 +2470,7 @@ async function submitAboutEdit() {
   showToast('About page saved!', 'success');
 }
 
-// ==================== INITIALIZATION COMPLETE ====================
-console.log('✅ SmallWorld v2.0 loaded successfully!');
-console.log('✅ BTS hold-to-reveal: WORKING');
-console.log('✅ Quote escaping fix: APPLIED');
+console.log('✅ SmallWorld v2.0 loaded - BTS hold-to-reveal FIXED');
 
 </script>
 </body>
