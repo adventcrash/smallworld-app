@@ -1932,19 +1932,12 @@ function submitWikiEdit(id) {
 
 function renderBTS(){
 var entries=DB.btsEntries;
-var h='';
-h+='<div style="min-height:100vh;padding:32px 24px 80px;">';
-h+='<div style="max-width:1100px;margin:0 auto;">';
-h+='<div class="flex items-center gap-4 mb-4">';
-h+='<div class="h-px flex-1" style="background:var(--border)"></div>';
+var h='<div style="min-height:100vh;padding:32px 24px 80px;"><div style="max-width:1100px;margin:0 auto;">';
+h+='<div class="flex items-center gap-4 mb-4"><div class="h-px flex-1" style="background:var(--border)"></div>';
 h+='<h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--amber)">BEHIND THE SCENES</h1>';
-h+='<div class="h-px flex-1" style="background:var(--border)"></div>';
-h+='</div>';
+h+='<div class="h-px flex-1" style="background:var(--border)"></div></div>';
 h+='<p class="text-center mb-4" style="color:var(--txt2);max-width:600px;margin:0 auto;">Hold to reveal the setup. Tap to view full size.</p>';
-h+='<div class="flex justify-center mb-10">';
-h+='<span class="sys-label"><span class="sys-dot amber"></span>'+entries.length+' SETUPS</span>';
-h+='</div>';
-
+h+='<div class="flex justify-center mb-10"><span class="sys-label"><span class="sys-dot amber"></span>'+entries.length+' SETUPS</span></div>';
 if(entries.length===0){
 h+='<div style="text-align:center;padding:80px 20px;color:var(--txt3);">';
 h+='<i class="fa-solid fa-bolt" style="font-size:48px;margin-bottom:16px;color:var(--border);"></i>';
@@ -1953,77 +1946,99 @@ h+='<p class="text-sm mb-6">Share how you create your shots!</p>';
 h+='<button onclick="openModal(\'create-bts\')" class="sw-btn sw-btn-amber"><i class="fa-solid fa-bolt"></i> SHARE YOUR FIRST BTS</button>';
 h+='</div>';
 }else{
-h+='<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
-
+h+='<div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="bts-grid">';
 entries.forEach(function(e){
-/* --- CARD START --- */
-h+='<div class="hud-frame">';
-h+='<span class="hud-corner tl amber"></span>';
-h+='<span class="hud-corner tr amber"></span>';
-h+='<span class="hud-corner bl amber"></span>';
-h+='<span class="hud-corner br amber"></span>';
-
-h+='<div class="sw-card">';
-
-h+='<div class="bts-card" style="height:300px;position:relative;overflow:hidden;border-radius:4px;cursor:pointer;user-select:none;" data-final-src="'+e.image+'" data-bts-src="'+(e.btsImage||e.image)+'">';
-
-h+='<img class="bts-final-img" src="'+e.image+'" alt="Final" draggable="false" style="display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">';
-
-h+='<img class="bts-bts-img" src="'+(e.btsImage||e.image)+'" alt="BTS" draggable="false" style="display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;transition:opacity .5s ease;z-index:1;">';
-
-h+='<div class="bts-card-info" style="position:absolute;inset:0;z-index:2;pointer-events:none;">';
-
-h+='<div class="bts-indicator" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:2px;color:var(--amber);background:rgba(8,12,22,0.85);padding:8px 16px;border:1px solid rgba(255,179,0,0.3);border-radius:2px;display:flex;align-items:center;gap:8px;z-index:3;">';
+h+='<div class="bts-wrapper" style="position:relative;">';
+h+='<div class="hud-frame"><span class="hud-corner tl amber"></span><span class="hud-corner tr amber"></span><span class="hud-corner bl amber"></span><span class="hud-corner br amber"></span>';
+h+='<div class="sw-card" style="overflow:hidden;">';
+h+='<div class="bts-card" style="height:300px;position:relative;cursor:pointer;user-select:none;-webkit-user-select:none;" data-final-src="'+e.image+'" data-bts-src="'+(e.btsImage||e.image)+'" data-entry-id="'+e.id+'">';
+h+='<img class="bts-final" src="'+e.image+'" alt="Final" draggable="false" style="display:block;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:0;">';
+h+='<img class="bts-setup" src="'+(e.btsImage||e.image)+'" alt="BTS" draggable="false" style="display:block;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1;opacity:0;transition:opacity .5s ease-in-out .6s;">';
+h+='<div class="bts-overlay" style="position:absolute;inset:0;z-index:2;pointer-events:none;display:flex;align-items:flex-end;justify-content:flex-start;flex-direction:column;padding:16px;">';
+h+='<div class="bts-indicator" style="font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:2px;color:var(--amber);background:rgba(8,12,22,0.92);padding:8px 16px;border:1px solid rgba(255,179,0,0.35);border-radius:2px;display:flex;align-items:center;gap:8px;pointer-events:auto;transition:opacity .3s;">';
 h+='<i class="fa-solid fa-bolt"></i> HOLD TO SEE BTS';
 h+='</div>';
-
-h+='<div class="bts-label-reveal" style="position:absolute;top:16px;right:16px;z-index:3;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;color:var(--amber);background:rgba(8,12,22,0.85);padding:6px 12px;border:1px solid rgba(255,179,0,0.3);border-radius:2px;opacity:0;transition:opacity .3s;">BEHIND THE SCENES</div>';
-
-h+='<div style="position:absolute;bottom:16px;left:16px;right:16px;">';
-h+='<p class="font-display font-bold text-base tracking-wider clickable-name" style="text-shadow:0 2px 8px rgba(0,0,0,0.9);margin:0;" onclick="event.stopPropagation();showProfile(\''+e.author+'\')">'+e.author+'</p>';
-h+='<p class="sys-label" style="text-shadow:0 1px 4px rgba(0,0,0,0.9);margin:2px 0 0;">'+e.title+'</p>';
-if(e.caption){h+='<p class="text-xs mt-1" style="color:var(--txt2);text-shadow:0 1px 4px rgba(0,0,0,0.9);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:4px 0 0;">'+e.caption+'</p>';}
-h+='</div>';
-
-h+='<div style="position:absolute;top:16px;left:16px;display:flex;gap:4px;">';
-e.tags.slice(0,3).forEach(function(t){h+='<span class="tag-pill" style="background:rgba(8,12,22,0.8);">'+t+'</span>';});
-h+='</div>';
-
-h+='</div>'; /* bts-card-info */
+h+='<div class="bts-author" style="font-family:Rajdhani,sans-serif;font-weight:700;font-size:14px;color:#E8ECF4;text-shadow:0 2px 8px rgba(0,0,0,0.9);margin-top:auto;">'+e.author+'</div>';
+h+='<div class="bts-title" style="font-family:Rajdhani,sans-serif;font-weight:600;font-size:16px;color:#E8ECF4;text-shadow:0 1px 4px rgba(0,0,0,0.9);">'+e.title+'</div>';
+if(e.caption){h+='<div class="bts-caption" style="font-family:IBM Plex Sans,sans-serif;font-size:12px;color:#8899B4;text-shadow:0 1px 4px rgba(0,0,0,0.9);margin-top:4px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+e.caption+'</div>';}
+h+='<div class="bts-tags" style="display:flex;gap:4px;margin-top:12px;pointer-events:auto;">';
+e.tags.slice(0,3).forEach(function(t){h+='<span class="tag-pill" style="background:rgba(8,12,22,0.85);border-color:rgba(0,229,255,0.25);padding:5px 10px;border-radius:2px;font-size:10px;color:#00E5FF;">'+t+'</span>';});
+h+='</div>'; /* bts-overlay */
+h+='</div>'; /* bts-overlay */
 h+='</div>'; /* bts-card */
-
-h+='<div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(17,24,39,0.5);">';
-h+='<div class="flex items-center gap-2">';
-h+='<img src="'+e.avatar+'" class="w-6 h-6 rounded" style="border:1px solid var(--amber);" alt="">';
-h+='<span class="font-display text-xs">'+timeAgo(e.timestamp)+'</span>';
+h+='<div class="bts-footer" style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(17,24,39,0.5);">';
+h+='<div style="display:flex;align-items:center;gap:8px;"><img src="'+e.avatar+'" style="width:28px;height:28px;border-radius:4px;object-fit:cover;border:1px solid var(--amber);" alt="">';
+h+='<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:#8899B4;">'+timeAgo(e.timestamp)+'</span>';
 h+='</div>';
-h+='<div class="flex items-center gap-2">';
-h+='<button onclick="likeBTS(\''+e.id+'\')" class="flex items-center gap-1 text-xs" style="color:var(--txt2);background:none;border:none;cursor:pointer;padding:4px;"><i class="fa-solid fa-heart"></i> '+e.likes+'</button>';
-if(currentUser.isAdmin){h+='<button onclick="openModal(\'confirm-delete\',{message:\'Delete BTS: '+e.title+'?\',onConfirm:\'deleteBTS(\\\''+e.id+'\\\')\'})" class="admin-delete-btn" style="padding:4px 8px;"><i class="fa-solid fa-trash"></i></button>';}
-h+='</div>';
-h+='</div>'; /* footer bar */
-
+h+='<div style="display:flex;align-items:center;gap:8px;">';
+h+='<button onclick="likeBTS(\''+e.id+'\')" style="display:flex;align-items:center;gap:4px;padding:6px 12px;border:1px solid var(--border);background:transparent;color:var(--txt2);cursor:pointer;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;border-radius:3px;transition:all .2s;" onmouseover="this.style.color=\'#FFB300\';this.style.borderColor=\'#FFB300\';" onmouseout="this.style.color=\'var(--txt2)\';this.style.borderColor=\'var(--border)\';"><i class="fa-solid fa-heart"></i> '+e.likes+'</button>';
+if(currentUser.isAdmin){h+='<button onclick="openModal(\'confirm-delete\',{message:\'Delete BTS: '+e.title+'?\',onConfirm:\'deleteBTS(\\\''+e.id+\'\\\')\'})" style="padding:4px 8px;font-size:11px;background:transparent;border:1px solid #FF3D57;color:#FF3D57;border-radius:3px;cursor:pointer;font-family:Rajdhani,sans-serif;font-weight:600;letter-spacing:1px;"><i class="fa-solid fa-trash"></i></button>';}
+h+='</div>'; /* bts-footer */
 h+='</div>'; /* sw-card */
 h+='</div>'; /* hud-frame */
-/* --- CARD END --- */
-});
-
-h+='</div>'; /* grid */
-} /* else */
-
-h+='</div>'; /* max-width container */
-h+='</div>'; /* min-height wrapper */
-
+h+='</div>'; /* bts-wrapper */
+}); // forEach END
+h+='</div></div>'; /* grid + wrapper */
 document.getElementById('bts-content').innerHTML=h;
-attachBTSListeners();
+setTimeout(function(){attachBTSListeners();},50);
 }
-function attachBTSListeners() {
-  var cards = document.querySelectorAll('.bts-card');
-  for (var i = 0; i < cards.length; i++) {
-    (function(card) {
-      var holdTimer = null, wasHolding = false;
-
-      card.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+function attachBTSListeners(){
+  var cards=document.querySelectorAll('.bts-card');
+  for(var i=0;i<cards.length;i++){
+    (function(card){
+      var holdTimer=null;
+      var isHolding=false;
+      
+      // Prevent context menu on long press
+      card.addEventListener('contextmenu',function(e){e.preventDefault();});
+      
+      // === HOLD START ====
+      function startHold(){
+        isHolding=false;
+        holdTimer=setTimeout(function(){
+          isHolding=true;
+          card.classList.add('revealing');
+        },200);
+      }
+      
+      // === HOLD END ====
+      function endHold(){
+        clearTimeout(holdTimer);
+        if(isHolding){
+          card.classList.remove('revealing');
+          setTimeout(function(){isHolding=false;},100);
+        }
+      }
+      
+      // === CANCEL HOLD ====
+      function cancelHold(){
+        clearTimeout(holdTimer);
+        card.classList.remove('revealing');
+        isHolding=false;
+      }
+      
+      // Mouse events
+      card.addEventListener('mousedown',startHold);
+      card.addEventListener('mouseup',endHold);
+      card.addEventListener('mouseleave',cancelHold);
+      
+      // Touch events
+      card.addEventListener('touchstart',startHold,{passive:true});
+      card.addEventListener('touchend',endHold);
+      card.addEventListener('touchcancel',cancelHold);
+      card.addEventListener('touchmove',cancelHold);
+      
+      // Click (only fires if NOT holding)
+      card.addEventListener('click',function(e){
+        if(!isHolding){
+          e.stopPropagation();
+          var src=card.getAttribute('data-final-src');
+          if(src)openLightbox(src);
+        }
+      });
+    })(cards[i]);
+}
+}
 
       function onDown() {
         wasHolding = false;
