@@ -2061,46 +2061,77 @@ if(currentUser.isAdmin){
   },50);
 }
 function attachBTSListeners(){
-  console.log('🔧 Attaching BTS listeners...', document.querySelectorAll('.bts-card').length + ' cards found');
-  
   var cards=document.querySelectorAll('.bts-card');
-  
-  if(cards.length === 0){
-    console.warn('⚠️ No .bts-card elements found! Check if renderBTS ran.');
-    return;
-  }
   
   for(var i=0;i<cards.length;i++){
     (function(card){
       var holdTimer=null;
       var isHolding=false;
       
-      // Prevent context menu
       card.addEventListener('contextmenu',function(e){e.preventDefault();});
       
-      function startHold(e){
-        e.preventDefault(); // Prevent text selection
-        console.log('🖐️ HOLD STARTED');
+      card.addEventListener('mousedown',function(){
         isHolding=false;
-        
         clearTimeout(holdTimer);
         holdTimer=setTimeout(function(){
-          console.log('⏱️ HOLD COMPLETE - revealing!');
           isHolding=true;
           card.classList.add('revealing');
-          
-          // Debug: Check if class was added
-          setTimeout(function(){
-            console.log('📸 Card classes:', card.className);
-            var btsImg = card.querySelector('.bts-bts-img');
-            if(btsImg) {
-              console.log('✅ BTS img found, computed opacity:', getComputedStyle(btsImg).opacity);
-            } else {
-              console.error('❌ NO .bts-bts-img FOUND! Class name mismatch!');
-            }
-          }, 100);
-        },200); // 200ms hold time
-      }
+        },200);
+      });
+      
+      card.addEventListener('mouseup',function(){
+        clearTimeout(holdTimer);
+        if(isHolding){
+          card.classList.remove('revealing');
+          setTimeout(function(){isHolding=false;},100);
+        }
+      });
+      
+      card.addEventListener('mouseleave',function(){
+        clearTimeout(holdTimer);
+        card.classList.remove('revealing');
+        isHolding=false;
+      });
+      
+      card.addEventListener('touchstart',function(){
+        isHolding=false;
+        clearTimeout(holdTimer);
+        holdTimer=setTimeout(function(){
+          isHolding=true;
+          card.classList.add('revealing');
+        },200);
+      },{passive:true});
+      
+      card.addEventListener('touchend',function(){
+        clearTimeout(holdTimer);
+        if(isHolding){
+          card.classList.remove('revealing');
+          setTimeout(function(){isHolding=false;},100);
+        }
+      });
+      
+      card.addEventListener('touchcancel',function(){
+        clearTimeout(holdTimer);
+        card.classList.remove('revealing');
+        isHolding=false;
+      });
+      
+      card.addEventListener('touchmove',function(){
+        clearTimeout(holdTimer);
+        card.classList.remove('revealing');
+        isHolding=false;
+      });
+      
+      card.addEventListener('click',function(e){
+        if(!isHolding){
+          e.stopPropagation();
+          var src=card.getAttribute('data-final-src');
+          if(src)openLightbox(src);
+        }
+      });
+    })(cards[i]);
+  }
+}
       
       function endHold(e){
         e.preventDefault();
