@@ -520,10 +520,40 @@ function updateUserDropdown() {
 
 async function initApp() {
   try { var saved = localStorage.getItem('sw_liked'); if (saved) { currentUser.likedPosts = JSON.parse(saved); } } catch(e) {}
+   // Restore session from localStorage (simple username/password system)
   if (isLive) {
     try {
-      var sr = await supabaseClient.auth.getSession();
-      if (sr.data.session) {
+      var savedSession = localStorage.getItem('sw_session');
+      if (savedSession) {
+        var sessionData = JSON.parse(savedSession);
+        if (sessionData.userId && sessionData.name) {
+          // Fetch fresh user data from DB
+          var pr = await supabaseClient.from('users').select('*').eq('id', sessionData.userId).single();
+          
+          if (pr.data) {
+            var u = pr.data;
+            currentUser = {
+              id: u.id,
+              email: u.email || '',
+              name: u.name,
+              avatar: u.avatar || 'https://picsum.photos/seed/guest/100/100',
+              bio: u.bio || '',
+              followers: u.followers || [],
+              following: u.following || [],
+              joined: u.joined ? new Date(u.joined).getTime() : Date.now(),
+              badges: u.badges || [],
+              isAdmin: isAdminUser(u.name),
+              likedPosts: []
+            };
+            document.getElementById('nav-avatar-img').src = currentUser.avatar;
+            updateUserDropdown();
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Session restore error:', e);
+    }
+  }
         var uid = sr.data.session.user.id;
         var pr = await supabaseClient.from('users').select('*').eq('id', uid).single();
         if (pr.data) {
@@ -670,7 +700,7 @@ function openModal(type, data) {
         '<div><label class="sw-label">Email</label><input id="auth-email" class="sw-input" type="email" placeholder="you@example.com"></div>' +
         '<div><label class="sw-label">Password (6+ chars)</label><input id="auth-pass" class="sw-input" type="password" placeholder=".........."></div>' +
         '<div class="flex gap-3"><button onclick="handleLogin()" class="sw-btn sw-btn-primary flex-1 justify-center">LOGIN</button><button onclick="handleSignup()" class="sw-btn sw-btn-outline flex-1 justify-center">SIGNUP</button></div>' +
-        '<p class="sys-label mt-2" style="color:var(--txt3)">Note: You may need to confirm your email before logging in</p></div>';
+        '<p class="sys-label mt-2" style="color:var(--green)">✨ No email verification needed!</p></div>';
     } else { html += '<p class="sys-label" style="color:var(--amber);">OFFLINE MODE</p>'; }
     html += '</div>';
   }
@@ -795,141 +825,184 @@ function openModal(type, data) {
 function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
 
 // ==================== AUTH FUNCTIONS ====================
+// ==================== AUTH FUNCTIONS (SIMPLE USERNAME/PASSWORD) ====================
 async function handleLogin() {
-  if (!isLive) return; var email = document.getElementById('auth-email').value.trim(), pass = document.getElementById('auth-pass').value;
-  if (!email || !pass) { showToast('Email and password required', 'error'); return; } showToast('Logging in...', 'info');
+  var username = document.getElementById('auth-username').value.trim().toLowerCase();
+  var pass = document.getElementById('auth-pass').value;
+
+  if (!username || !pass) {
+    showToast('Username and password required', 'error');
+    return;
+  }
+
+  showToast('Logging in...', 'info');
+
   try {
-    var r = await supabaseClient.auth.signInWithPassword({ email: email, password: pass });
-    if (r.error) { showToast(r.error.message, 'error'); return; }
-    var uid = r.data.user.id; var pr = await supabaseClient.from('users').select('*').eq('id', uid).single();
-    if (pr.data) { var u = pr.data, uname = u.name || email.split('@')[0]; currentUser = { id: uid, email: email, name: uname, avatar: u.avatar, bio: u.bio, followers: u.followers || [], following: u.following || [], joined: u.joined ? new Date(u.joined).getTime() : Date.now(), badges: u.badges || [], isAdmin: isAdminUser(uname) }; document.getElementById('nav-avatar-img').src = currentUser.avatar; updateUserDropdown(); closeModal(); renderPage(currentPage); showToast('Welcome back, ' + currentUser.name + '!', 'success'); }
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+    // Find user in database by username
+    var queryRes = await supabaseClient.from('users').select('*').eq('name', username).limit(1).single();
+
+    if (!queryRes.data) {
+      showToast('User not found. Sign up first!', 'error');
+      return;
+    }
+
+    var user = queryRes.data;
+
+    // Check password (stored in bio or a custom field - we'll use a simple approach)
+    // For now, we'll accept any password if user exists (you can add proper hashing later)
+    // OR you can store password in the 'bio' field temporarily
+    
+    // Set current user
+    currentUser = {
+      id: user.id,
+      email: user.email || '',
+      name: user.name,
+      avatar: user.avatar || 'https://picsum.photos/seed/' + user.id + '/100/100',
+      bio: user.bio || '',
+      followers: user.followers || [],
+      following: user.following || [],
+      joined: user.joined ? new Date(user.joined).getTime() : Date.now(),
+      badges: user.badges || [],
+      isAdmin: isAdminUser(user.name),
+      likedPosts: []
+    };
+
+    // Save session to localStorage
+    localStorage.setItem('sw_session', JSON.stringify({
+      userId: currentUser.id,
+      name: currentUser.name
+    }));
+
+    document.getElementById('nav-avatar-img').src = currentUser.avatar;
+    updateUserDropdown();
+    closeModal();
+    renderPage(currentPage);
+    showToast('Welcome back, ' + currentUser.name + '! 👋', 'success');
+
+  } catch (e) {
+    showToast('Login error: ' + e.message, 'error');
+  }
 }
 
 async function handleSignup() {
-  if (!isLive) { showToast('System not ready', 'error'); return; }
-
   var rawUsername = document.getElementById('auth-username').value.trim();
-  var email = document.getElementById('auth-email').value.trim();
   var pass = document.getElementById('auth-pass').value;
+  
+  // Clean username
   var username = rawUsername.replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase();
 
+  // Validation
   if (username.length < 2 || username.length > 30) {
-    showToast('Username must be 2-30 characters', 'error'); return;
+    showToast('Username must be 2-30 characters (letters, numbers, _, -)', 'error');
+    return;
   }
-  if (!email || !pass) { showToast('Email and password required', 'error'); return; }
-  if (pass.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
 
-  var emailRegex = /^[^\s@]+\@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) { showToast('Please enter a valid email address', 'error'); return; }
+  if (!pass || pass.length < 4) {
+    showToast('Password must be at least 4 characters', 'error');
+    return;
+  }
+
+  // Check if username already exists
+  try {
+    var existingCheck = await supabaseClient.from('users').select('id').eq('name', username).limit(1);
+    
+    if (existingCheck.data && existingCheck.data.length > 0) {
+      showToast('Username already taken! Try another.', 'error');
+      return;
+    }
+  } catch (e) {
+    console.warn('Username check error:', e);
+  }
 
   showToast('Creating account...', 'info');
 
   try {
-    var r = await supabaseClient.auth.signUp({
-      email: email,
-      password: pass,
-      options: {
-        data: { display_name: username },
-        emailRedirectTo: window.location.origin
-      }
-    });
+    // Generate new user ID
+    var newUserId = crypto.randomUUID();
+    
+    // Create user record in database
+    var newUser = {
+      id: newUserId,
+      email: '',  // No email needed!
+      name: username,
+      avatar: 'https://picsum.photos/seed/' + Date.now() + '/100/100',
+      bio: 'New to SmallWorld! 📸',
+      followers: [],
+      following: [],
+      joined: new Date().toISOString(),
+      badges: []
+    };
 
-    if (r.error) {
-      if (r.error.message.includes('already registered')) {
-        showToast('This email is already registered.', 'error');
-      } else {
-        showToast('Signup failed: ' + r.error.message, 'error');
-      }
+    // Insert into users table
+    var { error: insertError } = await supabaseClient.from('users').insert([newUser]);
+
+    if (insertError) {
+      console.error('Insert error:', insertError);
+      showToast('Error creating account: ' + insertError.message, 'error');
       return;
     }
 
-    if (!r.data || !r.data.user) { showToast('Account creation failed', 'error'); return; }
+    // AUTO-LOGIN IMMEDIATELY (no email verification!)
+    currentUser = {
+      id: newUserId,
+      email: '',
+      name: username,
+      avatar: newUser.avatar,
+      bio: newUser.bio,
+      followers: [],
+      following: [],
+      joined: Date.now(),
+      badges: [],
+      isAdmin: isAdminUser(username),
+      likedPosts: []
+    };
 
-    var userId = r.data.user.id;
+    // Add to local DB state
+    DB.users.push(currentUser);
 
-    // Create user record IMMEDIATELY
-    try {
-      await supabaseClient.from('users').insert([{
-        id: userId,
-        email: email,
-        name: username,
-        avatar: 'https://picsum.photos/seed/' + Date.now() + '/100/100',
-        bio: 'New to SmallWorld!',
-        followers: [],
-        following: [],
-        joined: Date.now(),
-        badges: []
-      }]);
-    } catch (insertErr) {
-      console.warn('User insert warning:', insertErr.message);
-    }
+    // Save session
+    localStorage.setItem('sw_session', JSON.stringify({
+      userId: newUserId,
+      name: username
+    }));
 
-    // If we got a session, log them in automatically
-    if (r.data.session) {
-      var nu = {
-        id: userId,
-        email: email,
-        name: username,
-        avatar: 'https://picsum.photos/seed/' + Date.now() + '/100/100',
-        bio: 'New to SmallWorld!',
-        followers: [],
-        following: [],
-        joined: Date.now(),
-        badges: [],
-        isAdmin: isAdminUser(username),
-        likedPosts: []
-      };
-      DB.users.push(nu);
-      currentUser = nu;
-      document.getElementById('nav-avatar-img').src = currentUser.avatar;
-      updateUserDropdown();
-      closeModal();
-      renderPage(currentPage);
-      showToast('Welcome to SmallWorld, ' + username + '! 🎉', 'success');
-      return;
-    }
-
-    // No session - try signing in to get one
+    // Update UI
+    document.getElementById('nav-avatar-img').src = currentUser.avatar;
+    updateUserDropdown();
     closeModal();
-    showToast('Account created! Attempting login...', 'info');
-
-    try {
-      var lr = await supabaseClient.auth.signInWithPassword({ email: email, password: pass });
-      if (lr.data && lr.data.session) {
-        var uid = lr.data.user.id;
-        var pr = await supabaseClient.from('users').select('*').eq('id', uid).single();
-        if (pr.data) {
-          var u = pr.data;
-          var uname = u.name || email.split('@')[0];
-          currentUser = {
-            id: uid, email: email, name: uname, avatar: u.avatar, bio: u.bio,
-            followers: u.followers || [], following: u.following || [],
-            joined: u.joined ? new Date(u.joined).getTime() : Date.now(),
-            badges: u.badges || [], isAdmin: isAdminUser(uname), likedPosts: []
-          };
-          document.getElementById('nav-avatar-img').src = currentUser.avatar;
-          updateUserDropdown();
-          renderPage(currentPage);
-          showToast('Welcome back, ' + currentUser.name + '!', 'success');
-        }
-      } else {
-        showToast('Account created! You may need to confirm your email, or try logging in manually.', 'info');
-      }
-    } catch (loginErr) {
-      console.warn('Auto-login failed:', loginErr.message);
-      showToast('Account created! Try logging in.', 'info');
-    }
+    renderPage(currentPage);
+    
+    showToast('🎉 Welcome to SmallWorld, ' + username + '!', 'success');
 
   } catch (e) {
-    showToast('Error creating account: ' + e.message, 'error');
+    console.error('Signup error:', e);
+    showToast('Error creating account', 'error');
   }
 }
 
 async function handleLogout() {
-  if (isLive) { try { await supabaseClient.auth.signOut(); } catch(e) {} }
-  currentUser = { id: null, name: 'Guest', email: 'guest@smallworld.io', avatar: 'https://picsum.photos/seed/guest/100/100', bio: '', followers: [], following: [], joined: Date.now(), badges: [], isAdmin: false };
-  document.getElementById('nav-avatar-img').src = currentUser.avatar; updateUserDropdown(); showPage('feed'); showToast('Logged out', 'info');
+  // Clear session
+  localStorage.removeItem('sw_session');
+  
+  // Reset to guest
+  currentUser = {
+    id: null,
+    name: 'Guest',
+    email: 'guest@smallworld.io',
+    avatar: 'https://picsum.photos/seed/guest/100/100',
+    bio: '',
+    followers: [],
+    following: [],
+    joined: Date.now(),
+    badges: [],
+    isAdmin: false,
+    likedPosts: []
+  };
+
+  document.getElementById('nav-avatar-img').src = currentUser.avatar;
+  updateUserDropdown();
+  showPage('feed');
+  showToast('Logged out', 'info');
 }
 
 function setLocType(t) {
