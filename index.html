@@ -1092,6 +1092,7 @@ async function submitWikiCreate(){if(!currentUser.id){showToast('Please login fi
 function submitWikiEdit(id){var w=DB.wiki.find(function(x){return x.id===id;});if(!w)return;var t=document.getElementById('we-title').value.trim();var c=document.getElementById('we-cat').value;var co=document.getElementById('we-content').value.trim();if(!t||!co){showToast('Title and content required','error');return;}w.title=t;w.category=c;w.content=co;w.lastUpdated=Date.now();if(isLive){supabaseClient.from('wiki').update({title:t,category:c,content:co}).eq('id',id).catch(function(){}});closeModal();renderWiki();showToast('Article updated!','success');}
 
 // ==================== BTS RENDERING (FIXED + MOBILE OPTIMIZED) ====================
+// ==================== BTS RENDERING (FIXED + MOBILE OPTIMIZED) ====================
 function renderBTS(){
   var entries=DB.btsEntries;var h='';
   h+='<div style="min-height:100vh;padding:24px 16px 80px;">';
@@ -1111,12 +1112,14 @@ function renderBTS(){
     h+='<i class="fa-solid fa-bolt" style="font-size:40px;margin-bottom:12px;color:var(--border);"></i>';
     h+='<h3 class="font-display font-bold text-lg tracking-wider mb-2" style="color:var(--txt2)">NO SETUPS YET</h3>';
     h+='<p class="text-sm mb-4">Share how you create your shots!</p>';
-h+='<button onclick="event.stopPropagation();openModal(\'confirm-delete\',{message:\'Delete BTS: '+safeTitle+'?\',onConfirm:\'deleteBTS(\\\''+e.id+'\\\')\'})" class="admin-delete-btn" style="padding:5px 9px;min-height:30px;"><i class="fa-solid fa-trash"></i></button>'    h+='</div>';
+    h+='<button onclick="openModal(\'create-bts\')" class="sw-btn sw-btn-amber"><i class="fa-solid fa-bolt"></i> SHARE YOUR FIRST BTS</button>';
+    h+='</div>';
   }else{
     h+='<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">';
     entries.forEach(function(e){
-      var safeAuthor = e.author.replace(/'/g, "\\'");  // ESCAPE APOSTROPHES!
-      var safeTitle = e.title.replace(/'/g, "\\'");
+      var safeAuthor = (e.author||'').replace(/'/g,"\\'");
+      var safeTitle = (e.title||'').replace(/'/g,"\\'");
+      var safeId = e.id;
       h+='<div class="hud-frame">';
       h+='<span class="hud-corner tl amber"></span><span class="hud-corner tr amber"></span><span class="hud-corner bl amber"></span><span class="hud-corner br amber"></span>';
       h+='<div class="sw-card">';
@@ -1129,19 +1132,19 @@ h+='<button onclick="event.stopPropagation();openModal(\'confirm-delete\',{messa
       h+='<div style="position:absolute;bottom:16px;left:16px;right:16px;pointer-events:auto;">';
       h+='<p class="font-display font-bold text-sm tracking-wider clickable-name" style="text-shadow:0 2px 8px rgba(0,0,0,0.95);margin:0;" onclick="event.stopPropagation();showProfile(\''+safeAuthor+'\')">'+safeAuthor+'</p>';
       h+='<p class="sys-label" style="text-shadow:0 1px 4px rgba(0,0,0,0.95);margin:2px 0 0;">'+safeTitle+'</p>';
-      if(e.caption){h+='<p class="text-xs mt-1" style="color:var(--txt2);text-shadow:0 1px 4px rgba(0,0,0,0.95);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:4px 0 0;">'+e.caption+'</p>';}
+      if(e.caption){var safeCap=(e.caption||'').replace(/'/g,"\\'");h+='<p class="text-xs mt-1" style="color:var(--txt2);text-shadow:0 1px 4px rgba(0,0,0,0.95);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:4px 0 0;">'+safeCap+'</p>';}
       h+='</div>';
       h+='<div style="position:absolute;top:16px;left:16px;display:flex;gap:4px;pointer-events:none;">';
       e.tags.slice(0,3).forEach(function(t){h+='<span class="tag-pill" style="background:rgba(8,12,22,0.85);font-size:8px;padding:2px 6px;">'+t+'</span>';});
       h+='</div></div></div>';
       h+='<div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(17,24,39,0.5);">';
       h+='<div class="flex items-center gap-2">';
-      h+='<img src="'+e.avatar+'" class="w-6 h-6 rounded" style="border:1px solid var(--amber);" alt="" onclick="showProfile(\''+e.author+'\')">';
+      h+='<img src="'+e.avatar+'" class="w-6 h-6 rounded" style="border:1px solid var(--amber);" alt="" onclick="showProfile(\''+safeAuthor+'\')">';
       h+='<span class="font-display text-xs">'+timeAgo(e.timestamp)+'</span>';
       h+='</div>';
       h+='<div class="flex items-center gap-2">';
-      h+='<button onclick="event.stopPropagation();likeBTS(\''+e.id+'\')" class="flex items-center gap-1 text-xs" style="color:var(--txt2);background:none;border:none;cursor:pointer;padding:6px 8px;min-height:34px;"><i class="fa-solid fa-heart"></i> '+e.likes+'</button>';
-      if(currentUser.isAdmin){h+='<button onclick="event.stopPropagation();openModal(\'confirm-delete\',{message:\'Delete BTS?\',onConfirm:\'deleteBTS(\\\''+e.id+'\\\')\'})" class="admin-delete-btn" style="padding:5px 9px;min-height:30px;"><i class="fa-solid fa-trash"></i></button>';}
+      h+='<button onclick="event.stopPropagation();likeBTS(\''+safeId+'\')" class="flex items-center gap-1 text-xs" style="color:var(--txt2);background:none;border:none;cursor:pointer;padding:6px 8px;min-height:34px;"><i class="fa-solid fa-heart"></i> '+e.likes+'</button>';
+      if(currentUser.isAdmin){h+='<button onclick="event.stopPropagation();openModal(\'confirm-delete\',{message:\'Delete BTS?\',onConfirm:\'deleteBTS(\\\''+safeId+'\\\')\'})" class="admin-delete-btn" style="padding:5px 9px;min-height:30px;"><i class="fa-solid fa-trash"></i></button>';}
       h+='</div></div></div></div>';
     });
     h+='</div>';
@@ -1165,7 +1168,7 @@ function attachBTSListeners(){
       card.addEventListener('contextmenu',function(e){e.preventDefault();return false;});
       function startHold(e){if(e.type==='mousedown'&&e.button!==0)return;isHolding=false;clearTimeout(holdTimer);holdTimer=setTimeout(function(){isHolding=true;card.classList.add('revealing');if(btsImg)btsImg.style.opacity='1';if(indicator)indicator.style.opacity='0';if(labelReveal)labelReveal.style.opacity='1';if(navigator.vibrate){navigator.vibrate(30);}},holdThreshold);}
       function endHold(e){clearTimeout(holdTimer);if(isHolding){card.classList.remove('revealing');if(btsImg)btsImg.style.opacity='0';if(indicator)indicator.style.opacity='1';if(labelReveal)labelReveal.style.opacity='0';isHolding=false;}}
-            function cancelHold(){clearTimeout(holdTimer);if(isHolding){card.classList.remove('revealing');if(btsImg)btsImg.style.opacity='0';if(indicator)indicator.style.opacity='1';if(labelReveal)labelReveal.style.opacity='0';isHolding=false;}}
+      function cancelHold(){clearTimeout(holdTimer);if(isHolding){card.classList.remove('revealing');if(btsImg)btsImg.style.opacity='0';if(indicator)indicator.style.opacity='1';if(labelReveal)labelReveal.style.opacity='0';isHolding=false;}}
       function handleTap(e){if(isHolding){e.stopPropagation();e.preventDefault();return;}e.stopPropagation();var src=card.getAttribute('data-final-src');if(src)openLightbox(src);}
       card.addEventListener('mousedown',startHold);card.addEventListener('mouseup',function(e){endHold(e);setTimeout(function(){handleTap(e);},50);});card.addEventListener('mouseleave',cancelHold);
       card.addEventListener('touchstart',startHold,{passive:true});card.addEventListener('touchend',function(e){endHold(e);setTimeout(function(){handleTap(e);},50);});card.addEventListener('touchcancel',cancelHold);card.addEventListener('touchmove',cancelHold,{passive:true});
