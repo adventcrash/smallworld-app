@@ -1089,8 +1089,24 @@ function renderWiki(){
 function setWikiCat(cat){activeWikiCat=cat;document.querySelectorAll('.wcb').forEach(function(b){b.className='wcb sw-btn '+(b.getAttribute('data-cat')===cat?'sw-btn-outline':'sw-btn-ghost');b.style.cssText='padding:6px 16px;font-size:10px';});filterWiki();}
 function filterWiki(){var s=(document.getElementById('wiki-search')?document.getElementById('wiki-search').value:'').toLowerCase();document.querySelectorAll('.wa').forEach(function(el){var cm=activeWikiCat==='All'||el.getAttribute('data-cat')===activeWikiCat;var sm=!s||el.getAttribute('data-search').indexOf(s)!==-1;el.style.display=(cm&&sm)?'':'none';});}
 async function submitWikiCreate(){if(!currentUser.id){showToast('Please login first','error');return;}var t=document.getElementById('wc-title').value.trim();var c=document.getElementById('wc-cat').value;var co=document.getElementById('wc-content').value.trim();if(!t||!co){showToast('Title and content required','error');return;}var newWiki={id:crypto.randomUUID(),author:currentUser.name,title:t,category:c,content:co,lastUpdated:Date.now()};DB.wiki.push(newWiki);if(isLive){try{await supabaseClient.from('wiki').insert([{author:currentUser.name,title:t,category:c,content:co}]);}catch(e){}}closeModal();renderWiki();showToast('Article published!','success');}
-function submitWikiEdit(id){var w=DB.wiki.find(function(x){return x.id===id;});if(!w)return;var t=document.getElementById('we-title').value.trim();var c=document.getElementById('we-cat').value;var co=document.getElementById('we-content').value.trim();if(!t||!co){showToast('Title and content required','error');return;}w.title=t;w.category=c;w.content=co;w.lastUpdated=Date.now();if(isLive){supabaseClient.from('wiki').update({title:t,category:c,content:co}).eq('id',id).catch(function(){}});closeModal();renderWiki();showToast('Article updated!','success');}
-
+function submitWikiEdit(id) {
+  var w = DB.wiki.find(function(x) { return x.id === id; });
+  if (!w) return;
+  var t = document.getElementById('we-title').value.trim();
+  var c = document.getElementById('we-cat').value;
+  var co = document.getElementById('we-content').value.trim();
+  if (!t || !co) { showToast('Title and content required', 'error'); return; }
+  w.title = t;
+  w.category = c;
+  w.content = co;
+  w.lastUpdated = Date.now();
+  if (isLive) {
+    supabaseClient.from('wiki').update({ title: t, category: c, content: co }).eq('id', id).catch(function() {});
+  }
+  closeModal();
+  renderWiki();
+  showToast('Article updated!', 'success');
+}
 // ==================== BTS RENDERING (FIXED + MOBILE OPTIMIZED) ====================
 // ==================== BTS RENDERING (FIXED + MOBILE OPTIMIZED) ====================
 function renderBTS(){
