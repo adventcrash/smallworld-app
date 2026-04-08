@@ -90,15 +90,118 @@ textarea.sw-input{resize:vertical;min-height:100px}
 .story-avatar{width:36px;height:36px;min-width:36px;min-height:36px;max-width:36px;max-height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--cyan);cursor:pointer;transition:transform .15s}
 .story-avatar:hover{transform:scale(1.1)}
 .story-avatar-small{width:24px;height:24px;min-width:24px;min-height:24px;max-width:24px;max-height:24px;border-radius:50%;object-fit:cover;border:1px solid var(--cyan);cursor:pointer}
-.bts-card{position:relative;cursor:pointer;user-select:none;-webkit-user-select:none;overflow:hidden;border-radius:4px}
-.bts-card .bts-final-img{display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-.bts-card .bts-bts-img{display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;transition:opacity .5s ease;z-index:1}
-.bts-card.revealing .bts-bts-img{opacity:1}
-.bts-card .bts-card-info{position:absolute;inset:0;z-index:2;pointer-events:none}
-.bts-card .bts-card-info>*{pointer-events:auto}
-.bts-indicator{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--amber);background:rgba(8,12,22,0.85);padding:8px 16px;border:1px solid rgba(255,179,0,0.3);border-radius:2px;display:flex;align-items:center;gap:8px;z-index:3;transition:opacity .3s;pointer-events:none}
-.bts-card.revealing .bts-indicator{opacity:0}
-.bts-label-reveal{position:absolute;top:16px;right:16px;z-index:3;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;color:var(--amber);background:rgba(8,12,22,0.85);padding:6px 12px;border:1px solid rgba(255,179,0,0.3);border-radius:2px;opacity:0;transition:opacity .3s;pointer-events:none}.bts-card.revealing .bts-label-reveal{opacity:1}
+
+/* ====== BTS CARD STYLES (FIXED) ====== */
+.bts-card {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  overflow: hidden;
+  border-radius: 4px;
+  height: 300px;
+  touch-action: none;
+}
+
+.bts-card .bts-final-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.4s ease;
+  z-index: 0;
+}
+
+.bts-card .bts-bts-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+}
+
+/* KEY FIX: When revealing class is added, show BTS image */
+.bts-card.revealing .bts-final-img {
+  opacity: 0;
+}
+
+.bts-card.revealing .bts-bts-img {
+  opacity: 1;
+}
+
+.bts-card .bts-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.bts-card .bts-overlay > * {
+  pointer-events: auto;
+}
+
+.bts-indicator {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--amber);
+  background: rgba(8, 12, 22, 0.9);
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 179, 0, 0.4);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 3;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Hide indicator when revealing */
+.bts-card.revealing .bts-indicator {
+  opacity: 0;
+}
+
+.bts-label-reveal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 3;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--amber);
+  background: rgba(8, 12, 22, 0.9);
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 179, 0, 0.4);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+/* Show label when revealing */
+.bts-card.revealing .bts-label-reveal {
+  opacity: 1;
+}
+
 #map-container{width:100%;height:calc(100vh - 72px);position:relative}.leaflet-container{background:var(--deep)!important}
 .map-panel{position:absolute;z-index:800;background:rgba(17,24,39,0.95);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:4px}
 .map-pin-btn{padding:14px 24px}.map-pin-btn.active{background:rgba(0,229,255,0.15);border-color:var(--cyan);color:var(--cyan);animation:pinPulse 2s ease infinite}
@@ -671,8 +774,7 @@ function showPage(pageId) {
   }
 
   renderPage(pageId);
-  // Keep countdown alive across page switches
-setTimeout(ensureCountdownRunning, 200);
+  setTimeout(ensureCountdownRunning, 200);
 
   if (pageId === 'map') {
     if (!mapInitialized) {
@@ -1180,7 +1282,7 @@ async function submitStory(parentId) {
   if (!finalUrl) return;
 
   var newChapter = {
-    id: 'p' + Date.now(), parentId: parentId, author: currentUser.name, avatar: currentUser.avatar,
+    id: crypto.randomUUID(), parentId: parentId, author: currentUser.name, avatar: currentUser.avatar,
     title: title, image: finalUrl, btsImage: '', caption: caption, tags: tags,
     timestamp: Date.now(), likes: 0, collabOpen: false
   };
@@ -1279,7 +1381,6 @@ function likeContestEntry(id) {
 // ==================== FOLLOW FUNCTION (FEATURE 3) ====================
 async function toggleFollow(name) {
   if (!currentUser.id) { showToast('Please login first', 'error'); return; }
-  console.log('FOLLOW DEBUG: currentUser.id=', currentUser.id, 'type=', typeof currentUser.id);
 
   var target = findUser(name);
   if (!target || name === currentUser.name) return;
@@ -1532,11 +1633,11 @@ async function persistMessage(messageId) {
 async function sendMessage() {
   var input = document.getElementById('msg-input');
   var text = input.value.trim();
-  console.log('DM DEBUG: convoId=', activeConvoId, 'type=', typeof activeConvoId);
 
   if (!text || !activeConvoId) { showToast('Cannot send empty message', 'error'); return; }
 
-var messageId = crypto.randomUUID();  var newMsg = {
+  var messageId = crypto.randomUUID();
+  var newMsg = {
     id: messageId, convoId: activeConvoId, sender: currentUser.name,
     text: text, timestamp: Date.now()
   };
@@ -1574,7 +1675,8 @@ async function startConvoWithName(targetName) {
     showPage('msg');
     setTimeout(function() { openChat(existing.id); }, 100);
   } else {
-var newId = crypto.randomUUID();    var newConvo = {
+    var newId = crypto.randomUUID();
+    var newConvo = {
       id: newId, participants: [currentUser.name, targetName],
       unread: 0, lastMessage: '', lastActive: Date.now()
     };
@@ -1930,137 +2032,233 @@ function submitWikiEdit(id) {
   showToast('Article updated!', 'success');
 }
 
+// ==================== BTS RENDERING (FIXED - HOLD TO REVEAL) ====================
 function renderBTS(){
-var entries=DB.btsEntries;
-var h='';
-h+='<div style="min-height:100vh;padding:32px 24px 80px;">';
-h+='<div style="max-width:1100px;margin:0 auto;">';
-h+='<div class="flex items-center gap-4 mb-4">';
-h+='<div class="h-px flex-1" style="background:var(--border)"></div>';
-h+='<h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--amber)">BEHIND THE SCENES</h1>';
-h+='<div class="h-px flex-1" style="background:var(--border)"></div>';
-h+='</div>';
-h+='<p class="text-center mb-4" style="color:var(--txt2);max-width:600px;margin:0 auto;">Hold to reveal the setup. Tap to view full size.</p>';
-h+='<div class="flex justify-center mb-10">';
-h+='<span class="sys-label"><span class="sys-dot amber"></span>'+entries.length+' SETUPS</span>';
-h+='</div>';
+  var entries=DB.btsEntries;
+  var h='';
+  h+='<div style="min-height:100vh;padding:32px 24px 80px;">';
+  h+='<div style="max-width:1100px;margin:0 auto;">';
+  h+='<div class="flex items-center gap-4 mb-4">';
+  h+='<div class="h-px flex-1" style="background:var(--border)"></div>';
+  h+='<h1 class="font-display font-bold text-3xl tracking-widest" style="color:var(--amber)">BEHIND THE SCENES</h1>';
+  h+='<div class="h-px flex-1" style="background:var(--border)"></div>';
+  h+='</div>';
+  h+='<p class="text-center mb-4" style="color:var(--txt2);max-width:600px;margin:0 auto;">Hold to reveal the setup. Tap to view full size.</p>';
+  h+='<div class="flex justify-center mb-10">';
+  h+='<span class="sys-label"><span class="sys-dot amber"></span>'+entries.length+' SETUPS</span>';
+  h+='</div>';
 
-if(entries.length===0){
-h+='<div style="text-align:center;padding:80px 20px;color:var(--txt3);">';
-h+='<i class="fa-solid fa-bolt" style="font-size:48px;margin-bottom:16px;color:var(--border);"></i>';
-h+='<h3 class="font-display font-bold text-xl tracking-wider mb-2" style="color:var(--txt2)">NO SETUPS YET</h3>';
-h+='<p class="text-sm mb-6">Share how you create your shots!</p>';
-h+='<button onclick="openModal(\'create-bts\')" class="sw-btn sw-btn-amber"><i class="fa-solid fa-bolt"></i> SHARE YOUR FIRST BTS</button>';
-h+='</div>';
-}else{
-h+='<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
+  if(entries.length===0){
+    h+='<div style="text-align:center;padding:80px 20px;color:var(--txt3);">';
+    h+='<i class="fa-solid fa-bolt" style="font-size:48px;margin-bottom:16px;color:var(--border);"></i>';
+    h+='<h3 class="font-display font-bold text-xl tracking-wider mb-2" style="color:var(--txt2)">NO SETUPS YET</h3>';
+    h+='<p class="text-sm mb-6">Share how you create your shots!</p>';
+    h+='<button onclick="openModal(\'create-bts\')" class="sw-btn sw-btn-amber"><i class="fa-solid fa-bolt"></i> SHARE YOUR FIRST BTS</button>';
+    h+='</div>';
+  }else{
+    h+='<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
 
-entries.forEach(function(e){
-/* --- CARD START --- */
-h+='<div class="hud-frame">';
-h+='<span class="hud-corner tl amber"></span>';
-h+='<span class="hud-corner tr amber"></span>';
-h+='<span class="hud-corner bl amber"></span>';
-h+='<span class="hud-corner br amber"></span>';
+    entries.forEach(function(e){
+      /* --- CARD START --- */
+      h+='<div class="hud-frame">';
+      h+='<span class="hud-corner tl amber"></span>';
+      h+='<span class="hud-corner tr amber"></span>';
+      h+='<span class="hud-corner bl amber"></span>';
+      h+='<span class="hud-corner br amber"></span>';
 
-h+='<div class="sw-card">';
+      h+='<div class="sw-card">';
 
-h+='<div class="bts-card" style="height:300px;position:relative;overflow:hidden;border-radius:4px;cursor:pointer;user-select:none;" data-final-src="'+e.image+'" data-bts-src="'+(e.btsImage||e.image)+'">';
+      /* BTS CARD WITH HOLD-TO-REVEAL */
+      h+='<div class="bts-card" data-final-src="'+e.image+'" data-bts-src="'+(e.btsImage||'')+'" style="height:300px;position:relative;overflow:hidden;border-radius:4px;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;">';
 
-h+='<img class="bts-final-img" src="'+e.image+'" alt="Final" draggable="false" style="display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">';
+      /* Final image (always visible by default) */
+      h+='<img class="bts-final-img" src="'+e.image+'" alt="Final" draggable="false" style="display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">';
 
-h+='<img class="bts-bts-img" src="'+(e.btsImage||e.image)+'" alt="BTS" draggable="false" style="display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;transition:opacity .5s ease;z-index:1;">';
+      /* BTS image (hidden by default, shown on hold) */
+      if(e.btsImage){
+        h+='<img class="bts-bts-img" src="'+e.btsImage+'" alt="BTS" draggable="false" style="display:block;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;transition:opacity .4s ease;z-index:1;">';
+      }
 
-h+='<div class="bts-card-info" style="position:absolute;inset:0;z-index:2;pointer-events:none;">';
+      /* Overlay info layer */
+      h+='<div class="bts-overlay" style="position:absolute;inset:0;z-index:2;pointer-events:none;">';
 
-h+='<div class="bts-indicator" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:2px;color:var(--amber);background:rgba(8,12,22,0.85);padding:8px 16px;border:1px solid rgba(255,179,0,0.3);border-radius:2px;display:flex;align-items:center;gap:8px;z-index:3;">';
-h+='<i class="fa-solid fa-bolt"></i> HOLD TO SEE BTS';
-h+='</div>';
+      /* "HOLD TO SEE BTS" indicator - bottom center */
+      h+='<div class="bts-indicator" style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:2px;color:var(--amber);background:rgba(8,12,22,0.9);padding:8px 16px;border:1px solid rgba(255,179,0,0.4);border-radius:2px;display:flex;align-items:center;gap:8px;z-index:3;pointer-events:none;transition:opacity .3s;">';
+      h+='<i class="fa-solid fa-hand-pointer"></i> HOLD TO SEE BTS';
+      h+='</div>';
 
-h+='<div class="bts-label-reveal" style="position:absolute;top:16px;right:16px;z-index:3;font-family:Rajdhani,sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;color:var(--amber);background:rgba(8,12,22,0.85);padding:6px 12px;border:1px solid rgba(255,179,0,0.3);border-radius:2px;opacity:0;transition:opacity .3s;">BEHIND THE SCENES</div>';
+      /* "BEHIND THE SCENES" label - top right (appears when revealing) */
+      h+='<div class="bts-label-reveal" style="position:absolute;top:16px;right:16px;z-index:3;font-family:Rajdhani,sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;color:var(--amber);background:rgba(8,12,22,0.9);padding:6px 12px;border:1px solid rgba(255,179,0,0.4);border-radius:2px;opacity:0;transition:opacity .3s;pointer-events:none;">SETUP REVEALED</div>';
 
-h+='<div style="position:absolute;bottom:16px;left:16px;right:16px;">';
-h+='<p class="font-display font-bold text-base tracking-wider clickable-name" style="text-shadow:0 2px 8px rgba(0,0,0,0.9);margin:0;" onclick="event.stopPropagation();showProfile(\''+e.author+'\')">'+e.author+'</p>';
-h+='<p class="sys-label" style="text-shadow:0 1px 4px rgba(0,0,0,0.9);margin:2px 0 0;">'+e.title+'</p>';
-if(e.caption){h+='<p class="text-xs mt-1" style="color:var(--txt2);text-shadow:0 1px 4px rgba(0,0,0,0.9);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:4px 0 0;">'+e.caption+'</p>';}
-h+='</div>';
+      /* Author & title - bottom left */
+      h+='<div style="position:absolute;bottom:16px;left:16px;right:16px;pointer-events:auto;">';
+      h+='<p class="font-display font-bold text-base tracking-wider clickable-name" style="text-shadow:0 2px 8px rgba(0,0,0,0.95);margin:0;cursor:pointer;" onclick="event.stopPropagation();event.preventDefault();showProfile(\''+e.author+'\')">'+e.author+'</p>';
+      h+='<p class="sys-label" style="text-shadow:0 1px 4px rgba(0,0,0,0.95);margin:2px 0 0;">'+e.title+'</p>';
+      if(e.caption){
+        h+='<p class="text-xs mt-1" style="color:var(--txt2);text-shadow:0 1px 4px rgba(0,0,0,0.95);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:4px 0 0;">'+e.caption+'</p>';
+      }
+      h+='</div>';
 
-h+='<div style="position:absolute;top:16px;left:16px;display:flex;gap:4px;">';
-e.tags.slice(0,3).forEach(function(t){h+='<span class="tag-pill" style="background:rgba(8,12,22,0.8);">'+t+'</span>';});
-h+='</div>';
+      /* Tags - top left */
+      h+='<div style="position:absolute;top:16px;left:16px;display:flex;gap:4px;pointer-events:none;">';
+      e.tags.slice(0,3).forEach(function(t){
+        h+='<span class="tag-pill" style="background:rgba(8,12,22,0.85);font-size:9px;padding:3px 8px;">'+t+'</span>';
+      });
+      h+='</div>';
 
-h+='</div>'; /* bts-card-info */
-h+='</div>'; /* bts-card */
+      h+='</div>'; /* bts-overlay */
+      h+='</div>'; /* bts-card */
 
-h+='<div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(17,24,39,0.5);">';
-h+='<div class="flex items-center gap-2">';
-h+='<img src="'+e.avatar+'" class="w-6 h-6 rounded" style="border:1px solid var(--amber);" alt="">';
-h+='<span class="font-display text-xs">'+timeAgo(e.timestamp)+'</span>';
-h+='</div>';
-h+='<div class="flex items-center gap-2">';
-h+='<button onclick="likeBTS(\''+e.id+'\')" class="flex items-center gap-1 text-xs" style="color:var(--txt2);background:none;border:none;cursor:pointer;padding:4px;"><i class="fa-solid fa-heart"></i> '+e.likes+'</button>';
-if(currentUser.isAdmin){h+='<button onclick="openModal(\'confirm-delete\',{message:\'Delete BTS: '+e.title+'?\',onConfirm:\'deleteBTS(\\\''+e.id+'\\\')\'})" class="admin-delete-btn" style="padding:4px 8px;"><i class="fa-solid fa-trash"></i></button>';}
-h+='</div>';
-h+='</div>'; /* footer bar */
+      /* Footer bar with avatar, time, likes, delete */
+      h+='<div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(17,24,39,0.5);">';
+      h+='<div class="flex items-center gap-2">';
+      h+='<img src="'+e.avatar+'" class="w-6 h-6 rounded" style="border:1px solid var(--amber);" alt="" onclick="showProfile(\''+e.author+'\')">';
+      h+='<span class="font-display text-xs">'+timeAgo(e.timestamp)+'</span>';
+      h+='</div>';
+      h+='<div class="flex items-center gap-2">';
+      h+='<button onclick="event.stopPropagation();likeBTS(\''+e.id+'\')" class="flex items-center gap-1 text-xs" style="color:var(--txt2);background:none;border:none;cursor:pointer;padding:4px;"><i class="fa-solid fa-heart"></i> '+e.likes+'</button>';
+      if(currentUser.isAdmin){
+        h+='<button onclick="event.stopPropagation();openModal(\'confirm-delete\',{message:\'Delete BTS: '+e.title+'?\',onConfirm:\'deleteBTS(\\\''+e.id+'\\\')\'})" class="admin-delete-btn" style="padding:4px 8px;"><i class="fa-solid fa-trash"></i></button>';
+      }
+      h+='</div>';
+      h+='</div>'; /* footer bar */
 
-h+='</div>'; /* sw-card */
-h+='</div>'; /* hud-frame */
-/* --- CARD END --- */
-});
+      h+='</div>'; /* sw-card */
+      h+='</div>'; /* hud-frame */
+      /* --- CARD END --- */
+    });
 
-h+='</div>'; /* grid */
-} /* else */
+    h+='</div>'; /* grid */
+  } /* else */
 
-h+='</div>'; /* max-width container */
-h+='</div>'; /* min-height wrapper */
+  h+='</div>'; /* max-width container */
+  h+='</div>'; /* min-height wrapper */
 
-document.getElementById('bts-content').innerHTML=h;
-attachBTSListeners();
+  document.getElementById('bts-content').innerHTML=h;
+
+  /* CRITICAL: Attach hold-to-reveal listeners AFTER DOM is built */
+  setTimeout(function(){ attachBTSListeners(); }, 50);
 }
-function attachBTSListeners() {
+
+/* ============================================================
+   BTS HOLD-TO-REVEAL LISTENER SYSTEM
+   Handles both mouse and touch events for reliable reveal
+   ============================================================ */
+function attachBTSListeners(){
   var cards = document.querySelectorAll('.bts-card');
-  for (var i = 0; i < cards.length; i++) {
-    (function(card) {
-      var holdTimer = null, wasHolding = false;
+  
+  for(var i=0; i<cards.length; i++){
+    (function(card){
+      var holdTimer = null;
+      var isHolding = false;
+      var holdThreshold = 180; // ms before reveal triggers
+      var hasBTS = card.getAttribute('data-bts-src') && card.getAttribute('data-bts-src').length > 0;
+      
+      /* Get references to elements inside this card */
+      var btsImg = card.querySelector('.bts-bts-img');
+      var indicator = card.querySelector('.bts-indicator');
+      var labelReveal = card.querySelector('.bts-label-reveal');
 
-      card.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-
-      function onDown() {
-        wasHolding = false;
-        holdTimer = setTimeout(function() {
-          wasHolding = true;
-          card.classList.add('revealing');
-        }, 200);
-      }
-
-      function onUp() {
-        clearTimeout(holdTimer);
-        if (wasHolding) {
-          card.classList.remove('revealing');
-          setTimeout(function() { wasHolding = false; }, 100);
-        }
-      }
-
-      function onLeave() {
-        clearTimeout(holdTimer);
-        card.classList.remove('revealing');
-        wasHolding = false;
-      }
-
-      card.addEventListener('mousedown', onDown);
-      card.addEventListener('touchstart', onDown, { passive: true });
-      card.addEventListener('mouseup', onUp);
-      card.addEventListener('touchend', onUp);
-      card.addEventListener('mouseleave', onLeave);
-      card.addEventListener('touchcancel', onLeave);
-
-      card.addEventListener('click', function(e) {
-        if (!wasHolding) {
+      /* If no BTS image, skip the hold behavior - just make it open lightbox on click */
+      if(!hasBTS || !btsImg){
+        card.addEventListener('click', function(e){
           e.stopPropagation();
           var src = card.getAttribute('data-final-src');
-          if (src) openLightbox(src);
+          if(src) openLightbox(src);
+        });
+        return;
+      }
+
+      /* Prevent context menu on long press (mobile) */
+      card.addEventListener('contextmenu', function(e){ e.preventDefault(); return false; });
+
+      /* ---- HOLD START (mousedown / touchstart) ---- */
+      function startHold(e){
+        /* Only respond to left click or direct touch */
+        if(e.type==='mousedown' && e.button!==0) return;
+        
+        isHolding = false;
+        clearTimeout(holdTimer);
+        
+        holdTimer = setTimeout(function(){
+          isHolding = true;
+          card.classList.add('revealing');
+          
+          /* Show BTS image */
+          if(btsImg) btsImg.style.opacity = '1';
+          
+          /* Hide "hold to see" indicator */
+          if(indicator) indicator.style.opacity = '0';
+          
+          /* Show "setup revealed" label */
+          if(labelReveal) labelReveal.style.opacity = '1';
+          
+          /* Haptic feedback on supported devices */
+          if(navigator.vibrate){ navigator.vibrate(30); }
+          
+        }, holdThreshold);
+      }
+
+      /* ---- HOLD END (mouseup / touchend) ---- */
+      function endHold(e){
+        clearTimeout(holdTimer);
+        
+        if(isHolding){
+          /* Was holding -> hide BTS image */
+          card.classList.remove('revealing');
+          if(btsImg) btsImg.style.opacity = '0';
+          if(indicator) indicator.style.opacity = '1';
+          if(labelReveal) labelReveal.style.opacity = '0';
+          
+          isHolding = false;
         }
+      }
+
+      /* ---- CANCEL HOLD (mouseleave / touchcancel) ---- */
+      function cancelHold(){
+        clearTimeout(holdTimer);
+        if(isHolding){
+          card.classList.remove('revealing');
+          if(btsImg) btsImg.style.opacity = '0';
+          if(indicator) indicator.style.opacity = '1';
+          if(labelReveal) labelReveal.style.opacity = '0';
+          isHolding = false;
+        }
+      }
+
+      /* ---- TAP/CLICK (only fires if NOT a hold) ---- */
+      function handleTap(e){
+        /* If we were holding, don't treat this as a tap */
+        if(isHolding){ 
+          e.stopPropagation();
+          e.preventDefault();
+          return; 
+        }
+        
+        /* This was a quick tap -> open lightbox */
+        e.stopPropagation();
+        var src = card.getAttribute('data-final-src');
+        if(src) openLightbox(src);
+      }
+
+      /* Mouse events */
+      card.addEventListener('mousedown', startHold);
+      card.addEventListener('mouseup', function(e){
+        endHold(e);
+        /* Delay tap check slightly to let hold state clear */
+        setTimeout(function(){ handleTap(e); }, 50);
       });
+      card.addEventListener('mouseleave', cancelHold);
+
+      /* Touch events */
+      card.addEventListener('touchstart', startHold, { passive: true });
+      card.addEventListener('touchend', function(e){
+        endHold(e);
+        setTimeout(function(){ handleTap(e); }, 50);
+      });
+      card.addEventListener('touchcancel', cancelHold);
+      card.addEventListener('touchmove', cancelHold, { passive: true });
+
     })(cards[i]);
   }
 }
@@ -2302,20 +2500,17 @@ function renderContest() {
   document.getElementById('contest-content').innerHTML = h;
 
   if(c.active && c.deadline && c.deadline > Date.now()){
-  startCountdown(c.deadline);
-} else if (!c.active || !c.deadline) {
-  // Clear stored deadline if contest inactive
-  COUNTDOWN_DEADLINE = null;
-}
+    startCountdown(c.deadline);
+  } else if (!c.active || !c.deadline) {
+    COUNTDOWN_DEADLINE = null;
+  }
 
   renderContestTab(activeContestTab);
 }
 
 function startCountdown(deadline) {
-  // Store deadline globally so we can recover it
   COUNTDOWN_DEADLINE = deadline;
   
-  // Kill any existing interval
   if (countdownInterval) {
     clearInterval(countdownInterval);
     countdownInterval = null;
@@ -2324,7 +2519,6 @@ function startCountdown(deadline) {
   function tick() {
     var el = document.getElementById('countdown');
     
-    // If element doesn't exist yet (page not visible), keep interval alive silently
     if (!el) return;
     
     var now = Date.now();
@@ -2349,7 +2543,6 @@ function startCountdown(deadline) {
       '<div class="countdown-box"><div class="countdown-num">' + m.toString().padStart(2,'0') + '</div><div class="countdown-label">MIN</div></div>' +
       '<div class="countdown-box"><div class="countdown-num">' + s.toString().padStart(2,'0') + '</div><div class="countdown-label">SEC</div></div>';
 
-    // Last 10 seconds pulse
     if (diff < 10000) {
       el.style.boxShadow = diff % 1000 < 500 
         ? '0 0 25px rgba(255,179,0,0.5)' 
@@ -2357,21 +2550,19 @@ function startCountdown(deadline) {
     }
   }
 
-  // Start ticking immediately, then every second
   tick();
   countdownInterval = setInterval(tick, 1000);
 }
 
-// NEW: Helper function to safely restart countdown from anywhere
 function ensureCountdownRunning() {
   if (COUNTDOWN_DEADLINE && COUNTDOWN_DEADLINE > Date.now()) {
-    // Check if we need to start or restart
     var el = document.getElementById('countdown');
     if (el && !countdownInterval) {
       startCountdown(COUNTDOWN_DEADLINE);
     }
   }
 }
+
 function switchContestTab(tabId) {
   activeContestTab = tabId;
   document.querySelectorAll('.contest-subtab').forEach(function(t) {
@@ -2379,12 +2570,11 @@ function switchContestTab(tabId) {
   });
   renderContestTab(tabId);
   
-  // Restart countdown when viewing entries tab
   if (tabId === 'entries' && COUNTDOWN_DEADLINE && COUNTDOWN_DEADLINE > Date.now()) {
-    // Small delay to ensure DOM is ready
     setTimeout(function() { startCountdown(COUNTDOWN_DEADLINE); }, 50);
   }
 }
+
 function renderContestTab(tabId) {
   var container = document.getElementById('contest-tab-content');
   if (!container) return;
