@@ -396,7 +396,21 @@ var countdownInterval = null;
 var COUNTDOWN_DEADLINE = null;
 
 if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(function(p) {
+  navigator.geolocation.getCurrentPosition(
+    function(p) {
+      userLocation.lat = p.coords.latitude;
+      userLocation.lng = p.coords.longitude;
+      if (mapInstance) {
+        mapInstance.setView([userLocation.lat, userLocation.lng], 12);
+        renderMapMarkers(document.querySelector('.mfb.active')?.getAttribute('data-filter') || 'all');
+      }
+    },
+    function(err) {
+      console.warn('⚠️ Location access denied, using default:', err.message);
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+  );
+}
     userLocation.lat = p.coords.latitude;
     userLocation.lng = p.coords.longitude;
     if (mapInstance) mapInstance.setView([userLocation.lat, userLocation.lng], 12);
@@ -800,23 +814,122 @@ async function handleLogin() {
 
 async function handleSignup() {
   if (!isLive) { showToast('System not ready', 'error'); return; }
-  var rawUsername = document.getElementById('auth-username').value.trim(); var email = document.getElementById('auth-email').value.trim(); var pass = document.getElementById('auth-pass').value;
+
+  var rawUsername = document.getElementById('auth-username').value.trim();
+  var email = document.getElementById('auth-email').value.trim();
+  var var pass = document.getElementById('auth-pass').value;
   var username = rawUsername.replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase();
-  if (username.length < 2 || username.length > 30) { showToast('Username must be 2-30 characters', 'error'); return; }
+
+  if (username.length < 2 || username.length > 30) {
+    showToast('Username must be 2-30 characters', 'error'); return;
+  }
   if (!email || !pass) { showToast('Email and password required', 'error'); return; }
   if (pass.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
-  var emailRegex = /^[^\s@]+\@[^\s@]+\.[^\s@]+$/; if (!emailRegex.test(email)) { showToast('Please enter a valid email address', 'error'); return; }
+
+  var emailRegex = /^[^\s@]+\@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) { showToast('Please enter a valid email address', 'error'); return; }
+
   showToast('Creating account...', 'info');
+
   try {
-    var r = await supabaseClient.auth.signUp({ email: email, password: pass, options: { data: { display_name: username } } });
-    if (r.error) { if (r.error.message.includes('already registered')) { showToast('This email is already registered.', 'error'); } else { showToast('Signup failed: ' + r.error.message, 'error'); } return; }
+    var r = await supabaseClient.auth.signUp({
+      email: email,
+      password: pass,
+      options: {
+        data: { display_name: username },
+        emailRedirectTo: window.location.origin
+      }
+    });
+
+    if (r.error) {
+      if (r.error.message.includes('already registered')) {
+        showToast('This email is already registered.', 'error');
+      } else {
+        showToast('Signup failed: ' + r.error.message, 'error');
+      }
+      return;
+    }
+
     if (!r.data || !r.data.user) { showToast('Account creation failed', 'error'); return; }
+
     var userId = r.data.user.id;
-    try { await supabaseClient.from('users').insert([{ id: userId, email: email, name: username, avatar: 'https://picsum.photos/seed/' + Date.now() + '/100/100', bio: 'New to SmallWorld!', followers: [], following: [], joined: Date.now(), badges: [] }]); } catch(insertErr) {}
-    if (!r.data.session) { showToast('Account created! Please check your email to confirm.', 'success'); closeModal(); return; }
-    var nu = { id: userId, email: email, name: username, avatar: 'https://picsum.photos/seed/' + Date.now() + '/100/100', bio: 'New to SmallWorld!', followers: [], following: [], joined: Date.now(), badges: [], isAdmin: isAdminUser(username), likedPosts: [] };
-    DB.users.push(nu); currentUser = nu; document.getElementById('nav-avatar-img').src = currentUser.avatar; updateUserDropdown(); closeModal(); renderPage(currentPage); showToast('Welcome to SmallWorld, ' + username + '! 🎉', 'success');
-  } catch(e) { showToast('Error creating account: ' + e.message, 'error'); }
+
+    // Create user record IMMEDIATELY
+    try {
+      await supabaseClient.from('users').insert([{
+        id: userId,
+        email: email,
+        name: username,
+        avatar: 'https://picsum.photos/seed/' + Date.now() + '/100/100',
+        bio: 'New to SmallWorld!',
+        followers: [],
+        following: [],
+        joined: Date.now(),
+        badges: []
+      }]);
+    } catch (insertErr) {
+      console.warn('User insert warning:', insertErr.message);
+    }
+
+    // If we got a session, log them in automatically
+    if (r.data.session) {
+      var nu = {
+        id: userId,
+        email: email,
+        name: username,
+        avatar: 'https://picsum.photos/seed/' + Date.now() + '/100/100',
+        bio: 'New to SmallWorld!',
+        followers: [],
+        following: [],
+        joined: Date.now(),
+        badges: [],
+        isAdmin: isAdminUser(username),
+        likedPosts: []
+      };
+      DB.users.push(nu);
+      currentUser = nu;
+      document.getElementById('nav-avatar-img').src = currentUser.avatar;
+      updateUserDropdown();
+      closeModal();
+      renderPage(currentPage);
+      showToast('Welcome to SmallWorld, ' + username + '! 🎉', 'success');
+      return;
+    }
+
+    // No session - try signing in to get one
+    closeModal();
+    showToast('Account created! Attempting login...', 'info');
+
+    try {
+      var lr = await supabaseClient.auth.signInWithPassword({ email: email, password: pass });
+      if (lr.data && lr.data.session) {
+        var uid = lr.data.user.id;
+        var pr = await supabaseClient.from('users').select('*').eq('id', uid).single();
+        if (pr.data) {
+          var u = pr.data;
+          var uname = u.name || email.split('@')[0];
+          currentUser = {
+            id: uid, email: email, name: uname, avatar: u.avatar, bio: u.bio,
+            followers: u.followers || [], following: u.following || [],
+            joined: u.joined ? new Date(u.joined).getTime() : Date.now(),
+            badges: u.badges || [], isAdmin: isAdminUser(uname), likedPosts: []
+          };
+          document.getElementById('nav-avatar-img').src = currentUser.avatar;
+          updateUserDropdown();
+          renderPage(currentPage);
+          showToast('Welcome back, ' + currentUser.name + '!', 'success');
+        }
+      } else {
+        showToast('Account created! You may need to confirm your email, or try logging in manually.', 'info');
+      }
+    } catch (loginErr) {
+      console.warn('Auto-login failed:', loginErr.message);
+      showToast('Account created! Try logging in.', 'info');
+    }
+
+  } catch (e) {
+    showToast('Error creating account: ' + e.message, 'error');
+  }
 }
 
 async function handleLogout() {
@@ -837,26 +950,123 @@ async function uploadToSupabase(base64Data, path) {
 
 // ==================== SUBMISSION HANDLERS ====================
 async function submitCreateStory() {
+  // Auto-create guest user if needed
+  if (!currentUser.id && isLive) {
+    var guestId = crypto.randomUUID();
+    var guestName = 'User_' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    
+    currentUser = {
+      id: guestId, name: guestName, email: '', 
+      avatar: 'https://picsum.photos/seed/' + guestId + '/100/100',
+      bio: '', followers: [], following: [],
+      joined: Date.now(), badges: [], isAdmin: false, likedPosts: []
+    };
+    try {
+      await supabaseClient.from('users').insert([{
+        id: guestId, email: '', name: guestName,
+        avatar: currentUser.avatar, bio: currentUser.bio,
+        followers: [], following: [], joined: Date.now(), badges: []
+      }]);
+    } catch(e) {}
+    DB.users.push(currentUser);
+    document.getElementById('nav-avatar-img').src = currentUser.avatar;
+    updateUserDropdown();
+    showToast('Welcome, ' + guestName + '!', 'info');
+  }
+
   if (!currentUser.id) { showToast('Please login first', 'error'); return; }
-  var title = document.getElementById('cs-title').value.trim(); var caption = document.getElementById('cs-caption').value.trim(); var tagsRaw = document.getElementById('cs-tags').value.trim(); var collab = document.getElementById('cs-collab').checked;
-  if (!title || !caption) { showToast('Title and caption required', 'error'); return; } if (!pendingFinalImage) { showToast('Please upload your final shot', 'error'); return; }
-  var tags = tagsRaw ? tagsRaw.split(',').map(function(t){return t.trim().toLowerCase();}).filter(Boolean) : []; showToast('Publishing...', 'info');
-  var finalUrl = await uploadToSupabase(pendingFinalImage, 'finals'); if (!finalUrl) return;
-  var newPost = { id: crypto.randomUUID(), parentId: null, author: currentUser.name, avatar: currentUser.avatar, title: title, image: finalUrl, btsImage: '', caption: caption, tags: tags, timestamp: Date.now(), likes: 0, collabOpen: collab };
+
+  var title = document.getElementById('cs-title').value.trim();
+  var caption = document.getElementById('cs-caption').value.trim();
+  var tagsRaw = document.getElementById('cs-tags').value.trim();
+  var collab = document.getElementById('cs-collab').checked;
+
+  if (!title || !caption) { showToast('Title and caption required', 'error'); return; }
+  if (!pendingFinalImage) { showToast('Please upload your final shot', 'error'); return; }
+
+  var tags = tagsRaw ? tagsRaw.split(',').map(function(t) { return t.trim().toLowerCase(); }).filter(Boolean) : [];
+  showToast('Publishing...', 'info');
+
+  var finalUrl = await uploadToSupabase(pendingFinalImage, 'finals');
+  if (!finalUrl) return;
+
+  var newPost = {
+    id: crypto.randomUUID(), parentId: null, author: currentUser.name, avatar: currentUser.avatar,
+    title: title, image: finalUrl, btsImage: '', caption: caption, tags: tags,
+    timestamp: Date.now(), likes: 0, collabOpen: collab
+  };
+
   DB.posts.unshift(newPost);
-  if (isLive) { try { await supabaseClient.from('posts').insert([{ author: currentUser.name, avatar: currentUser.avatar, title: title, image: finalUrl, caption: caption, tags: tags, collab_open: collab }]); } catch(e) {} }
+
+  if (isLive) {
+    try {
+      await supabaseClient.from('posts').insert([{
+        author: currentUser.name, avatar: currentUser.avatar, title: title, image: finalUrl,
+        caption: caption, tags: tags, collab_open: collab
+      }]);
+    } catch(e) {}
+  }
+
   closeModal(); renderFeed(); showToast('Story published!', 'success');
 }
-
 async function submitCreateBTS() {
+  // Auto-create guest user if needed
+  if (!currentUser.id && isLive) {
+    var guestId = crypto.randomUUID();
+    var guestName = 'User_' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    
+    currentUser = {
+      id: guestId, name: guestName, email: '',
+      avatar: 'https://picsum.photos/seed/' + guestId + '/100/100',
+      bio: '', followers: [], following: [],
+      joined: Date.now(), badges: [], isAdmin: false, likedPosts: []
+    };
+    try {
+      await supabaseClient.from('users').insert([{
+        id: guestId, email: '', name: guestName,
+        avatar: currentUser.avatar, bio: currentUser.bio,
+        followers: [], following: [], joined: Date.now(), badges: []
+      }]);
+    } catch(e) {}
+    DB.users.push(currentUser);
+    document.getElementById('nav-avatar-img').src = currentUser.avatar;
+    updateUserDropdown();
+    showToast('Welcome, ' + guestName + '!', 'info');
+  }
+
   if (!currentUser.id) { showToast('Please login first', 'error'); return; }
-  var title = document.getElementById('bts-title').value.trim(); var caption = document.getElementById('bts-caption').value.trim(); var tagsRaw = document.getElementById('bts-tags').value.trim();
-  if (!pendingBtsFinalImage || !pendingBtsSetupImage) { showToast('Both photos are required', 'error'); return; } if (!title) { showToast('Title is required', 'error'); return; }
-  var tags = tagsRaw ? tagsRaw.split(',').map(function(t){return t.trim().toLowerCase();}).filter(Boolean) : []; showToast('Publishing BTS...', 'info');
-  var finalUrl = await uploadToSupabase(pendingBtsFinalImage, 'bts_finals'); var setupUrl = await uploadToSupabase(pendingBtsSetupImage, 'bts_setups'); if (!finalUrl || !setupUrl) return;
-  var newBts = { id: crypto.randomUUID(), author: currentUser.name, avatar: currentUser.avatar, title: title, image: finalUrl, btsImage: setupUrl, caption: caption || '', tags: tags, timestamp: Date.now(), likes: 0 };
+
+  var title = document.getElementById('bts-title').value.trim();
+  var caption = document.getElementById('bts-caption').value.trim();
+  var tagsRaw = document.getElementById('bts-tags').value.trim();
+
+  if (!pendingBtsFinalImage || !pendingBtsSetupImage) { showToast('Both photos are required', 'error'); return; }
+  if (!title) { showToast('Title is required', 'error'); return; }
+
+  var tags = tagsRaw ? tagsRaw.split(',').map(function(t) { return t.trim().toLowerCase(); }).filter(Boolean) : [];
+  showToast('Publishing BTS...', 'info');
+
+  var finalUrl = await uploadToSupabase(pendingBtsFinalImage, 'bts_finals');
+  var setupUrl = await uploadToSupabase(pendingBtsSetupImage, 'bts_setups');
+  if (!finalUrl || !setupUrl) return;
+
+  var newBts = {
+    id: crypto.randomUUID(), author: currentUser.name, avatar: currentUser.avatar,
+    title: title, image: finalUrl, btsImage: setupUrl, caption: caption || '', tags: tags,
+    timestamp: Date.now(), likes: 0
+  };
+
   DB.btsEntries.unshift(newBts);
-  if (isLive) { try { await supabaseClient.from('bts_entries').insert([{ author: currentUser.name, avatar: currentUser.avatar, title: title, image: finalUrl, bts_image: setupUrl, caption: caption || '', tags: tags }]); } catch(e) {} }
+
+  if (isLive) {
+    try {
+      await supabaseClient.from('bts_entries').insert([{
+        author: currentUser.name, avatar: currentUser.avatar, title: title,
+        image: finalUrl, bts_image: setupUrl, caption: caption || '', tags: tags
+      }]);
+    } catch(e) {}
+  }
+
   closeModal(); renderBTS(); showToast('BTS published!', 'success');
 }
 
@@ -1041,14 +1251,73 @@ function initMap(){
   mapInstance.on('click',function(e){if(isPinning){pendingPinCoords={lat:e.latlng.lat,lng:e.latlng.lng};openModal('add-location');}});
   renderMapMarkers('all');renderLocList();
 }
-function renderMapMarkers(filter){
-  if(!mapInstance)return;mapMarkers.forEach(function(m){mapInstance.removeLayer(m);});mapMarkers=[];var locs=filter==='all'?DB.locations:DB.locations.filter(function(l){return l.type===filter;});
-  locs.forEach(function(loc){
-    var isSpot=loc.type==='Spot';var icon=L.divIcon({className:'',html:'<div class="custom-marker '+(isSpot?'spot':'store')+'"><i class="fa-solid '+(isSpot?'fa-camera':'fa-store')+'"></i></div>',iconSize:[32,32],iconAnchor:[16,16]});
-    var marker=L.marker([loc.lat,loc.lng],{icon:icon}).addTo(mapInstance);
-    marker.bindPopup('<div style="font-family:Rajdhani,sans-serif;font-weight:600;font-size:14px;margin-bottom:4px;">'+loc.name+'</div><div style="font-family:JetBrains Mono,monospace;font-size:9px;color:#8899B4;margin-bottom:6px;">'+loc.type.toUpperCase()+'</div>'+(loc.img?'<img src="'+loc.img+'" style="width:180px;height:100px;object-fit:cover;border-radius:2px;margin-bottom:6px;">':'')+'<div style="font-size:11px;color:#E8ECF4;max-width:200px;">'+loc.description+'</div>'+(currentUser.isAdmin?'<button onclick="openModal(\'confirm-delete\',{message:\'Delete location?\',onConfirm:\'deleteLocation(\\\''+loc.id+'\\\')\'})" class="admin-delete-btn" style="margin-top:6px;padding:4px 8px;"><i class="fa-solid fa-trash"></i></button>':''));
+function renderMapMarkers(filter) {
+  if (!mapInstance) return;
+  mapMarkers.forEach(function(m) { mapInstance.removeLayer(m); });
+  mapMarkers = [];
+
+  var locs = filter === 'all' ? DB.locations : DB.locations.filter(function(l) { return l.type === filter; });
+
+  // Calculate distances and sort by proximity
+  var locsWithDistance = locs.map(function(loc) {
+    return Object.assign({}, loc, {
+      distance: getDistance(userLocation.lat, userLocation.lng, loc.lat, loc.lng)
+    });
+  });
+
+  locsWithDistance.sort(function(a, b) { return a.distance - b.distance; });
+
+  // Show pins within 500km, or all if none nearby
+  var nearbyLocs = locsWithDistance.filter(function(loc) { return loc.distance <= 500; });
+  var displayLocs = nearbyLocs.length > 0 ? nearbyLocs : locsWithDistance;
+
+  displayLocs.forEach(function(loc) {
+    var isSpot = loc.type === 'Spot';
+    var distKm = Math.round(loc.distance * 10) / 10;
+    var distLabel = distKm < 1 ? (Math.round(distKm * 1000) + 'm') : (distKm + 'km');
+
+    var icon = L.divIcon({
+      className: '',
+      html: '<div class="custom-marker ' + (isSpot ? 'spot' : 'store') + '">' +
+           '<i class="fa-solid ' + (isSpot ? 'fa-camera' : 'fa-store') + '"></i></div>',
+      iconSize: [32, 32], iconAnchor: [16, 16]
+    });
+
+    var marker = L.marker([loc.lat, loc.lng], { icon: icon }).addTo(mapInstance);
+
+    marker.bindPopup(
+      '<div style="font-family:Rajdhani,sans-serif;font-weight:600;font-size:14px;margin-bottom:4px;">' + loc.name + '</div>' +
+      '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:#8899B4;margin-bottom:6px;">' +
+        loc.type.toUpperCase() + ' &nbsp;&bull;&nbsp; ' + distLabel + ' away</div>' +
+      (loc.img ? '<img src="' + loc.img + '" style="width:180px;height:100px;object-fit:cover;border-radius:2px;margin-bottom:6px;">' : '') +
+      '<div style="font-size:11px;color:#E8ECF4;max-width:200px;line-height:1.4;">' + (loc.description || '') + '</div>' +
+      '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
+      '<span class="sys-label" style="color:var(--cyan);">BY: ' + (loc.author || 'Unknown') + '</span>' +
+      (currentUser.isAdmin ?
+        '<button onclick="openModal(\'confirm-delete\',{message:\'Delete ' + (loc.name || 'location') + '?\',onConfirm:\'deleteLocation(\\\'' + loc.id + '\\\')\'})" class="admin-delete-btn" style="padding:5px 10px;"><i class="fa-solid fa-trash"></i> DELETE</button>'
+      : '') +
+      '</div>'
+    );
+
     mapMarkers.push(marker);
   });
+
+  // Update count label
+  var countEl = document.querySelector('.sys-label');
+  if (countEl && countEl.textContent.indexOf('PINNED') !== -1) {
+    countEl.innerHTML = '<span class="sys-dot amber"></span> ' + displayLocs.length + ' NEARBY';
+  }
+}
+
+// Haversine formula for distance between two coordinates
+function getDistance(lat1, lon1, lat2, lon2) {
+  var R = 6371; // Earth radius in km
+  var dLat = (lat2 - lat1) * Math.PI / 180;
+  var dLon = (lon2 - lon1) * Math.PI / 180;
+  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 function renderLocList(){
   var list=document.getElementById('loc-list');if(!list)return;var h='';
