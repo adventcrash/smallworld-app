@@ -397,7 +397,7 @@ var COUNTDOWN_DEADLINE = null;
 
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(
-    function(p) {
+function(p) {
       userLocation.lat = p.coords.latitude;
       userLocation.lng = p.coords.longitude;
       if (mapInstance) {
@@ -411,12 +411,6 @@ if (navigator.geolocation) {
     { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
   );
 }
-    userLocation.lat = p.coords.latitude;
-    userLocation.lng = p.coords.longitude;
-    if (mapInstance) mapInstance.setView([userLocation.lat, userLocation.lng], 12);
-  }, function() {});
-}
-
 // ==================== UTILITY FUNCTIONS ====================
 function escapeHTML(str) {
   if (!str) return '';
