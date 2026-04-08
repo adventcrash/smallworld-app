@@ -811,7 +811,7 @@ async function handleSignup() {
 
   var rawUsername = document.getElementById('auth-username').value.trim();
   var email = document.getElementById('auth-email').value.trim();
-  var var pass = document.getElementById('auth-pass').value;
+  var pass = document.getElementById('auth-pass').value;
   var username = rawUsername.replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase();
 
   if (username.length < 2 || username.length > 30) {
