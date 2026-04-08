@@ -1206,8 +1206,7 @@ function renderMessages(){
     convos.forEach(function(c){
       var otherName=c.participants.filter(function(p){return p!==currentUser.name;})[0];var otherUser=findUser(otherName);if(!otherUser)return;
       var msgs=DB.messages.filter(function(m){return m.convoId===c.id;});var lastMsg=msgs.length>0?msgs[msgs.length-1]:null;
-      var preview=lastMsg?(lastMsg.sender===currentUser.name?'You: '):'')+lastMsg.text:'Start a conversation...';var unreadCount=c.unread||0;
-      h+='<div class="msg-list-item" onclick="openChat(\''+c.id+'\')"><img src="'+otherUser.avatar+'" class="msg-avatar" alt="">'+
+var preview = lastMsg ? ((lastMsg.sender === currentUser.name ? 'You: ' : '') + lastMsg.text) : 'Start a conversation...';      h+='<div class="msg-list-item" onclick="openChat(\''+c.id+'\')"><img src="'+otherUser.avatar+'" class="msg-avatar" alt="">'+
         '<div class="msg-preview"><div class="msg-preview-name">'+otherName+'</div><div class="msg-preview-text">'+preview+'</div></div>'+
         (unreadCount>0?'<div class="msg-unread-badge">'+unreadCount+'</div>':'')+'</div>';
     });
