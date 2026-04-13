@@ -291,6 +291,43 @@ textarea.sw-input{resize:vertical;min-height:100px}
   #bottom-nav{display:none!important}
 }
 
+/* ====== BRANCH GROUP STYLES ====== */
+.branch-group {
+  transition: border-color 0.2s;
+}
+.branch-group:hover {
+  border-left-color: var(--amber);
+  background: rgba(255, 179, 0, 0.03);
+}
+.branch-header {
+  animation: fadeInDown 0.3s ease;
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chapter-card {
+  animation: slideInRight 0.3s ease;
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Mobile optimization for branches */
+@media(max-width: 768px){
+  .branch-group {
+    margin-left: -12px;
+    margin-right: -12px;
+    padding: 10px 10px 10px 28px;
+    border-left-width: 2px;
+  }
+  .branch-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
 }
@@ -1264,141 +1301,381 @@ async function startConvoWithName(targetName){
 
 // ==================== RENDER FUNCTIONS ====================
 function renderFeed(){
-  var roots=getRootPosts();var tc=DB.posts.filter(function(p){return p.parentId!==null;}).length;var as={};DB.posts.forEach(function(p){as[p.author]=true;});var ac=Object.keys(as).length;
-  var h='<div class="dot-grid" style="min-height:100vh;padding:24px 20px 80px;"><div style="max-width:960px;margin:0 auto;">'+
-    '<div class="flex flex-wrap items-center gap-4 mb-6 px-2">'+
-    '<span class="sys-label"><span class="sys-dot cyan"></span>'+roots+' THREADS</span>'+
-    '<span class="sys-label"><span class="sys-dot amber"></span>'+tc+' CHAPTERS</span>'+
-    '<span class="sys-label"><span class="sys-dot green"></span>'+ac+' CREATORS</span></div>'+
-    '<div class="flex items-center gap-4 mb-6"><div class="h-px flex-1" style="background:var(--border)"></div>'+
-    '<h1 class="font-display font-bold text-2xl sm:text-3xl tracking-widest" style="color:var(--cyan)">STORY FEED</h1>'+
-    '<div class="h-px flex-1" style="background:var(--border)"></div></div>'+
-    '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
-  if(roots.length===0){
-    h+='<div style="text-align:center;padding:60px 20px;color:var(--txt3);"><i class="fa-solid fa-camera-retro" style="font-size:40px;margin-bottom:12px;color:var(--border);"></i><h3 class="font-display font-bold text-lg tracking-wider mb-2" style="color:var(--txt2)">NO STORIES YET</h3><p class="text-sm mb-4">Be the first to share!</p><button onclick="openModal(\'create-story\')" class="sw-btn sw-btn-primary"><i class="fa-solid fa-plus"></i> CREATE STORY</button></div>';
-  }else{
+  var roots = getRootPosts();
+  var tc = DB.posts.filter(function(p){ return p.parentId !== null; }).length;
+  var ac = {};
+  DB.posts.forEach(function(p){ ac[p.author] = true; });
+  var authorCount = Object.keys(ac).length;
+
+  // Start building feed HTML
+  var h = '<div class="dot-grid" style="min-height:100vh;padding:24px 20px 80px;">';
+  
+  h += '<div style="max-width:960px;margin:0 auto;">';
+  
+  // Stats bar
+  h += '<div class="flex flex-wrap items-center gap-4 mb-6 px-2">';
+  h += '<span class="sys-label"><span class="sys-dot cyan"></span>' + roots + ' THREADS</span>';
+  h += '<span class="sys-label"><span class="sys-dot amber"></span>' + tc + ' CHAPTERS</span>';
+  h += '<span class="sys-label"><span class="sys-dot green"></span>' + authorCount + ' CREATORS</span>';
+  h += '</div>';
+
+  // Page title
+  h += '<div class="flex items-center gap-4 mb-6">';
+  h += '<div class="h-px flex-1" style="background:var(--border)"></div>';
+  h += '<h1 class="font-display font-bold text-2xl sm:text-3xl tracking-widest" style="color:var(--cyan)">STORY FEED</h1>';
+  h += '<div class="h-px flex-1" style="background:var(--border)"></div>';
+  h += '</div>';
+
+  // Story grid
+  h += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
+
+  if(roots.length === 0){
+    // Empty state
+    h += '<div style="text-align:center;padding:60px 20px;color:var(--txt3);grid-column:1/-1;">';
+    h += '<i class="fa-solid fa-camera-retro" style="font-size:40px;margin-bottom:12px;color:var(--border);"></i>';
+    h += '<h3 class="font-display font-bold text-lg tracking-wider mb-2" style="color:var(--txt2)">NO STORIES YET</h3>';
+    h += '<p class="text-sm mb-4">Be the first to share!</p>';
+    h += '<button onclick="openModal(\'create-story\')" class="sw-btn sw-btn-primary"><i class="fa-solid fa-plus"></i> CREATE STORY</button>';
+    h += '</div>';
+  } else {
+    // Render each root story
     roots.forEach(function(root){
-      var chs=getChapters(root.id);var ct=root.collabOpen?'<span class="tag-pill collab"><span class="collab-pulse"><span class="cp-dot"></span></span> OPEN</span>':'<span class="tag-pill closed">CLOSED</span>';var safeImg=root.image.replace(/'/g,"\\'");
-      h+='<article class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner tr"></span><span class="hud-corner bl"></span><span class="hud-corner br"></span><div class="sw-card">'+
-        '<div class="story-img-wrap" onclick="openLightbox(\''+safeImg+'\')"><img class="story-main-img" src="'+root.image+'" alt="'+escapeHTML(root.title)+'" loading="lazy">'+
-        '<div class="story-grad" style="background:linear-gradient(to top,rgba(8,12,22,0.95) 0%,rgba(8,12,22,0.3) 40%,transparent 70%);"></div>'+
-        '<div class="story-text"><div class="flex items-center gap-2 mb-2 story-acts">'+
-        '<img src="'+root.avatar+'" class="story-avatar" alt="" onclick="event.stopPropagation();showProfile(\''+root.author+'\')">'+
-        '<p class="font-display font-semibold text-xs sm:text-sm tracking-wider clickable-name" onclick="event.stopPropagation();showProfile(\''+root.author+'\')">'+escapeHTML(root.author)+'</p>'+
-        '<span class="sys-label">'+timeAgo(root.timestamp)+'</span>'+
-        (chs.length>0?'<span class="ml-auto sys-label"><span class="sys-dot amber"></span>'+chs.length+'</span>':'<span class="ml-auto sys-label"><span class="sys-dot green"></span>ROOT</span>')+'</div>'+
-        '<h2 class="font-display font-bold text-lg sm:text-2xl tracking-wide mb-1">'+escapeHTML(root.title)+'</h2>'+
-        '<p class="text-xs sm:text-sm leading-relaxed mb-2" style="color:var(--txt2)">'+escapeHTML(root.caption)+'</p>'+
-        '<div class="flex flex-wrap items-center gap-1 mb-3">'+root.tags.map(function(t){return'<span class="tag-pill">'+t+'</span>';}).join('')+ct+'</div>'+
-        '<div class="flex items-center gap-2 sm:gap-4 story-acts flex-wrap">'+
-        '<button onclick="event.stopPropagation();likePost(\''+root.id+'\')" class="flex items-center gap-1 text-xs sm:text-sm" style="color:var(--txt2);background:none;border:none;cursor:pointer;padding:6px 10px;min-height:40px;" onmouseenter="this.style.color=\'#FF3D57\'" onmouseleave="this.style.color=\'var(--txt2)\'"><i class="fa-solid fa-heart"></i> '+root.likes+'</button>'+
-        (root.collabOpen?'<button onclick="event.stopPropagation();openModal(\'add-story\',DB.posts.find(function(p){return p.id===\''+root.id+'\'}))" class="sw-btn sw-btn-outline" style="padding:6px 14px;font-size:10px sm:text-xs;min-height:36px;"><i class="fa-solid fa-code-branch"></i> ADD</button>':'')+
-        (currentUser.isAdmin?'<button onclick="event.stopPropagation();openModal(\'confirm-delete\',{message:\'Delete this story?\',onConfirm:\'deletePost(\\\''+root.id+'\\\')\'})" class="admin-delete-btn" style="padding:6px 10px;min-height:34px;"><i class="fa-solid fa-trash"></i></button>':'')+
-        '</div></div></div></div></article>';
-      if(chs.length>0){
-        h+='<div class="relative ml-4 sm:ml-12" style="padding-left:28px;"><div class="thread-line"></div>';
-        chs.forEach(function(ch){
-          var safeCh=ch.image.replace(/'/g,"\\'");
-          h+='<div class="relative mb-4"><div class="chapter-dot"></div><article class="hud-frame"><span class="hud-corner tl"></span><span class="hud-corner br"></span><div class="sw-card">'+
-            '<div class="flex flex-col sm:flex-row"><div class="sm:w-48 h-32 sm:h-auto flex-shrink-0 overflow-hidden story-img-wrap sm-chapter" onclick="openLightbox(\''+safeCh+'\')"><img class="story-main-img" src="'+ch.image+'" alt="" loading="lazy"></div>'+
-            '<div class="p-4 flex-1"><div class="flex items-center gap-2 mb-2">'+
-            '<img src="'+ch.avatar+'" class="story-avatar-small" alt="" onclick="showProfile(\''+ch.author+'\')">'+
-            '<span class="font-display font-semibold text-xs tracking-wider clickable-name" onclick="showProfile(\''+ch.author+'\')">'+ch.author+'</span>'+
-            '<span class="sys-label">'+timeAgo(ch.timestamp)+'</span></div>'+
-            '<h3 class="font-display font-bold text-base tracking-wide mb-1">'+escapeHTML(ch.title)+'</h3>'+
-            '<p class="text-xs leading-relaxed mb-2" style="color:var(--txt2)">'+escapeHTML(ch.caption)+'</p>'+
-            '<div class="flex flex-wrap gap-1 mb-2">'+ch.tags.map(function(t){return'<span class="tag-pill">'+t+'</span>';}).join('')+'</div>'+
-            '<div class="flex items-center gap-2 flex-wrap">'+
-            '<button onclick="likePost(\''+ch.id+'\')" class="flex items-center gap-1 text-xs" style="color:var(--txt2);background:none;border:none;cursor:pointer;padding:4px 8px;min-height:34px;"><i class="fa-solid fa-heart"></i> '+ch.likes+'</button>'+
-            '<button onclick="openModal(\'add-story\',DB.posts.find(function(p){return p.id===\''+root.id+'\'}))" class="sw-btn sw-btn-ghost" style="padding:4px 10px;font-size:9px;min-height:30px;"><i class="fa-solid fa-code-branch"></i> CONTINUE</button>'+
-            (currentUser.isAdmin?'<button onclick="openModal(\'confirm-delete\',{message:\'Delete chapter?\',onConfirm:\'deletePost(\\\''+ch.id+'\\\')\'})" class="admin-delete-btn" style="padding:4px 8px;min-height:30px;"><i class="fa-solid fa-trash"></i></button>':'')+
-            '</div></div></div></div></article></div>';
-        });h+='</div>';
+      var chs = getChapters(root.id);
+      
+      // Determine collab status badge
+      var collabBadge = root.collabOpen ? 
+        '<span class="tag-pill collab"><span class="collab-pulse"><span class="cp-dot"></span></span> OPEN</span>' : 
+        '<span class="tag-pill closed">CLOSED</span>';
+      
+      var safeImg = root.image.replace(/'/g,"\\'");
+
+      // ROOT STORY CARD
+      h += '<article class="hud-frame story-root-card">';
+      h += '<span class="hud-corner tl"></span><span class="hud-corner tr"></span>';
+      h += '<span class="hud-corner bl"></span><span class="hud-corner br"></span>';
+      h += '<div class="sw-card">';
+
+      // Story image with overlay
+      h += '<div class="story-img-wrap" onclick="openLightbox(\'' + safeImg + '\')">';
+      h += '<img class="story-main-img" src="' + root.image + '" alt="' + escapeHTML(root.title) + '" loading="lazy">';
+      h += '<div class="story-grad" style="background:linear-gradient(to top,rgba(8,12,22,0.95) 0%,rgba(8,12,22,0.3) 40%,transparent 70%);"></div>';
+      
+      // Text overlay on image
+      h += '<div class="story-text">';
+      
+      // Author row
+      h += '<div class="flex items-center gap-2 mb-2 story-acts">';
+      h += '<img src="' + root.avatar + '" class="story-avatar" alt="" onclick="event.stopPropagation();showProfile(\'' + root.author + '\')">';
+      h += '<p class="font-display font-semibold text-xs sm:text-sm tracking-wider clickable-name" onclick="event.stopPropagation();showProfile(\'' + root.author + '\')">' + escapeHTML(root.author) + '</p>';
+      h += '<span class="sys-label">' + timeAgo(root.timestamp) + '</span>';
+      
+      // Chapter count or ROOT label
+      if(chs.length > 0){
+        h += '<span class="ml-auto sys-label"><span class="sys-dot amber"></span>' + chs.length + ' BRANCHES</span>';
+      } else {
+        h += '<span class="ml-auto sys-label"><span class="sys-dot green"></span>ROOT</span>';
       }
-    });
-  }h+='</div></div></div>';document.getElementById('feed-content').innerHTML=h;
+      h += '</div>';
+
+      // Title
+      h += '<h2 class="font-display font-bold text-lg sm:text-2xl tracking-wide mb-1">' + escapeHTML(root.title) + '</h2>';
+      
+      // Caption
+      h += '<p class="text-xs sm:text-sm leading-relaxed mb-2" style="color:var(--txt2)">' + escapeHTML(root.caption) + '</p>';
+      
+      // Tags + Collab badge
+      h += '<div class="flex flex-wrap items-center gap-1 mb-3">';
+      if(root.tags && root.tags.length > 0){
+        h += root.tags.map(function(t){ return '<span class="tag-pill">' + t + '</span>'; }).join('');
+      }
+      h += collabBadge;
+      h += '</div>';
+
+      // Action buttons
+      h += '<div class="flex items-center gap-2 sm:gap-4 story-acts flex-wrap">';
+      h += '<button onclick="event.stopPropagation();likePost(\'' + root.id + '\')" class="flex items-center gap-1 text-xs sm:text-sm" style="color:var(--txt2);background:none;border:none;cursor:pointer;padding:6px 10px;min-height:40px;" onmouseenter="this.style.color=\'#FF3D57\'" onmouseleave="this.style.color=\'var(--txt2)\'"><i class="fa-solid fa-heart"></i> ' + root.likes + '</button>';
+      
+      if(root.collabOpen){
+        h += '<button onclick="event.stopPropagation();openModal(\'add-story\',DB.posts.find(function(p){return p.id===\'' + root.id + '\'}))" class="sw-btn sw-btn-outline" style="padding:6px 14px;font-size:10px sm:text-xs;min-height:36px;"><i class="fa-solid fa-code-branch"></i> ADD CHAPTER</button>';
+      }
+      
+      if(currentUser.isAdmin){
+        h += '<button onclick="event.stopPropagation();openModal(\'confirm-delete\',{message:\'Delete this story?\',onConfirm:\'deletePost(\\\'' + root.id + '\\\')\'})" class="admin-delete-btn" style="padding:6px 10px;min-height:34px;"><i class="fa-solid fa-trash"></i></button>';
+      }
+      h += '</div>'; // End actions
+      h += '</div>'; // End story-text
+      h += '</div>'; // End story-img-wrap
+      h += '</div>'; // End sw-card
+      h += '</article>'; // End root article
+
+      // ==========================================
+      // CHAPTERS / BRANCHES SECTION (NEW DESIGN!)
+      // ==========================================
+      if(chs.length > 0){
+        h += '<div class="branch-group" style="margin-left:0;margin-top:-8px;border-left:3px solid var(--cyan);background:rgba(0,229,255,0.03);border-radius:0 4px 4px 0;padding:12px 12px 12px 36px;position:relative;">';
+        
+        // Branch header
+        h += '<div style="position:absolute;left:-1px;top:12px;width:12px;height:12px;background:var(--cyan);border-radius:50%;border:3px solid var(--deep);z-index:2;"></div>';
+        
+        h += '<div class="branch-header" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(0,229,255,0.15);flex-wrap:wrap;">';
+        h += '<span class="tag-pill collab" style="font-size:9px;padding:3px 8px;"><i class="fa-solid fa-code-branch mr-1"></i>' + chs.length + ' CHAPTER' + (chs.length !== 1 ? 'S' : '') + '</span>';
+        h += '<span class="sys-label" style="font-size:9px;color:var(--cyan);">BRANCHING FROM: <strong style="color:var(--txt);">' + escapeHTML(root.title) + '</strong></span>';
+        h += '</div>';
+
+        // Render each chapter
+        chs.forEach(function(ch, idx){
+          var safeCh = ch.image.replace(/'/g,"\\'");
+          var isFirst = idx === 0;
+          var isLast = idx === chs.length - 1;
+
+          h += '<div class="chapter-card relative mb-' + (isLast ? '0' : '4') + '" style="position:relative;">';
+
+          // Chapter connector dot
+          h += '<div style="position:absolute;left:-28px;top:20px;width:10px;height:10px;border-radius:50%;background:' + (isFirst ? 'var(--amber)' : 'var(--cyan)') + ';border:2px solid var(--deep);z-index:2;' + (!isLast ? 'box-shadow:0 0 0 2px var(--cyan)' : '') + ';"></div>';
+
+          // Connector line to next chapter
+          if(!isLast){
+            h += '<div style="position:absolute;left:-23px;top:30px;width:2px;height:calc(100% + 4px);background:linear-gradient(to bottom,var(--cyan),rgba(0,229,255,0.3));"></div>';
+          }
+
+          // Chapter card
+          h += '<article class="hud-frame">';
+          h += '<span class="hud-corner tl"></span><span class="hud-corner tr"></span>';
+          h += '<span class="hud-corner bl"></span><span class="hud-corner br"></span>';
+          h += '<div class="sw-card" style="border-color:rgba(0,229,255,0.2);">';
+
+          // Content layout (image + details)
+          h += '<div class="flex flex-col sm:flex-row gap-3">';
+
+          // Chapter image
+          h += '<div class="sm:w-48 h-32 sm:h-auto flex-shrink-0 overflow-hidden story-img-wrap sm-chapter rounded" style="border:1px solid var(--border);" onclick="openLightbox(\'' + safeCh + '\')">';
+          h += '<img class="story-main-img" src="' + ch.image + '" alt="" loading="lazy" style="border-radius:2px;">';
+          h += '</div>';
+
+          // Chapter details
+          h += '<div class="p-3 flex-1 min-w-0">';
+
+          // Author + meta row
+          h += '<div class="flex items-center gap-2 mb-2 flex-wrap;">';
+          h += '<img src="' + ch.avatar + '" class="story-avatar-small" alt="" onclick="showProfile(\'' + ch.author + '\')">';
+          h += '<span class="font-display font-semibold text-xs tracking-wider clickable-name" onclick="showProfile(\'' + ch.author + '\')">' + ch.author + '</span>';
+          
+          // Chapter number badge
+          h += '<span class="tag-pill" style="font-size:8px;padding:2px 6px;background:rgba(255,179,0,0.1);border-color:rgba(255,179,0,0.3);color:var(--amber);">CH ' + (idx + 1) + '</span>';
+          
+          h += '<span class="sys-label">' + timeAgo(ch.timestamp) + '</span>';
+          h += '</div>';
+
+          // Title
+          h += '<h3 class="font-display font-bold text-base tracking-wide mb-1" style="color:var(--txt);">' + escapeHTML(ch.title) + '</h3>';
+
+          // Caption
+          h += '<p class="text-xs leading-relaxed mb-2" style="color:var(--txt2);">' + escapeHTML(ch.caption) + '</p>';
+
+          // Tags
+          if(ch.tags && ch.tags.length > 0){
+            h += '<div class="flex flex-wrap gap-1 mb-2">';
+            ch.tags.slice(0, 3).forEach(function(t){
+              h += '<span class="tag-pill" style="font-size:8px;padding:2px 6px;">' + t + '</span>';
+            });
+            h += '</div>';
+          }
+
+          // Action buttons
+          h += '<div class="flex items-center gap-2 flex-wrap pt-2" style="border-top:1px solid rgba(0,229,255,0.1);">';
+          
+          // Like button
+          h += '<button onclick="likePost(\'' + ch.id + '\')" class="flex items-center gap-1 text-xs" style="color:var(--txt2);background:none;border:none;cursor:pointer;padding:4px 8px;min-height:34px;"><i class="fa-solid fa-heart"></i> ' + ch.likes + '</button>';
+
+          // Continue branch button (if open for collaboration)
+          if(root.collabOpen){
+            h += '<button onclick="openModal(\'add-story\',DB.posts.find(function(p){return p.id===\'' + root.id + '\'}))" class="sw-btn sw-btn-outline" style="padding:4px 10px;font-size:9px;min-height:30px;background:rgba(0,230,118,0.1);border-color:rgba(0,230,118,0.3);color:var(--green);"><i class="fa-solid fa-plus"></i> CONTINUE</button>';
+          }
+
+          // Admin delete
+          if(currentUser.isAdmin){
+            h += '<button onclick="openModal(\'confirm-delete\',{message:\'Delete chapter?\',onConfirm:\'deletePost(\\\'' + ch.id + '\\\')\'})" class="admin-delete-btn" style="padding:4px 8px;min-height:30px;"><i class="fa-solid fa-trash"></i></button>';
+          }
+
+          h += '</div>'; // End actions
+          h += '</div>'; // End details
+          h += '</div>'; // End flex layout
+          h += '</div>'; // End sw-card
+          h += '</article>'; // End chapter article
+          h += '</div>'; // End chapter-card
+        });
+
+        h += '</div>'; // End branch-group
+      }
+    }); // End roots forEach
+  } // End else
+
+  h += '</div>'; // End grid
+  h += '</div>'; // End max-width container
+  h += '</div>'; // End dot-grid
+
+  // Update DOM
+  document.getElementById('feed-content').innerHTML = h;
+}
+function initMap(){
+  var c = document.getElementById('map-content');
+  
+  // MOBILE-OPTIMIZED LAYOUT
+  c.innerHTML = '<div id="map-container" style="width:100%;height:calc(100vh - 56px);position:relative;">' +
+    '<div id="leaflet-map" style="width:100%;height:100%;"></div>' +
+    
+    // TOP-LEFT PANEL (Compact on mobile)
+    '<div class="map-panel" style="top:10px;left:10px;right:10px;padding:12px;max-width:none;" id="map-top-panel">' +
+      '<div class="flex items-center justify-between mb-3">' +
+        '<div class="flex items-center gap-2">' +
+          '<i class="fa-solid fa-map-location-dot" style="color:var(--cyan);font-size:14px;"></i>' +
+          '<span class="font-display font-bold text-sm tracking-wider" style="color:var(--cyan)">TOY MAP</span>' +
+        '</div>' +
+        '<button id="pin-toggle" onclick="togglePinMode()" class="sw-btn sw-btn-ghost map-pin-btn" style="padding:8px 14px;font-size:11px;"><i class="fa-solid fa-map-pin"></i> <span class="pin-label">PIN</span></button>' +
+      '</div>' +
+      
+      // FILTER BUTTONS (Horizontal row)
+      '<div class="flex gap-2 mb-2">' +
+        '<button onclick="filterMap(\'all\')" class="mfb sw-btn sw-btn-outline flex-1 justify-center" data-filter="all" style="padding:6px 8px;font-size:9px">ALL</button>' +
+        '<button onclick="filterMap(\'Spot\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Spot" style="padding:6px 8px;font-size:9px">SPOTS</button>' +
+        '<button onclick="filterMap(\'Store\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Store" style="padding:6px 8px;font-size:9px">STORES</button>' +
+      '</div>' +
+      
+      // COUNT LABEL
+      '<div class="sys-label" id="loc-count"><span class="sys-dot amber"></span> LOADING...</div>' +
+    '</div>' +
+    
+    // BOTTOM PANEL (Locations list - collapsible on mobile)
+    '<div class="map-panel" style="bottom:70px;left:10px;right:10px;top:auto;max-height:35vh;overflow-y:auto;padding:12px;" id="loc-list-panel">' +
+      '<div class="flex items-center justify-between mb-2">' +
+        '<h3 class="font-display font-bold text-xs tracking-wider" style="color:var(--amber)"><i class="fa-solid fa-location-dot mr-1"></i> NEARBY LOCATIONS</h3>' +
+        '<button onclick="toggleLocList()" class="sw-btn sw-btn-ghost" style="padding:4px 8px;font-size:9px;"><i class="fa-solid fa-chevron-down" id="loc-toggle-icon"></i></button>' +
+      '</div>' +
+      '<div id="loc-list"></div>' +
+    '</div>' +
+    
+    // LOCATION DETAIL POPUP (for mobile)
+    '<div id="loc-detail-popup" class="map-panel" style="bottom:120px;left:10px;right:10px;display:none;padding:12px;"></div>' +
+    
+    '</div>';
+
+  // Initialize map
+  mapInstance = L.map('leaflet-map', { zoomControl: false }).setView([userLocation.lat, userLocation.lng], 13);
+  L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: 'CartoDB', maxZoom: 19
+  }).addTo(mapInstance);
+
+  // Click handler for pin mode
+  mapInstance.on('click', function(e) {
+    if (isPinning) {
+      pendingPinCoords = { lat: e.latlng.lat, lng: e.latlng.lng };
+      openModal('add-location');
+    }
+  });
+
+  renderMapMarkers('all');
+  renderLocList();
 }
 
-function initMap(){
-  var c=document.getElementById('map-content');
-  c.innerHTML='<div id="map-container"><div id="leaflet-map" style="width:100%;height:100%;"></div>'+
-    '<div class="map-panel" style="top:12px;left:12px;padding:16px;min-width:200px;">'+
-    '<div class="flex items-center gap-3 mb-3"><i class="fa-solid fa-map-location-dot" style="color:var(--cyan);font-size:16px;"></i><span class="font-display font-bold text-base tracking-wider" style="color:var(--cyan)">TOY MAP</span></div>'+
-    '<button id="pin-toggle" onclick="togglePinMode()" class="sw-btn sw-btn-ghost map-pin-btn w-full justify-center mb-3" style="font-size:12px;padding:10px;"><i class="fa-solid fa-map-pin"></i> PIN MODE</button>'+
-    '<div class="flex gap-2 mb-3"><button onclick="filterMap(\'all\')" class="mfb sw-btn sw-btn-outline flex-1 justify-center" data-filter="all" style="padding:6px 8px;font-size:9px">ALL</button><button onclick="filterMap(\'Spot\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Spot" style="padding:6px 8px;font-size:9px">SPOTS</button><button onclick="filterMap(\'Store\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Store" style="padding:6px 8px;font-size:9px">STORES</button></div>'+
-    '<div class="sys-label mb-2">'+DB.locations.length+' PINNED</div></div>'+
-    '<div class="map-panel" style="top:12px;right:12px;width:280px;max-height:calc(100vh - 140px);overflow-y:auto;padding:16px;" id="loc-list-panel"><h3 class="font-display font-bold text-sm tracking-wider mb-3" style="color:var(--amber)">LOCATIONS</h3><div id="loc-list"></div></div></div></div>';
-  mapInstance=L.map('leaflet-map',{zoomControl:false}).setView([userLocation.lat,userLocation.lng],12);L.control.zoom({position:'bottomright'}).addTo(mapInstance);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'CartoDB',maxZoom:19}).addTo(mapInstance);
-  mapInstance.on('click',function(e){if(isPinning){pendingPinCoords={lat:e.latlng.lat,lng:e.latlng.lng};openModal('add-location');}});
-  renderMapMarkers('all');renderLocList();
+// Toggle location list visibility (mobile helper)
+function toggleLocList() {
+  var panel = document.getElementById('loc-list-panel');
+  var icon = document.getElementById('loc-toggle-icon');
+  if (panel && icon) {
+    panel.style.maxHeight = panel.style.maxHeight === '0px' ? '35vh' : '0px';
+    icon.className = panel.style.maxHeight === '0px' ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
+  }
 }
 function renderMapMarkers(filter) {
   if (!mapInstance) return;
-  mapMarkers.forEach(function(m) { mapInstance.removeLayer(m); });
+  
+  // Clear existing markers
+  mapMarkers.forEach(function(m) { 
+    mapInstance.removeLayer(m); 
+  });
   mapMarkers = [];
 
-  var locs = filter === 'all' ? DB.locations : DB.locations.filter(function(l) { return l.type === filter; });
+  // Filter by type if needed
+  var locs = filter === 'all' ? DB.locations : DB.locations.filter(function(l) { 
+    return l.type === filter; 
+  });
 
-  // Calculate distances and sort by proximity
+  // Calculate distances from user's location and sort by proximity
   var locsWithDistance = locs.map(function(loc) {
     return Object.assign({}, loc, {
       distance: getDistance(userLocation.lat, userLocation.lng, loc.lat, loc.lng)
     });
   });
 
-  locsWithDistance.sort(function(a, b) { return a.distance - b.distance; });
+  // Sort by distance (closest first)
+  locsWithDistance.sort(function(a, b) { 
+    return a.distance - b.distance; 
+  });
 
-  // Show pins within 500km, or all if none nearby
-  var nearbyLocs = locsWithDistance.filter(function(loc) { return loc.distance <= 500; });
-  var displayLocs = nearbyLocs.length > 0 ? nearbyLocs : locsWithDistance;
+  // FILTER: Only show pins within 10 miles (~16km) radius
+  var nearbyLocs = locsWithDistance.filter(function(loc) { 
+    return loc.distance <= 16; 
+  });
 
+  // If no nearby locations, show closest 5 as fallback
+  var displayLocs = nearbyLocs.length > 0 ? nearbyLocs : locsWithDistance.slice(0, 5);
+
+  // Create markers for each location
   displayLocs.forEach(function(loc) {
     var isSpot = loc.type === 'Spot';
+    
+    // Format distance display
     var distKm = Math.round(loc.distance * 10) / 10;
-    var distLabel = distKm < 1 ? (Math.round(distKm * 1000) + 'm') : (distKm + 'km');
+    var distLabel = distKm < 1 ? (Math.round(distKm * 1000) + 'm away') : (distKm + 'km away');
+    var distMiles = (loc.distance * 0.621371).toFixed(1);
+    var distLabelFull = distKm < 1 ? (Math.round(distKm * 1000) + 'm') : (distKm + 'km (' + distMiles + 'mi)');
 
+    // Create custom marker icon
     var icon = L.divIcon({
       className: '',
       html: '<div class="custom-marker ' + (isSpot ? 'spot' : 'store') + '">' +
            '<i class="fa-solid ' + (isSpot ? 'fa-camera' : 'fa-store') + '"></i></div>',
-      iconSize: [32, 32], iconAnchor: [16, 16]
+      iconSize: [32, 32], 
+      iconAnchor: [16, 16]
     });
 
+    // Add marker to map
     var marker = L.marker([loc.lat, loc.lng], { icon: icon }).addTo(mapInstance);
 
+    // Popup content with distance info
     marker.bindPopup(
-      '<div style="font-family:Rajdhani,sans-serif;font-weight:600;font-size:14px;margin-bottom:4px;">' + loc.name + '</div>' +
+      '<div style="font-family:Rajdhani,sans-serif;font-weight:600;font-size:14px;margin-bottom:4px;">' + escapeHTML(loc.name) + '</div>' +
       '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:#8899B4;margin-bottom:6px;">' +
-        loc.type.toUpperCase() + ' &nbsp;&bull;&nbsp; ' + distLabel + ' away</div>' +
-      (loc.img ? '<img src="' + loc.img + '" style="width:180px;height:100px;object-fit:cover;border-radius:2px;margin-bottom:6px;">' : '') +
-      '<div style="font-size:11px;color:#E8ECF4;max-width:200px;line-height:1.4;">' + (loc.description || '') + '</div>' +
+        '<span style="color:' + (isSpot ? 'var(--cyan)' : 'var(--amber)') + ';">●</span> ' +
+        loc.type.toUpperCase() + 
+        ' &nbsp;&bull;&nbsp; ' + 
+        '<strong style="color:var(--txt);">' + distLabelFull + '</strong>' +
+        (loc.distance > 16 ? ' <span style="color:var(--red);">(outside range)</span>' : '') +
+        '</div>' +
+      (loc.img ? '<img src="' + loc.img + '" style="width:180px;height:100px;object-fit:cover;border-radius:2px;margin-bottom:6px;" onerror="this.style.display=\'none\'">' : '') +
+      '<div style="font-size:11px;color:#E8ECF4;max-width:200px;line-height:1.4;">' + escapeHTML(loc.description || '') + '</div>' +
       '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
-      '<span class="sys-label" style="color:var(--cyan);">BY: ' + (loc.author || 'Unknown') + '</span>' +
-      (currentUser.isAdmin ?
-        '<button onclick="openModal(\'confirm-delete\',{message:\'Delete ' + (loc.name || 'location') + '?\',onConfirm:\'deleteLocation(\\\'' + loc.id + '\\\')\'})" class="admin-delete-btn" style="padding:5px 10px;"><i class="fa-solid fa-trash"></i> DELETE</button>'
-      : '') +
-      '</div>'
+        '<span class="sys-label" style="color:var(--cyan);">BY: ' + escapeHTML(loc.author || 'Unknown') + '</span>' +
+        (currentUser.isAdmin ?
+          '<button onclick="openModal(\'confirm-delete\',{message:\'Delete ' + escapeHTML(loc.name || 'location') + '?\',onConfirm:\'deleteLocation(\\\'' + loc.id + '\\\')\'})" class="admin-delete-btn" style="padding:5px 10px;"><i class="fa-solid fa-trash"></i> DELETE</button>'
+          : '') +
+        '</div>'
     );
 
     mapMarkers.push(marker);
   });
 
-  // Update count label
-  var countEl = document.querySelector('.sys-label');
-  if (countEl && countEl.textContent.indexOf('PINNED') !== -1) {
-    countEl.innerHTML = '<span class="sys-dot amber"></span> ' + displayLocs.length + ' NEARBY';
+  // Update count label with distance info
+  var countEl = document.getElementById('loc-count');
+  if (countEl) {
+    if (displayLocs.length > 0) {
+      countEl.innerHTML = '<span class="sys-dot cyan"></span> ' + displayLocs.length + ' NEARBY' + 
+        ' <span style="color:var(--txt3);font-size:8px;">(within 10 mi)</span>';
+    } else {
+      countEl.innerHTML = '<span class="sys-dot amber"></span> NO LOCATIONS NEARBY';
+    }
   }
-}
-
-// Haversine formula for distance between two coordinates
-function getDistance(lat1, lon1, lat2, lon2) {
-  var R = 6371; // Earth radius in km
-  var dLat = (lat2 - lat1) * Math.PI / 180;
-  var dLon = (lon2 - lon1) * Math.PI / 180;
-  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-          Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 function renderLocList(){
   var list=document.getElementById('loc-list');if(!list)return;var h='';
@@ -1523,25 +1800,127 @@ function renderBTS(){
 /* ============================================================
    BTS HOLD-TO-REVEAL LISTENER SYSTEM
    ============================================================ */
+/* ============================================================
+   BTS HOLD-TO-REVEAL LISTENER SYSTEM (FIXED - NO ACCIDENTAL LIGHTBOX)
+   ============================================================ */
 function attachBTSListeners(){
-  var cards=document.querySelectorAll('.bts-card');
-  for(var i=0;i<cards.length;i++){
+  var cards = document.querySelectorAll('.bts-card');
+  for(var i = 0; i < cards.length; i++){
     (function(card){
-      var holdTimer=null,isHolding=false,holdThreshold=180;
-      var hasBTS=card.getAttribute('data-bts-src')&&card.getAttribute('data-bts-src').length>0;
-      var btsImg=card.querySelector('.bts-bts-img'),indicator=card.querySelector('.bts-indicator'),labelReveal=card.querySelector('.bts-label-reveal');
-      if(!hasBTS||!btsImg){card.addEventListener('click',function(e){e.stopPropagation();var src=card.getAttribute('data-final-src');if(src)openLightbox(src);});return;}
-      card.addEventListener('contextmenu',function(e){e.preventDefault();return false;});
-      function startHold(e){if(e.type==='mousedown'&&e.button!==0)return;isHolding=false;clearTimeout(holdTimer);holdTimer=setTimeout(function(){isHolding=true;card.classList.add('revealing');if(btsImg)btsImg.style.opacity='1';if(indicator)indicator.style.opacity='0';if(labelReveal)labelReveal.style.opacity='1';if(navigator.vibrate){navigator.vibrate(30);}},holdThreshold);}
-      function endHold(e){clearTimeout(holdTimer);if(isHolding){card.classList.remove('revealing');if(btsImg)btsImg.style.opacity='0';if(indicator)indicator.style.opacity='1';if(labelReveal)labelReveal.style.opacity='0';isHolding=false;}}
-      function cancelHold(){clearTimeout(holdTimer);if(isHolding){card.classList.remove('revealing');if(btsImg)btsImg.style.opacity='0';if(indicator)indicator.style.opacity='1';if(labelReveal)labelReveal.style.opacity='0';isHolding=false;}}
-      function handleTap(e){if(isHolding){e.stopPropagation();e.preventDefault();return;}e.stopPropagation();var src=card.getAttribute('data-final-src');if(src)openLightbox(src);}
-      card.addEventListener('mousedown',startHold);card.addEventListener('mouseup',function(e){endHold(e);setTimeout(function(){handleTap(e);},50);});card.addEventListener('mouseleave',cancelHold);
-      card.addEventListener('touchstart',startHold,{passive:true});card.addEventListener('touchend',function(e){endHold(e);setTimeout(function(){handleTap(e);},50);});card.addEventListener('touchcancel',cancelHold);card.addEventListener('touchmove',cancelHold,{passive:true});
+      var holdTimer = null;
+      var isHolding = false;
+      var justFinishedHold = false;  // NEW FLAG!
+      var holdThreshold = 180;
+      
+      var hasBTS = card.getAttribute('data-bts-src') && card.getAttribute('data-bts-src').length > 0;
+      var btsImg = card.querySelector('.bts-bts-img');
+      var indicator = card.querySelector('.bts-indicator');
+      var labelReveal = card.querySelector('.bts-label-reveal');
+      
+      if(!hasBTS || !btsImg){
+        // No BTS image - just open lightbox on click
+        card.addEventListener('click', function(e){
+          e.stopPropagation();
+          var src = card.getAttribute('data-final-src');
+          if(src) openLightbox(src);
+        });
+        return;
+      }
+
+      card.addEventListener('contextmenu', function(e){ 
+        e.preventDefault(); 
+        return false; 
+      });
+
+      function startHold(e){
+        if(e.type === 'mousedown' && e.button !== 0) return;
+        
+        isHolding = false;
+        justFinishedHold = false;  // Reset flag
+        clearTimeout(holdTimer);
+        
+        holdTimer = setTimeout(function(){
+          isHolding = true;
+          card.classList.add('revealing');
+          if(btsImg) btsImg.style.opacity = '1';
+          if(indicator) indicator.style.opacity = '0';
+          if(labelReveal) labelReveal.style.opacity = '1';
+          
+          if(navigator.vibrate){
+            navigator.vibrate(30);
+          }
+        }, holdThreshold);
+      }
+
+      function endHold(e){
+        clearTimeout(holdTimer);
+        
+        if(isHolding){
+          isHolding = false;
+          justFinishedHold = true;  // SET FLAG - we just held!
+          
+          card.classList.remove('revealing');
+          if(btsImg) btsImg.style.opacity = '0';
+          if(indicator) indicator.style.opacity = '1';
+          if(labelReveal) labelReveal.style.opacity = '0';
+          
+          // Clear flag after short delay (so tap doesn't trigger)
+          setTimeout(function(){ 
+            justFinishedHold = false; 
+          }, 300);  // 300ms window where taps are ignored
+        }
+      }
+
+      function cancelHold(){
+        clearTimeout(holdTimer);
+        if(isHolding){
+          isHolding = false;
+          card.classList.remove('revealing');
+          if(btsImg) btsImg.style.opacity = '0';
+          if(indicator) indicator.style.opacity = '1';
+          if(labelReveal) labelReveal.style.opacity = '0';
+        }
+      }
+
+      function handleTap(e){
+        // NEW: Don't open lightbox if we just finished holding!
+        if(justFinishedHold){
+          e.stopPropagation();
+          e.preventDefault();
+          return;
+        }
+        
+        if(isHolding){
+          e.stopPropagation();
+          e.preventDefault();
+          return;
+        }
+        
+        e.stopPropagation();
+        var src = card.getAttribute('data-final-src');
+        if(src) openLightbox(src);
+      }
+
+      // Mouse events
+      card.addEventListener('mousedown', startHold);
+      card.addEventListener('mouseup', function(e){
+        endHold(e);
+        setTimeout(function(){ handleTap(e); }, 50);
+      });
+      card.addEventListener('mouseleave', cancelHold);
+
+      // Touch events
+      card.addEventListener('touchstart', startHold, { passive: true });
+      card.addEventListener('touchend', function(e){
+        endHold(e);
+        setTimeout(function(){ handleTap(e); }, 50);
+      });
+      card.addEventListener('touchcancel', cancelHold);
+      card.addEventListener('touchmove', cancelHold, { passive: true });
+
     })(cards[i]);
   }
 }
-
 // ==================== MESSAGE RENDERING ====================
 function renderMessages(){
   activeConvoId = null;
