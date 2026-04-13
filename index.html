@@ -1526,7 +1526,7 @@ function initMap(){
   c.innerHTML = '<div id="map-container" style="width:100%;height:' + (isMobile ? 'calc(100vh - 56px)' : 'calc(100vh - 72px)') + ';position:relative;">' +
     '<div id="leaflet-map" style="width:100%;height:100%;"></div>' +
     
-    // TOP CONTROL PANEL (Compact on desktop)
+    // TOP LEFT: Control Panel
     '<div class="map-panel" style="top:' + (isMobile ? '10px' : '12px') + ';left:' + (isMobile ? '10px' : '12px') + ';' + (isMobile ? 'right:10px;max-width:none;' : 'width:380px;') + 'padding:' + (isMobile ? '10px' : '12px') + ';z-index:800;">' +
       '<div class="flex items-center justify-between mb-2 flex-wrap gap-2">' +
         '<div class="flex items-center gap-2">' +
@@ -1535,20 +1535,16 @@ function initMap(){
         '</div>' +
         '<button id="pin-toggle" onclick="togglePinMode()" class="sw-btn sw-btn-ghost map-pin-btn" style="padding:' + (isMobile ? '6px 12px' : '8px 16px') + ';font-size:' + (isMobile ? '10px' : '11px') + ';min-height:' + (isMobile ? '32px' : '36px') + ';"><i class="fa-solid fa-map-pin"></i> <span class="pin-label">PIN</span></button>' +
       '</div>' +
-      
-      // FILTER BUTTONS (Compact row)
-      '<div class="flex gap-2">' +
+      '<div class="flex gap-2 mb-2">' +
         '<button onclick="filterMap(\'all\')" class="mfb sw-btn sw-btn-outline flex-1 justify-center" data-filter="all" style="padding:' + (isMobile ? '5px 6px' : '6px 10px') + ';font-size:' + (isMobile ? '8px' : '9px') + '">ALL</button>' +
         '<button onclick="filterMap(\'Spot\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Spot" style="padding:' + (isMobile ? '5px 6px' : '6px 10px') + ';font-size:' + (isMobile ? '8px' : '9px') + '">SPOTS</button>' +
         '<button onclick="filterMap(\'Store\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Store" style="padding:' + (isMobile ? '5px 6px' : '6px 10px') + ';font-size:' + (isMobile ? '8px' : '9px') + '">STORES</button>' +
       '</div>' +
-      
-      // COUNT
-      '<div class="sys-label mt-1" id="loc-count"><span class="sys-dot amber"></span> LOADING...</div>' +
+      '<div class="sys-label" id="loc-count"><span class="sys-dot amber"></span> LOADING...</div>' +
     '</div>' +
     
-    // BOTTOM LOCATION LIST (Collapsible, smaller on desktop)
-    '<div class="map-panel" style="bottom:' + (isMobile ? '70px' : '20px') + ';left:' + (isMobile ? '10px' : '12px') + ';right:' + (isMobile ? '10px' : '12px') + ';top:auto;max-width:' + (isMobile ? 'none' : '400px') + ';max-height:' + (isMobile ? '30vh' : '25vh') + ';overflow-y:auto;padding:' + (isMobile ? '10px' : '12px') + ';z-index:800;" id="loc-list-panel">' +
+    // TOP RIGHT: Location List Panel ← MOVED HERE!
+    '<div class="map-panel" style="top:' + (isMobile ? '10px' : '12px') + ';right:' + (isMobile ? '10px' : '12px') + ';left:auto;bottom:auto;width:' + (isMobile ? 'auto' : '320px') + ';max-width:' + (isMobile ? 'none' : '320px') + ';max-height:' + (isMobile ? '30vh' : 'calc(100vh - 120px)') + ';overflow-y:auto;padding:' + (isMobile ? '10px' : '12px') + ';z-index:800;" id="loc-list-panel">' +
       '<div class="flex items-center justify-between mb-2">' +
         '<h3 class="font-display font-bold text-xs tracking-wider" style="color:var(--amber)"><i class="fa-solid fa-location-dot mr-1"></i> NEARBY <span style="color:var(--txt3);font-size:9px;">(≤10 mi)</span></h3>' +
         '<button onclick="toggleLocList()" class="sw-btn sw-btn-ghost" style="padding:4px 8px;font-size:9px;"><i class="fa-solid fa-chevron-down" id="loc-toggle-icon"></i></button>' +
@@ -1574,7 +1570,6 @@ function initMap(){
       }
     });
 
-    // Render markers and list
     renderMapMarkers('all');
     renderLocList();
     
@@ -1584,8 +1579,6 @@ function initMap(){
     console.error('❌ Map initialization error:', err);
   }
 }
-
-// Toggle location list visibility (mobile helper)
 function toggleLocList() {
   var panel = document.getElementById('loc-list-panel');
   var icon = document.getElementById('loc-toggle-icon');
