@@ -1601,33 +1601,42 @@ function getDistance(lat1, lng1, lat2, lng2) {
 function renderMapMarkers(filter) {
   if (!mapInstance) return;
   
+  // Clear existing markers
   mapMarkers.forEach(function(m) { mapInstance.removeLayer(m); });
   mapMarkers = [];
 
+  // Filter by type
   var locs = filter === 'all' ? DB.locations : DB.locations.filter(function(l) { return l.type === filter; });
 
+  // Calculate distances
   var locsWithDistance = locs.map(function(loc) {
     return Object.assign({}, loc, {
       distance: getDistance(userLocation.lat, userLocation.lng, loc.lat, loc.lng)
     });
   });
 
+  // Sort by distance (closest first)
   locsWithDistance.sort(function(a, b) { return a.distance - b.distance; });
 
-  // Filter to within 10 miles (16km)
-  var nearbyLocs = locsWithDistance.filter(function(loc) { return loc.distance <= 16; });
+  // 🔥 NEW: Only show locations within 10 miles (16km) - NO FALLBACK!
+  var MAX_DISTANCE_KM = 16; // 10 miles
+  var displayLocs = locsWithDistance.filter(function(loc) { 
+    return loc.distance <= MAX_DISTANCE_KM; 
+  });
 
-  // Fallback: show closest 3 if nothing nearby
-  var displayLocs = nearbyLocs.length > 0 ? nearbyLocs : locsWithDistance.slice(0, 3);
+  // Count how many are nearby vs total
+  var nearbyCount = displayLocs.length;
+  var totalCount = locsWithDistance.length;
 
+  // Only render markers for nearby locations
   displayLocs.forEach(function(loc) {
     var isSpot = loc.type === 'Spot';
     var distKm = Math.round(loc.distance * 10) / 10;
     var distMiles = (loc.distance * 0.621371).toFixed(1);
     var distLabel = distKm < 1 ? (Math.round(distKm * 1000) + 'm') : (distKm + 'km');
     var distFull = distLabel + ' (' + distMiles + ' mi)';
-    var isFar = loc.distance > 16;
 
+    // Custom marker icon
     var icon = L.divIcon({
       className: '',
       html: '<div class="custom-marker ' + (isSpot ? 'spot' : 'store') + '">' +
@@ -1641,8 +1650,7 @@ function renderMapMarkers(filter) {
       '<div style="font-family:Rajdhani,sans-serif;font-weight:600;font-size:14px;margin-bottom:4px;">' + escapeHTML(loc.name) + '</div>' +
       '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:#8899B4;margin-bottom:6px;">' +
         '<span style="color:' + (isSpot ? 'var(--cyan)' : 'var(--amber)') + ';">●</span> ' + loc.type.toUpperCase() +
-        ' &nbsp;&bull;&nbsp; <strong style="color:' + (isFar ? 'var(--red)' : 'var(--txt)') + ';">' + distFull + '</strong>' +
-        (isFar ? ' <span style="color:var(--red);">(far)</span>' : '') +
+        ' &nbsp;&bull;&nbsp; <strong style="color:var(--txt);">' + distFull + '</strong>' +
         '</div>' +
       (loc.img ? '<img src="' + loc.img + '" style="width:180px;height:100px;object-fit:cover;border-radius:2px;margin-bottom:6px;" onerror="this.style.display=\'none\'">' : '') +
       '<div style="font-size:11px;color:#E8ECF4;max-width:200px;line-height:1.4;">' + escapeHTML(loc.description || '') + '</div>' +
@@ -1657,14 +1665,20 @@ function renderMapMarkers(filter) {
     mapMarkers.push(marker);
   });
 
+  // Update count label with smart status
   var countEl = document.getElementById('loc-count');
   if (countEl) {
-    var nearbyCount = locsWithDistance.filter(function(l){ return l.distance <= 16; }).length;
-    if (displayLocs.length > 0) {
-      countEl.innerHTML = '<span class="sys-dot ' + (nearbyCount > 0 ? 'cyan' : 'amber') + '"></span> ' + displayLocs.length + ' SHOWN' + 
-        (nearbyCount > 0 ? ' <span style="color:var(--green);font-size:8px;">(' + nearbyCount + ' nearby)</span>' : ' <span style="color:var(--amber);font-size:8px;">(none nearby)</span>');
+    if (nearbyCount > 0) {
+      countEl.innerHTML = '<span class="sys-dot cyan"></span> ' + nearbyCount + ' NEARBY' + 
+        ' <span style="color:var(--green);font-size:8px;">(≤10 mi)</span>';
+    } else if (totalCount > 0) {
+      // Has locations but none nearby
+      countEl.innerHTML = '<span class="sys-dot amber"></span> NONE NEARBY' + 
+        ' <span style="color:var(--txt3);font-size:8px;">(' + totalCount + ' far away)</span>';
     } else {
-      countEl.innerHTML = '<span class="sys-dot amber"></span> NO LOCATIONS';
+      // No locations at all
+      countEl.innerHTML = '<span class="sys-dot amber"></span> NO PINS YET' + 
+        ' <span style="color:var(--cyan);font-size:8px;">(tap PIN!)</span>';
     }
   }
 }
@@ -1762,24 +1776,35 @@ function renderMapMarkers(filter) {
 function renderLocList(){
   var list=document.getElementById('loc-list');if(!list)return;var h='';
   
-  // FILTER: Get only locations within 10 miles (16km), sorted by distance
+  var MAX_DISTANCE_KM = 16; // 10 miles
+  
+  // Calculate distances and sort
   var locsWithDist = DB.locations.map(function(loc){
     return Object.assign({}, loc, {
       distance: getDistance(userLocation.lat, userLocation.lng, loc.lat, loc.lng)
     });
   });
   
-  // Sort by distance (closest first)
   locsWithDist.sort(function(a,b){ return a.distance - b.distance; });
   
-  // Filter to within 10 miles (16km)
-  var nearbyLocs = locsWithDist.filter(function(loc){ return loc.distance <= 16; });
-  
-  // Show nearby, or fallback to closest 3 if none nearby
-  var displayLocs = nearbyLocs.length > 0 ? nearbyLocs : locsWithDist.slice(0, 3);
+  // ONLY show nearby locations (no fallback!)
+  var displayLocs = locsWithDist.filter(function(loc){ return loc.distance <= MAX_DISTANCE_KM; });
   
   if(displayLocs.length===0){
-    h+='<div style="text-align:center;padding:16px;color:var(--txt3);"><p class="sys-label">NO LOCATIONS</p><p style="font-size:10px;margin-top:4px;">Click PIN to add one!</p></div>';
+    // Check if we have ANY locations at all
+    if(DB.locations.length === 0){
+      h+='<div style="text-align:center;padding:20px 16px;color:var(--txt3);">'+
+        '<i class="fa-solid fa-map-pin" style="font-size:24px;margin-bottom:8px;display:block;color:var(--border);"></i>'+
+        '<p class="sys-label mb-1">NO LOCATIONS</p>'+
+        '<p style="font-size:10px;">Click <strong style="color:var(--cyan)">PIN</strong> to add one!</p></div>';
+    }else{
+      // Have locations but all far away
+      h+='<div style="text-align:center;padding:20px 16px;color:var(--txt3);">'+
+        '<i class="fa-solid fa-location-crosshairs" style="font-size:24px;margin-bottom:8px;display:block;color:var(--amber);"></i>'+
+        '<p class="sys-label mb-1">NONE NEARBY</p>'+
+        '<p style="font-size:10px;">Closest pin is '+Math.round(locsWithDist[0].distance)+'km away</p>'+
+        '<p style="font-size:9px;color:var(--txt3);margin-top:4px;">Add a spot near you!</p></div>';
+    }
   }else{
     displayLocs.forEach(function(loc){
       var isSpot=loc.type==='Spot';
@@ -1796,7 +1821,7 @@ function renderLocList(){
             '<span class="font-display font-semibold text-sm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+loc.name+'</span>'+
           '</div>'+
           '<p class="text-xs" style="color:var(--txt2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(loc.description||'No description')+'</p>'+
-          '<p class="text-xs mt-1" style="color:'+(loc.distance>16?'var(--red)':'var(--txt3)')+';">📍 '+distLabel+' ('+distMiles+' mi)'+(loc.distance>16?' ⚠️ Far':'')+'</p>'+
+          '<p class="text-xs mt-1" style="color:var(--green);">📍 '+distLabel+' ('+distMiles+' mi)</p>'+
         '</div>'+
         (currentUser.isAdmin?'<button onclick="event.stopPropagation();openModal(\'confirm-delete\',{message:\'Delete?\',onConfirm:\'deleteLocation(\\\''+loc.id+'\\\')\'})" class="admin-delete-btn" style="padding:4px 8px;"><i class="fa-solid fa-trash"></i></button>':'')+
       '</div>';
