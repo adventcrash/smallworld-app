@@ -1520,35 +1520,37 @@ function renderFeed(){
 function initMap(){
   var c = document.getElementById('map-content');
   
-  // MOBILE-OPTIMIZED LAYOUT
-  c.innerHTML = '<div id="map-container" style="width:100%;height:calc(100vh - 56px);position:relative;">' +
+  // RESPONSIVE LAYOUT - Desktop vs Mobile
+  var isMobile = window.innerWidth < 768;
+  
+  c.innerHTML = '<div id="map-container" style="width:100%;height:' + (isMobile ? 'calc(100vh - 56px)' : 'calc(100vh - 72px)') + ';position:relative;">' +
     '<div id="leaflet-map" style="width:100%;height:100%;"></div>' +
     
-    // TOP PANEL
-    '<div class="map-panel" style="top:10px;left:10px;right:10px;padding:12px;max-width:none;z-index:800;">' +
-      '<div class="flex items-center justify-between mb-3 flex-wrap gap-2">' +
+    // TOP CONTROL PANEL (Compact on desktop)
+    '<div class="map-panel" style="top:' + (isMobile ? '10px' : '12px') + ';left:' + (isMobile ? '10px' : '12px') + ';' + (isMobile ? 'right:10px;max-width:none;' : 'width:380px;') + 'padding:' + (isMobile ? '10px' : '12px') + ';z-index:800;">' +
+      '<div class="flex items-center justify-between mb-2 flex-wrap gap-2">' +
         '<div class="flex items-center gap-2">' +
-          '<i class="fa-solid fa-map-location-dot" style="color:var(--cyan);font-size:16px;"></i>' +
+          '<i class="fa-solid fa-map-location-dot" style="color:var(--cyan);font-size:' + (isMobile ? '14px' : '16px') + ';"></i>' +
           '<span class="font-display font-bold text-sm tracking-wider" style="color:var(--cyan)">TOY MAP</span>' +
         '</div>' +
-        '<button id="pin-toggle" onclick="togglePinMode()" class="sw-btn sw-btn-ghost map-pin-btn" style="padding:8px 14px;font-size:11px;min-height:36px;"><i class="fa-solid fa-map-pin"></i> <span class="pin-label">PIN</span></button>' +
+        '<button id="pin-toggle" onclick="togglePinMode()" class="sw-btn sw-btn-ghost map-pin-btn" style="padding:' + (isMobile ? '6px 12px' : '8px 16px') + ';font-size:' + (isMobile ? '10px' : '11px') + ';min-height:' + (isMobile ? '32px' : '36px') + ';"><i class="fa-solid fa-map-pin"></i> <span class="pin-label">PIN</span></button>' +
       '</div>' +
       
-      // FILTERS
-      '<div class="flex gap-2 mb-2">' +
-        '<button onclick="filterMap(\'all\')" class="mfb sw-btn sw-btn-outline flex-1 justify-center" data-filter="all" style="padding:6px 8px;font-size:9px">ALL</button>' +
-        '<button onclick="filterMap(\'Spot\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Spot" style="padding:6px 8px;font-size:9px">SPOTS</button>' +
-        '<button onclick="filterMap(\'Store\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Store" style="padding:6px 8px;font-size:9px">STORES</button>' +
+      // FILTER BUTTONS (Compact row)
+      '<div class="flex gap-2">' +
+        '<button onclick="filterMap(\'all\')" class="mfb sw-btn sw-btn-outline flex-1 justify-center" data-filter="all" style="padding:' + (isMobile ? '5px 6px' : '6px 10px') + ';font-size:' + (isMobile ? '8px' : '9px') + '">ALL</button>' +
+        '<button onclick="filterMap(\'Spot\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Spot" style="padding:' + (isMobile ? '5px 6px' : '6px 10px') + ';font-size:' + (isMobile ? '8px' : '9px') + '">SPOTS</button>' +
+        '<button onclick="filterMap(\'Store\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Store" style="padding:' + (isMobile ? '5px 6px' : '6px 10px') + ';font-size:' + (isMobile ? '8px' : '9px') + '">STORES</button>' +
       '</div>' +
       
       // COUNT
-      '<div class="sys-label" id="loc-count"><span class="sys-dot amber"></span> LOADING...</div>' +
+      '<div class="sys-label mt-1" id="loc-count"><span class="sys-dot amber"></span> LOADING...</div>' +
     '</div>' +
     
-    // BOTTOM PANEL
-    '<div class="map-panel" style="bottom:70px;left:10px;right:10px;top:auto;max-height:35vh;overflow-y:auto;padding:12px;z-index:800;" id="loc-list-panel">' +
+    // BOTTOM LOCATION LIST (Collapsible, smaller on desktop)
+    '<div class="map-panel" style="bottom:' + (isMobile ? '70px' : '20px') + ';left:' + (isMobile ? '10px' : '12px') + ';right:' + (isMobile ? '10px' : '12px') + ';top:auto;max-width:' + (isMobile ? 'none' : '400px') + ';max-height:' + (isMobile ? '30vh' : '25vh') + ';overflow-y:auto;padding:' + (isMobile ? '10px' : '12px') + ';z-index:800;" id="loc-list-panel">' +
       '<div class="flex items-center justify-between mb-2">' +
-        '<h3 class="font-display font-bold text-xs tracking-wider" style="color:var(--amber)"><i class="fa-solid fa-location-dot mr-1"></i> NEARBY LOCATIONS</h3>' +
+        '<h3 class="font-display font-bold text-xs tracking-wider" style="color:var(--amber)"><i class="fa-solid fa-location-dot mr-1"></i> NEARBY <span style="color:var(--txt3);font-size:9px;">(≤10 mi)</span></h3>' +
         '<button onclick="toggleLocList()" class="sw-btn sw-btn-ghost" style="padding:4px 8px;font-size:9px;"><i class="fa-solid fa-chevron-down" id="loc-toggle-icon"></i></button>' +
       '</div>' +
       '<div id="loc-list"></div>' +
@@ -1601,6 +1603,77 @@ function getDistance(lat1, lng1, lat2, lng2) {
           Math.sin(dLng/2) * Math.sin(dLng/2);
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   return R * c;
+}
+
+function renderMapMarkers(filter) {
+  if (!mapInstance) return;
+  
+  mapMarkers.forEach(function(m) { mapInstance.removeLayer(m); });
+  mapMarkers = [];
+
+  var locs = filter === 'all' ? DB.locations : DB.locations.filter(function(l) { return l.type === filter; });
+
+  var locsWithDistance = locs.map(function(loc) {
+    return Object.assign({}, loc, {
+      distance: getDistance(userLocation.lat, userLocation.lng, loc.lat, loc.lng)
+    });
+  });
+
+  locsWithDistance.sort(function(a, b) { return a.distance - b.distance; });
+
+  // Filter to within 10 miles (16km)
+  var nearbyLocs = locsWithDistance.filter(function(loc) { return loc.distance <= 16; });
+
+  // Fallback: show closest 3 if nothing nearby
+  var displayLocs = nearbyLocs.length > 0 ? nearbyLocs : locsWithDistance.slice(0, 3);
+
+  displayLocs.forEach(function(loc) {
+    var isSpot = loc.type === 'Spot';
+    var distKm = Math.round(loc.distance * 10) / 10;
+    var distMiles = (loc.distance * 0.621371).toFixed(1);
+    var distLabel = distKm < 1 ? (Math.round(distKm * 1000) + 'm') : (distKm + 'km');
+    var distFull = distLabel + ' (' + distMiles + ' mi)';
+    var isFar = loc.distance > 16;
+
+    var icon = L.divIcon({
+      className: '',
+      html: '<div class="custom-marker ' + (isSpot ? 'spot' : 'store') + '">' +
+           '<i class="fa-solid ' + (isSpot ? 'fa-camera' : 'fa-store') + '"></i></div>',
+      iconSize: [32, 32], iconAnchor: [16, 16]
+    });
+
+    var marker = L.marker([loc.lat, loc.lng], { icon: icon }).addTo(mapInstance);
+
+    marker.bindPopup(
+      '<div style="font-family:Rajdhani,sans-serif;font-weight:600;font-size:14px;margin-bottom:4px;">' + escapeHTML(loc.name) + '</div>' +
+      '<div style="font-family:JetBrains Mono,monospace;font-size:9px;color:#8899B4;margin-bottom:6px;">' +
+        '<span style="color:' + (isSpot ? 'var(--cyan)' : 'var(--amber)') + ';">●</span> ' + loc.type.toUpperCase() +
+        ' &nbsp;&bull;&nbsp; <strong style="color:' + (isFar ? 'var(--red)' : 'var(--txt)') + ';">' + distFull + '</strong>' +
+        (isFar ? ' <span style="color:var(--red);">(far)</span>' : '') +
+        '</div>' +
+      (loc.img ? '<img src="' + loc.img + '" style="width:180px;height:100px;object-fit:cover;border-radius:2px;margin-bottom:6px;" onerror="this.style.display=\'none\'">' : '') +
+      '<div style="font-size:11px;color:#E8ECF4;max-width:200px;line-height:1.4;">' + escapeHTML(loc.description || '') + '</div>' +
+      '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
+        '<span class="sys-label" style="color:var(--cyan);">BY: ' + escapeHTML(loc.author || 'Unknown') + '</span>' +
+        (currentUser.isAdmin ?
+          '<button onclick="openModal(\'confirm-delete\',{message:\'Delete ' + escapeHTML(loc.name || 'location') + '?\',onConfirm:\'deleteLocation(\\\'' + loc.id + '\\\')\'})" class="admin-delete-btn" style="padding:5px 10px;"><i class="fa-solid fa-trash"></i> DELETE</button>'
+          : '') +
+        '</div>'
+    );
+
+    mapMarkers.push(marker);
+  });
+
+  var countEl = document.getElementById('loc-count');
+  if (countEl) {
+    var nearbyCount = locsWithDistance.filter(function(l){ return l.distance <= 16; }).length;
+    if (displayLocs.length > 0) {
+      countEl.innerHTML = '<span class="sys-dot ' + (nearbyCount > 0 ? 'cyan' : 'amber') + '"></span> ' + displayLocs.length + ' SHOWN' + 
+        (nearbyCount > 0 ? ' <span style="color:var(--green);font-size:8px;">(' + nearbyCount + ' nearby)</span>' : ' <span style="color:var(--amber);font-size:8px;">(none nearby)</span>');
+    } else {
+      countEl.innerHTML = '<span class="sys-dot amber"></span> NO LOCATIONS';
+    }
+  }
 }
 
 function renderMapMarkers(filter) {
@@ -1695,11 +1768,48 @@ function renderMapMarkers(filter) {
 }
 function renderLocList(){
   var list=document.getElementById('loc-list');if(!list)return;var h='';
-  if(DB.locations.length===0){h+='<div style="text-align:center;padding:16px;color:var(--txt3);"><p class="sys-label">NO LOCATIONS</p></div>';}
-  else{DB.locations.forEach(function(loc){var isSpot=loc.type==='Spot',bc=isSpot?'var(--cyan)':'var(--amber)';
-    h+='<div class="flex gap-3 mb-3 p-3 rounded cursor-pointer" style="background:var(--deep);border:1px solid var(--border);" onmouseenter="this.style.borderColor=\''+bc+'\'" onmouseleave="this.style.borderColor=\'var(--border)\'" onclick="flyToLoc('+loc.lat+','+loc.lng+')">'+
-      '<img src="'+loc.img+'" class="w-14 h-10 object-cover rounded flex-shrink-0 img-zoomable" alt="" onclick="event.stopPropagation();openLightbox(this.src)"><div style="flex:1;min-width:0;"><div class="flex items-center gap-2 mb-1"><span class="sys-dot '+(isSpot?'cyan':'amber')+'"></span><span class="font-display font-semibold text-sm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+loc.name+'</span></div><p class="text-xs" style="color:var(--txt2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+loc.description+'</p></div>'+(currentUser.isAdmin?'<button onclick="event.stopPropagation();openModal(\'confirm-delete\',{message:\'Delete?\',onConfirm:\'deleteLocation(\\\''+loc.id+'\\\')\'})" class="admin-delete-btn" style="padding:4px 8px;"><i class="fa-solid fa-trash"></i></button>':'')+'</div>';
-  });}list.innerHTML=h;
+  
+  // FILTER: Get only locations within 10 miles (16km), sorted by distance
+  var locsWithDist = DB.locations.map(function(loc){
+    return Object.assign({}, loc, {
+      distance: getDistance(userLocation.lat, userLocation.lng, loc.lat, loc.lng)
+    });
+  });
+  
+  // Sort by distance (closest first)
+  locsWithDist.sort(function(a,b){ return a.distance - b.distance; });
+  
+  // Filter to within 10 miles (16km)
+  var nearbyLocs = locsWithDist.filter(function(loc){ return loc.distance <= 16; });
+  
+  // Show nearby, or fallback to closest 3 if none nearby
+  var displayLocs = nearbyLocs.length > 0 ? nearbyLocs : locsWithDist.slice(0, 3);
+  
+  if(displayLocs.length===0){
+    h+='<div style="text-align:center;padding:16px;color:var(--txt3);"><p class="sys-label">NO LOCATIONS</p><p style="font-size:10px;margin-top:4px;">Click PIN to add one!</p></div>';
+  }else{
+    displayLocs.forEach(function(loc){
+      var isSpot=loc.type==='Spot';
+      var bc=isSpot?'var(--cyan)':'var(--amber)';
+      var distKm = Math.round(loc.distance * 10) / 10;
+      var distLabel = distKm < 1 ? (Math.round(distKm * 1000) + 'm') : (distKm + 'km');
+      var distMiles = (loc.distance * 0.621371).toFixed(1);
+      
+      h+='<div class="flex gap-3 mb-2 p-3 rounded cursor-pointer" style="background:var(--deep);border:1px solid var(--border);" onmouseenter="this.style.borderColor=\''+bc+'\'" onmouseleave="this.style.borderColor=\'var(--border)\'" onclick="flyToLoc('+loc.lat+','+loc.lng+')">'+
+        '<img src="'+(loc.img||'https://picsum.photos/seed/loc/80/60')+'" class="w-14 h-10 object-cover rounded flex-shrink-0 img-zoomable" alt="" onclick="event.stopPropagation();openLightbox(this.src)">'+
+        '<div style="flex:1;min-width:0;">'+
+          '<div class="flex items-center gap-2 mb-1">'+
+            '<span class="sys-dot '+(isSpot?'cyan':'amber')+'"></span>'+
+            '<span class="font-display font-semibold text-sm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+loc.name+'</span>'+
+          '</div>'+
+          '<p class="text-xs" style="color:var(--txt2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(loc.description||'No description')+'</p>'+
+          '<p class="text-xs mt-1" style="color:'+(loc.distance>16?'var(--red)':'var(--txt3)')+';">📍 '+distLabel+' ('+distMiles+' mi)'+(loc.distance>16?' ⚠️ Far':'')+'</p>'+
+        '</div>'+
+        (currentUser.isAdmin?'<button onclick="event.stopPropagation();openModal(\'confirm-delete\',{message:\'Delete?\',onConfirm:\'deleteLocation(\\\''+loc.id+'\\\')\'})" class="admin-delete-btn" style="padding:4px 8px;"><i class="fa-solid fa-trash"></i></button>':'')+
+      '</div>';
+    });
+  }
+  list.innerHTML=h;
 }
 function flyToLoc(lat,lng){if(mapInstance)mapInstance.flyTo([lat,lng],15,{duration:1.2});}
 function togglePinMode(){
