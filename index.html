@@ -1527,7 +1527,7 @@ function initMap(){
     '<div id="leaflet-map" style="width:100%;height:100%;"></div>' +
     
     // TOP LEFT: Control Panel
-    '<div class="map-panel" style="top:' + (isMobile ? '10px' : '12px') + ';left:' + (isMobile ? '10px' : '12px') + ';' + (isMobile ? 'right:10px;max-width:none;' : 'width:380px;') + 'padding:' + (isMobile ? '10px' : '12px') + ';z-index:800;">' +
+    '<div class="map-panel" style="top:' + (isMobile ? '10px' : '12px') + ';left:' + (isMobile ? '10px' : '12px') + ';' + (isMobile ? 'right:10px;max-width:none;width:auto;' : 'width:380px;') + 'padding:' + (isMobile ? '10px' : '12px') + ';z-index:800;">' +
       '<div class="flex items-center justify-between mb-2 flex-wrap gap-2">' +
         '<div class="flex items-center gap-2">' +
           '<i class="fa-solid fa-map-location-dot" style="color:var(--cyan);font-size:' + (isMobile ? '14px' : '16px') + ';"></i>' +
@@ -1538,13 +1538,20 @@ function initMap(){
       '<div class="flex gap-2 mb-2">' +
         '<button onclick="filterMap(\'all\')" class="mfb sw-btn sw-btn-outline flex-1 justify-center" data-filter="all" style="padding:' + (isMobile ? '5px 6px' : '6px 10px') + ';font-size:' + (isMobile ? '8px' : '9px') + '">ALL</button>' +
         '<button onclick="filterMap(\'Spot\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Spot" style="padding:' + (isMobile ? '5px 6px' : '6px 10px') + ';font-size:' + (isMobile ? '8px' : '9px') + '">SPOTS</button>' +
-        '<button onclick="filterMap(\'Store\')" class="mfb sw-btn sw-btn-ghost flex-1 justify-center" data-filter="Store" style="padding:' + (isMobile ? '5px 6px' : '6px 10px') + ';font-size:' + (isMobile ? '8px' : '9px') + '">STORES</button>' +
+        '<button onclick="filterMap(\'Store\')" class="mfb sw-btn-ghost flex-1 justify-center" data-filter="Store" style="padding:' + (isMobile ? '5px 6px' : '6px 10px') + ';font-size:' + (isMobile ? '8px' : '9px') + '">STORES</button>' +
       '</div>' +
       '<div class="sys-label" id="loc-count"><span class="sys-dot amber"></span> LOADING...</div>' +
     '</div>' +
     
-    // TOP RIGHT: Location List Panel ← MOVED HERE!
-    '<div class="map-panel" style="top:' + (isMobile ? '10px' : '12px') + ';right:' + (isMobile ? '10px' : '12px') + ';left:auto;bottom:auto;width:' + (isMobile ? 'auto' : '320px') + ';max-width:' + (isMobile ? 'none' : '320px') + ';max-height:' + (isMobile ? '30vh' : 'calc(100vh - 120px)') + ';overflow-y:auto;padding:' + (isMobile ? '10px' : '12px') + ';z-index:800;" id="loc-list-panel">' +
+    // TOP RIGHT: Location List Panel ← MOBILE FIX: Below controls on mobile!
+    '<div class="map-panel" style="' +
+      (isMobile ? 
+        'top:auto;bottom:70px;left:10px;right:10px;' +  // Mobile: bottom of screen
+        'max-width:none;max-height:25vh;' :
+        'top:12px;right:12px;left:auto;bottom:auto;' +  // Desktop: top right
+        'width:320px;max-width:320px;max-height:calc(100vh - 120px);'
+      ) +
+      'overflow-y:auto;padding:' + (isMobile ? '10px' : '12px') + ';z-index:801;" id="loc-list-panel">' +
       '<div class="flex items-center justify-between mb-2">' +
         '<h3 class="font-display font-bold text-xs tracking-wider" style="color:var(--amber)"><i class="fa-solid fa-location-dot mr-1"></i> NEARBY <span style="color:var(--txt3);font-size:9px;">(≤10 mi)</span></h3>' +
         '<button onclick="toggleLocList()" class="sw-btn sw-btn-ghost" style="padding:4px 8px;font-size:9px;"><i class="fa-solid fa-chevron-down" id="loc-toggle-icon"></i></button>' +
